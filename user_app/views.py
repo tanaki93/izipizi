@@ -37,20 +37,23 @@ def login_view(request):
                 token = Token.objects.get(user=user)
             except Token.DoesNotExist:
                 pass
-            if token is None and user.is_active:
+            if token is None:
                 token = Token.objects.create(user=user)
                 token.save()
-            return Response({
-                'token': token.key,
-                'user': {
-                    'id': user.pk,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'username': user.username,
-                    'user_type': user.user_type,
-                    # 'avatar': user.avatar,
-                }
-            }, status=status.HTTP_200_OK)
+            if user.is_active:
+                return Response({
+                    'token': token.key,
+                    'user': {
+                        'id': user.pk,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'username': user.username,
+                        'user_type': user.user_type,
+                        # 'avatar': user.avatar,
+                    }
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response(data={'data': 'Профиль не активирован'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 @api_view(['GET'])
@@ -62,17 +65,20 @@ def reauth_view(request):
             return Response(status=status.HTTP_404_NOT_FOUND, data={'data': 'Пользователь не найден'})
         else:
             token = Token.objects.get(user=user)
-            return Response({
-                'token': token.key,
-                'user': {
-                    'id': user.pk,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'username': user.username,
-                    'user_type': user.user_type,
-                    # 'avatar': user.avatar,
-                }
-            }, status=status.HTTP_200_OK)
+            if user.is_active:
+                return Response({
+                    'token': token.key,
+                    'user': {
+                        'id': user.pk,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'username': user.username,
+                        'user_type': user.user_type,
+                        # 'avatar': user.avatar,
+                    }
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response(data={'data': 'Профиль не активирован'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 @api_view(['GET'])
@@ -129,7 +135,7 @@ def auth_register(request):
     if request.method == 'POST':
         username = request.data['username']
         password = request.data['password']
-        user=None
+        user = None
         try:
             user = User.objects.get(username=username)
         except:
@@ -150,6 +156,7 @@ def auth_register(request):
         except:
             pass
         user.user_type = request.data.get('user_type', 3)
+        user.is_active = False
         user.set_password(password)
         user.save()
         until = datetime.datetime.now() + datetime.timedelta(minutes=60)
@@ -172,8 +179,8 @@ def confirm_user(request, code):
         try:
             token = ConfirmationCode.objects.get(token=code,
                                                  valid_until__gte=datetime.datetime.now())
-            token.user.profile.active = True
-            token.user.profile.save()
+            token.user.is_active=True
+            token.user.save()
             token.delete()
             return Response(status=status.HTTP_202_ACCEPTED)
         except ConfirmationCode.DoesNotExist:
