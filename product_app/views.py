@@ -13,5 +13,5 @@ from user_app.permissions import IsAdmin
 @permission_classes([AllowAny])
 def categories_list_view(request):
     if request.method == 'GET':
-        categories = Category.objects.filter(parent__isnull=True)
+        categories = Category.objects.all()
         return Response(status=status.HTTP_200_OK, data=CategorySerializer(categories, many=True).data)

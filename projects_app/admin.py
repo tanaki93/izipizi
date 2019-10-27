@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from projects_app.models import Project
+from projects_app.models import *
 
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -11,3 +11,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(Brand)
+admin.site.register(TrendYolDepartment)
+admin.site.register(TrendYolCategory)
+

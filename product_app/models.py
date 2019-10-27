@@ -3,22 +3,7 @@ from django.db import models
 # Create your models here.
 from django.utils.text import slugify
 
-from projects_app.models import Project
-
-
-class Brand(models.Model):
-    class Meta:
-        verbose_name = 'бренд'
-        verbose_name_plural = 'бренды'
-
-    name = models.CharField(max_length=100)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.name
-
+from projects_app.models import Project, Brand
 
 from unidecode import unidecode
 
@@ -28,20 +13,18 @@ class Category(models.Model):
         verbose_name = 'категорию'
         verbose_name_plural = 'категории'
 
-    parent = models.ForeignKey('self', null=True, blank=True)
+    # parent = models.ForeignKey('self', null=True, blank=True)
     name = models.CharField(max_length=100)
-    tree_count = models.IntegerField(default=0, null=True, blank=True)
-    slug = models.CharField(null=True, blank=True, max_length=100)
     product_count = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        if self.parent is not None:
-            self.tree_count = self.parent.tree_count + 1
-        self.slug = unidecode(self.name)
-        super(Category, self).save()
+    # def save(self, *args, **kwargs):
+    #     if self.parent is not None:
+    #         self.tree_count = self.parent.tree_count + 1
+    #     self.slug = unidecode(self.name)
+    #     super(Category, self).save()
 
 
 class Tag(models.Model):
