@@ -3,9 +3,38 @@ from django.db import models
 # Create your models here.
 from django.utils.text import slugify
 
-from projects_app.models import Project, Brand
-
 from unidecode import unidecode
+
+
+class Brand(models.Model):
+    class Meta:
+        verbose_name = 'бренд'
+        verbose_name_plural = 'бренды'
+
+    name = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Department(models.Model):
+    class Meta:
+        verbose_name = 'отделение'
+        verbose_name_plural = 'отделении'
+
+    code = models.CharField(max_length=100, null=True)
+    name = models.CharField(max_length=100)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(Department, self).save()
 
 
 class Category(models.Model):
@@ -14,17 +43,16 @@ class Category(models.Model):
         verbose_name_plural = 'категории'
 
     # parent = models.ForeignKey('self', null=True, blank=True)
+    code = models.CharField(max_length=100, null=True)
     name = models.CharField(max_length=100)
-    product_count = models.IntegerField(default=0)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
-    # def save(self, *args, **kwargs):
-    #     if self.parent is not None:
-    #         self.tree_count = self.parent.tree_count + 1
-    #     self.slug = unidecode(self.name)
-    #     super(Category, self).save()
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(Category, self).save()
 
 
 class Tag(models.Model):
@@ -101,6 +129,7 @@ class Product(models.Model):
     colour = models.CharField(max_length=100, blank=True, null=True)
     brand = models.ForeignKey(Brand)
     category = models.ForeignKey(Category)
+    department = models.ForeignKey(Department, null=True)
     tags = models.TextField()
     gender = models.CharField(max_length=100, default='М')
     rating = models.FloatField()
@@ -115,3 +144,33 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TrendYolDepartment(models.Model):
+    class Meta:
+        verbose_name = 'отделение (trendyol)'
+        verbose_name_plural = 'отделения (trendyol)'
+
+    name = models.CharField(max_length=100)
+    link = models.CharField(max_length=100, null=True)
+    brand = models.ForeignKey(Brand)
+    is_active = models.BooleanField(default=True)
+    department = models.ForeignKey(Department, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class TrendYolCategory(models.Model):
+    class Meta:
+        verbose_name = 'категория (trendyol)'
+        verbose_name_plural = 'категория (trendyol)'
+
+    name = models.CharField(max_length=100)
+    link = models.CharField(max_length=100, null=True)
+    department = models.ForeignKey(TrendYolDepartment, null=True)
+    is_active = models.BooleanField(default=True)
+    category = models.ForeignKey(Category, null=True)
+
+    def __str__(self):
+        return self.name

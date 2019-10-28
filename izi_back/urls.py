@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^api/v1/profile/', include('user_app.urls')),
     url(r'^api/v1/product/', include('product_app.urls')),
     url(r'^api/v1/project/', include('projects_app.urls')),
+    url(r'^api/v1/operator/', include('projects_app.operator_urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
