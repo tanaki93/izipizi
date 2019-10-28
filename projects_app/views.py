@@ -80,7 +80,9 @@ def operator_brands_item_view(request, id):
         return Response(data=BrandDetailedSerializer(brand).data, status=status.HTTP_200_OK)
     elif request.method == 'PUT':
         is_active = request.data.get('is_active', True)
+        name = request.data.get('name', '')
         brand.is_active = is_active
+        brand.name = name
         brand.save()
         return Response(status=status.HTTP_200_OK)
 
