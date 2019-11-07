@@ -11,7 +11,7 @@ from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Depa
     Link
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
-    TrendYolCategoryDetailedSerializer, CategorySerializer
+    TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer
 from user_app.permissions import IsOperator
 
 
@@ -40,7 +40,8 @@ def save_size(tr_size):
 @permission_classes([AllowAny])
 def categories_list_view(request):
     if request.method == 'GET':
-        categories = TrendYolCategory.objects.filter(is_active=True, department__brand__is_active=True, department__is_active=True, department__brand__is_trend_yol=True)
+        categories = TrendYolCategory.objects.filter(is_active=True, department__brand__is_active=True,
+                                                     department__is_active=True, department__brand__is_trend_yol=True)
         return Response(data=TrendYolCategoryDetailedSerializer(categories, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         with transaction.atomic():
@@ -56,6 +57,15 @@ def categories_list_view(request):
                         link = Link.objects.create(url=j, tr_category=category)
                         link.save()
         return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def links_trendyol_list_view(request):
+    if request.method == 'GET':
+        links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True, tr_category__department__brand__is_trend_yol=True)
+        # print(links)
+        return Response(data=LinkSerializer(links,many=True).data,status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST'])

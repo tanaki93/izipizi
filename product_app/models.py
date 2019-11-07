@@ -208,7 +208,7 @@ class TrendYolCategory(models.Model):
     link = models.CharField(max_length=100, null=True)
     department = models.ForeignKey(TrendYolDepartment, null=True)
     is_active = models.BooleanField(default=True)
-    category = models.ForeignKey(Category, null=True)
+    category = models.ForeignKey(Category, null=True, blank=True)
 
     def __str__(self):
         return self.name
