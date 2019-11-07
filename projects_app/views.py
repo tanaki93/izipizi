@@ -7,22 +7,77 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Department, Category
+from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Department, Category, TrendyolSize, Size, \
+    Link
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer
 from user_app.permissions import IsOperator
 
 
+def save_size(tr_size):
+    size = None
+    try:
+        size = Size.objects.get(trendyol_size=tr_size)
+    except:
+        pass
+    if size is None:
+        name = tr_size.name
+        name_data = name.split()
+        if name == 'TEK EBAT':
+            name = 'один размер'
+        elif len(name_data) > 1:
+            data = name_data[1]
+            if data == 'AY':
+                name = name_data[0] + ' мес.'
+            if data == 'YAŞ':
+                name = name_data[0] + ' год'
+        size = Size.objects.create(trendyol_size=tr_size, name=name)
+        size.save()
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def categories_list_view(request):
+    if request.method == 'GET':
+        categories = TrendYolCategory.objects.filter(is_active=True, department__brand__is_active=True, department__is_active=True, department__brand__is_trend_yol=True)
+        return Response(data=TrendYolCategoryDetailedSerializer(categories, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        with transaction.atomic():
+            for i in request.data:
+                category = TrendYolCategory.objects.get(id=int(i['category_id']))
+                for j in i['links']:
+                    link = None
+                    try:
+                        link = Link.objects.get(url=j, tr_category_id=category.id)
+                    except:
+                        pass
+                    if link is None:
+                        link = Link.objects.create(url=j, tr_category=category)
+                        link.save()
+        return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def brands_list_view(request):
     if request.method == 'GET':
-        brands = Brand.objects.filter(is_active=True)
+        brands = Brand.objects.filter(is_active=True, is_trend_yol=True)
         return Response(data=BrandSerializer(brands, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         for i in request.data:
             brand = Brand.objects.get(id=i['id'])
+            with transaction.atomic():
+                for size in i['sizes']:
+                    tr_size = None
+                    try:
+                        tr_size = TrendyolSize.objects.get(name=size.upper())
+                    except:
+                        pass
+                    if tr_size is None:
+                        tr_size = TrendyolSize.objects.create(name=size.upper())
+                        tr_size.save()
+                    save_size(tr_size)
             with transaction.atomic():
                 for j in i['departments']:
                     department = None
@@ -194,3 +249,6 @@ def operator_department_item_view(request, id):
         deparment.save()
     return Response(status=status.HTTP_200_OK, data=DepartmentSerializer(deparment).data)
 
+
+def categories_zara_list_view(request):
+    return None

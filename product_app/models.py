@@ -12,7 +12,9 @@ class Brand(models.Model):
         verbose_name_plural = 'бренды'
 
     name = models.CharField(max_length=100)
+    link = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
+    is_trend_yol = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -22,8 +24,8 @@ class Brand(models.Model):
 
 class Department(models.Model):
     class Meta:
-        verbose_name = 'отделение'
-        verbose_name_plural = 'отделении'
+        verbose_name = 'отделение (izishop)'
+        verbose_name_plural = 'отделения (izishop)'
 
     code = models.CharField(max_length=100, null=True)
     name = models.CharField(max_length=100)
@@ -39,8 +41,8 @@ class Department(models.Model):
 
 class Category(models.Model):
     class Meta:
-        verbose_name = 'категорию'
-        verbose_name_plural = 'категории'
+        verbose_name = 'категорию (izishop)'
+        verbose_name_plural = 'категории (izishop)'
 
     # parent = models.ForeignKey('self', null=True, blank=True)
     code = models.CharField(max_length=100, null=True)
@@ -66,10 +68,22 @@ class Tag(models.Model):
         return self.name
 
 
+class Link(models.Model):
+    class Meta:
+        verbose_name_plural = 'Ссылка'
+        verbose_name = 'Ссылки'
+
+    url = models.URLField()
+    tr_category = models.ForeignKey('TrendYolCategory', null=True, related_name='tr_categories')
+
+    def __str__(self):
+        return self.url
+
+
 class OriginalProduct(models.Model):
     class Meta:
-        verbose_name_plural = 'товары (оригинал)'
-        verbose_name = 'товар (оригинал)'
+        verbose_name_plural = 'товары (trendyol)'
+        verbose_name = 'товар (trendyol)'
 
     title = models.CharField(max_length=100)
     product_id = models.CharField(max_length=100)
@@ -86,6 +100,7 @@ class OriginalProduct(models.Model):
     rating = models.FloatField()
     status = models.IntegerField(default=1)
     delivery_info = models.CharField(max_length=100)
+    link = models.OneToOneField(Link, null=True)
     delivery_fast = models.BooleanField(default=False)
     delivery_free = models.BooleanField(default=False)
     size = models.TextField()
@@ -110,14 +125,36 @@ class Currency(models.Model):
         return self.name
 
 
-class Size(models.Model):
+class TrendyolSize(models.Model):
+    class Meta:
+        verbose_name_plural = 'Размер (trendyol)'
+        verbose_name = 'Размеры (trendyol)'
+
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        super(TrendyolSize, self).save()
+
+
+class Size(models.Model):
+    class Meta:
+        verbose_name_plural = 'Размер (izishop)'
+        verbose_name = 'Размеры (izishop)'
+
+    trendyol_size = models.OneToOneField(TrendyolSize, null=True, blank=True)
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
 
 
 class Product(models.Model):
     class Meta:
-        verbose_name_plural = 'товары'
-        verbose_name = 'товар'
+        verbose_name_plural = 'товары (izishop)'
+        verbose_name = 'товар (izishop)'
 
     title = models.CharField(max_length=100)
     product_id = models.CharField(max_length=100)
@@ -135,6 +172,7 @@ class Product(models.Model):
     rating = models.FloatField()
     status = models.IntegerField(default=1)
     size = models.TextField()
+    link = models.OneToOneField(Link, null=True)
     active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -164,7 +202,7 @@ class TrendYolDepartment(models.Model):
 class TrendYolCategory(models.Model):
     class Meta:
         verbose_name = 'категория (trendyol)'
-        verbose_name_plural = 'категория (trendyol)'
+        verbose_name_plural = 'категории (trendyol)'
 
     name = models.CharField(max_length=100)
     link = models.CharField(max_length=100, null=True)

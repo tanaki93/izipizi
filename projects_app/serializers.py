@@ -26,7 +26,7 @@ class TrendYolCategoryDetailedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrendYolCategory
-        fields = ('id', 'name', 'is_active', 'category')
+        fields = ('id', 'name', 'link', 'is_active', 'category')
 
 
 class TrendYolCategorySerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class TrendYolCategorySerializer(serializers.ModelSerializer):
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
-        fields = ('id', 'name', 'is_active')
+        fields = ('id', 'name', 'is_active', 'link')
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
