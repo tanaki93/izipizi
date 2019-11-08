@@ -125,10 +125,13 @@ def operator_brands_list_view(request):
         brands = Brand.objects.all()
         return Response(data=BrandSerializer(brands, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
+        is_active = request.data.get('is_active', True)
+        is_trend_yol = request.data.get('is_trend_yol', True)
         name = request.data.get('name', '')
+        link = request.data.get('link', '')
         if name == '':
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-        brand = Brand.objects.create(name=name, is_active=True)
+        brand = Brand.objects.create(name=name, is_active=is_active, is_trend_yol=is_trend_yol, link=link)
         brand.save()
         return Response(status=status.HTTP_200_OK, data=BrandSerializer(brand).data)
 
@@ -145,10 +148,26 @@ def operator_brands_item_view(request, id):
         return Response(data=BrandDetailedSerializer(brand).data, status=status.HTTP_200_OK)
     elif request.method == 'PUT':
         is_active = request.data.get('is_active', True)
+        is_trend_yol = request.data.get('is_trend_yol', True)
         name = request.data.get('name', '')
+        link = request.data.get('link', '')
         brand.is_active = is_active
         brand.name = name
+        brand.link = link
+        brand.is_trend_yol = is_trend_yol
         brand.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsOperator])
+def operator_brands_refresh_item_view(request, id):
+    brand = None
+    try:
+        brand = Brand.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'POST':
         return Response(status=status.HTTP_200_OK)
 
 
