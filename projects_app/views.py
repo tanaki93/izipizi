@@ -168,7 +168,8 @@ def operator_brands_refresh_item_view(request, id):
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'POST':
-        return Response(status=status.HTTP_200_OK)
+        brand.save()
+        return Response(data=BrandSerializer(brand).data, status=status.HTTP_200_OK)
 
 
 # @api_view(['GET'])
