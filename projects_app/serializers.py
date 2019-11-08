@@ -20,6 +20,7 @@ class LinkSerializer(serializers.ModelSerializer):
         model = Link
         fields = '__all__'
 
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -41,9 +42,21 @@ class TrendYolCategorySerializer(serializers.ModelSerializer):
 
 
 class BrandSerializer(serializers.ModelSerializer):
+    categories_count = serializers.SerializerMethodField()
+    departments_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Brand
-        fields = ('id', 'name', 'is_active', 'link')
+        fields = ('id', 'name', 'is_active', 'link', 'created_at', 'updated_at', 'is_trend_yol', 'categories_count',
+                  'departments_count')
+
+    def get_departments_count(self, obj):
+        departments = TrendYolDepartment.objects.filter(brand=obj).count()
+        return departments
+
+    def get_categories_count(self, obj):
+        categories = TrendYolCategory.objects.filter(department__brand=obj).count()
+        return categories
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
