@@ -242,7 +242,7 @@ def operator_categories_item_view(request, id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsOperator])
+@permission_classes([AllowAny])
 def operator_departments_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')

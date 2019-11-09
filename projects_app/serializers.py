@@ -24,7 +24,7 @@ class LinkSerializer(serializers.ModelSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'code')
+        fields = ('id', 'name',)
 
 
 class TrendYolCategoryDetailedSerializer(serializers.ModelSerializer):
@@ -62,7 +62,7 @@ class BrandSerializer(serializers.ModelSerializer):
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
-        fields = ('id', 'name', 'code')
+        fields = ('id', 'name')
 
 
 class TrendYolDepartmentDetailedSerializer(serializers.ModelSerializer):

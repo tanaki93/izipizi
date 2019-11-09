@@ -27,7 +27,6 @@ class Department(models.Model):
         verbose_name = 'отделение (izishop)'
         verbose_name_plural = 'отделения (izishop)'
 
-    # code = models.CharField(max_length=100, null=True, blank=True)
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
 
@@ -45,7 +44,6 @@ class Category(models.Model):
         verbose_name_plural = 'категории (izishop)'
 
     # parent = models.ForeignKey('self', null=True, blank=True)
-    # code = models.CharField(max_length=100, null=True)
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
 
