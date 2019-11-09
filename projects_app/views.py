@@ -63,9 +63,10 @@ def categories_list_view(request):
 @permission_classes([AllowAny])
 def links_trendyol_list_view(request):
     if request.method == 'GET':
-        links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True, tr_category__department__brand__is_trend_yol=True)
+        links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+                                    tr_category__department__brand__is_trend_yol=True)
         # print(links)
-        return Response(data=LinkSerializer(links,many=True).data,status=status.HTTP_200_OK)
+        return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST'])
@@ -201,7 +202,7 @@ def operator_departments_item_view(request, id):
         department_id = int(request.data.get('department_id', 0))
         if department_id == 0:
             depart = Department()
-            depart.code = request.data.get('code', '')
+            # depart.code = request.data.get('code', '')
             depart.name = request.data.get('name', '')
             depart.save()
         else:
@@ -230,7 +231,7 @@ def operator_categories_item_view(request, id):
         category_id = int(request.data.get('category_id', 0))
         if category_id == 0:
             depart = Category()
-            depart.code = request.data.get('code', '')
+            # depart.code = request.data.get('code', '')
             depart.name = request.data.get('name', '')
             depart.save()
         else:
@@ -240,13 +241,19 @@ def operator_categories_item_view(request, id):
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsOperator])
 def operator_departments_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
         departments = Department.objects.filter(name_lower__contains=query.lower())
         return Response(status=status.HTTP_200_OK, data=DepartmentSerializer(departments, many=True).data)
+    elif request.method == 'POST':
+        name = request.data.get('name', '')
+        category = Category()
+        category.name = name
+        category.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
