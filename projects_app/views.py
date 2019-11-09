@@ -250,19 +250,25 @@ def operator_departments_search_view(request):
         return Response(status=status.HTTP_200_OK, data=DepartmentSerializer(departments, many=True).data)
     elif request.method == 'POST':
         name = request.data.get('name', '')
-        category = Category()
+        category = Department()
         category.name = name
         category.save()
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsOperator])
 def operator_category_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
         categories = Category.objects.filter(name_lower__contains=query.lower())
         return Response(status=status.HTTP_200_OK, data=CategorySerializer(categories, many=True).data)
+    elif request.method == 'POST':
+        name = request.data.get('name', '')
+        category = Category()
+        category.name = name
+        category.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'PUT'])
