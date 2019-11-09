@@ -270,7 +270,7 @@ def operator_category_search_view(request):
 def operator_category_item_view(request, id):
     category = Category.objects.get(id=id)
     if request.method == 'PUT':
-        category.code = request.data.get('code', '')
+        # category.code = request.data.get('code', '')
         category.name = request.data.get('name', '')
         category.save()
     return Response(status=status.HTTP_200_OK, data=CategorySerializer(category).data)
@@ -281,7 +281,7 @@ def operator_category_item_view(request, id):
 def operator_department_item_view(request, id):
     deparment = Department.objects.get(id=id)
     if request.method == 'PUT':
-        deparment.code = request.data.get('code', '')
+        # deparment.code = request.data.get('code', '')
         deparment.name = request.data.get('name', '')
         deparment.save()
     return Response(status=status.HTTP_200_OK, data=DepartmentSerializer(deparment).data)
