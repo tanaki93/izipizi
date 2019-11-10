@@ -235,7 +235,7 @@ def operator_categories_item_view(request, id):
             depart.name = request.data.get('name', '')
             depart.save()
         else:
-            depart = Department.objects.get(id=category_id)
+            depart = Category.objects.get(id=category_id)
         category.category = depart
         category.save()
         return Response(status=status.HTTP_200_OK)
