@@ -1,14 +1,19 @@
+from pprint import pprint
+
+from bs4 import BeautifulSoup
 from django.db import transaction
 from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Department, Category, TrendyolSize, Size, \
-    Link
+    Link, OriginalProduct, Variant, Product
+# from projects_app.googletrans.client import Translator
+from projects_app.googletrans import Translator
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer
@@ -59,14 +64,103 @@ def categories_list_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
+def translate_text(text):
+    data = ''
+    try:
+        translator = Translator(service_urls=['translate.google.com.tr'])
+        data = u'' + translator.translate(text, dest='ru').text
+    except:
+        pass
+    return data
+
+
+def create_original_product(link, param):
+    original_product = OriginalProduct()
+    original_product.link = link
+    original_product.product_code = param['productCode']
+    original_product.title = param['name']
+    original_product.colour = param['color']
+    original_product.product_id = param['id']
+    original_product.discount_price = param['price']['discountedPrice']['value']
+    original_product.original_price = param['price']['originalPrice']['value']
+    original_product.selling_price = param['price']['sellingPrice']['value']
+    try:
+        original_product.is_rush_delivery = param['deliveryInformation']['isRushDelivery']
+    except:
+        pass
+    try:
+        original_product.delivery_date = param['deliveryInformation']['deliveryDate']
+    except:
+        pass
+    original_product.is_free_argo = param['isFreeCargo']
+    images = ''
+    for image in param['images']:
+        images += ('https://img-trendyol.mncdn.com/'+image + ' ')
+    original_product.images = images.strip()
+    promotions = ''
+    for promotion in param['promotions']:
+        promotions += (promotion['text'] + '|\n')
+    original_product.promotions = promotions
+    original_product.description = param['description']
+    original_product.save()
+    for variant in param['variants']:
+        variant_item = Variant()
+        tr_size = None
+        try:
+            tr_size = TrendyolSize.objects.get(name=variant['attributeValue'].upper())
+        except:
+            pass
+        if tr_size is None:
+            tr_size = TrendyolSize.objects.create(name=variant['attributeValue'].upper())
+            tr_size.save()
+        save_size(tr_size)
+        variant_item.tr_size = tr_size
+        variant_item.original_product = original_product
+        if variant['stock'] != 0:
+            variant_item.stock = True
+        else:
+            variant_item.stock = False
+        variant_item.save()
+    product = Product()
+    product.link = link
+    product.title = translate_text(param['name'])
+    product.colour = translate_text(param['color'])
+    ul_soup = BeautifulSoup(param['description'], 'lxml')
+    description = ''
+    for i in (ul_soup.find_all('li')):
+        description += (i.text + '| ')
+    product.description = translate_text(description)
+    product.save()
+    link.status = 1
+    link.save()
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def links_trendyol_list_view(request):
     if request.method == 'GET':
         links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
-                                    tr_category__department__brand__is_trend_yol=True)
+                                    tr_category__department__brand__is_trend_yol=True, originalproduct__isnull=True)
         # print(links)
         return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        with transaction.atomic():
+            for i in request.data:
+                link = None
+                try:
+                    link = Link.objects.get(id=int(i['id']))
+                except:
+                    pass
+                if link is None:
+                    continue
+                original_product = None
+                try:
+                    original_product = link.originalproduct
+                except:
+                    pass
+                if original_product is None:
+                    create_original_product(link, i['product'])
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST'])
@@ -120,7 +214,7 @@ def brands_list_view(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_brands_list_view(request):
     if request.method == 'GET':
         brands = Brand.objects.all()
@@ -138,7 +232,7 @@ def operator_brands_list_view(request):
 
 
 @api_view(['GET', 'PUT'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_brands_item_view(request, id):
     brand = None
     try:
@@ -161,7 +255,7 @@ def operator_brands_item_view(request, id):
 
 
 @api_view(['POST'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_brands_refresh_item_view(request, id):
     brand = None
     try:
@@ -184,7 +278,7 @@ def operator_brands_refresh_item_view(request, id):
 
 
 @api_view(['GET', 'POST', 'PUT'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_departments_item_view(request, id):
     department = None
     try:
@@ -213,7 +307,7 @@ def operator_departments_item_view(request, id):
 
 
 @api_view(['GET', 'POST', 'PUT'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_categories_item_view(request, id):
     category = None
     try:
@@ -242,7 +336,7 @@ def operator_categories_item_view(request, id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_departments_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -257,7 +351,7 @@ def operator_departments_search_view(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_category_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -272,7 +366,7 @@ def operator_category_search_view(request):
 
 
 @api_view(['GET', 'PUT'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_category_item_view(request, id):
     category = Category.objects.get(id=id)
     if request.method == 'PUT':
@@ -283,7 +377,7 @@ def operator_category_item_view(request, id):
 
 
 @api_view(['GET', 'PUT'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_department_item_view(request, id):
     deparment = Department.objects.get(id=id)
     if request.method == 'PUT':

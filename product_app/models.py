@@ -5,6 +5,18 @@ from django.utils.text import slugify
 
 from unidecode import unidecode
 
+from user_app.models import User
+OUT_PROCESS = 1
+PROCESSED = 2
+IN_PROCESS =3
+NOT_PARSED = 4
+STATUSES = (
+    (OUT_PROCESS, 'Необработан'),
+    (PROCESSED, 'Обработан'),
+    (IN_PROCESS, 'В обработке'),
+    (NOT_PARSED, 'Неспарсен'),
+)
+
 
 class Brand(models.Model):
     class Meta:
@@ -55,6 +67,20 @@ class Category(models.Model):
         super(Category, self).save()
 
 
+class Document(models.Model):
+    class Meta:
+        verbose_name = 'документ'
+        verbose_name_plural = 'документы'
+    original_products = models.ManyToManyField('OriginalProduct')
+    user = models.ForeignKey(User)
+    status = models.IntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    def __str__(self):
+        return self.updated_at.__str__()
+
+
 class Tag(models.Model):
     class Meta:
         verbose_name = 'тэг'
@@ -73,6 +99,7 @@ class Link(models.Model):
 
     url = models.URLField()
     tr_category = models.ForeignKey('TrendYolCategory', null=True, related_name='tr_categories')
+    status = models.IntegerField(default=4, choices=STATUSES)
 
     def __str__(self):
         return self.url
@@ -85,29 +112,44 @@ class OriginalProduct(models.Model):
 
     title = models.CharField(max_length=100)
     product_id = models.CharField(max_length=100)
-    variant_id = models.CharField(max_length=100, default='', blank=True)
     product_code = models.CharField(max_length=100, blank=True, null=True, default='')
-    price = models.FloatField()
-    original_price = models.FloatField()
+    discount_price = models.FloatField(null=True, blank=True)
+    selling_price = models.FloatField(null=True, blank=True)
+    original_price = models.FloatField(null=True, blank=True)
     currency = models.CharField(max_length=100, default='TL')
     colour = models.CharField(max_length=100, blank=True, null=True)
-    brand = models.CharField(max_length=100)
-    category = models.CharField(max_length=100)
-    tags = models.TextField()
-    gender = models.CharField(max_length=100, default='М')
-    rating = models.FloatField()
-    status = models.IntegerField(default=1)
-    delivery_info = models.CharField(max_length=100)
-    link = models.OneToOneField(Link, null=True)
-    delivery_fast = models.BooleanField(default=False)
-    delivery_free = models.BooleanField(default=False)
-    size = models.TextField()
+    # status = models.IntegerField(default=1)
+    link = models.OneToOneField(Link, null=True, related_name='originalproduct')
+    is_rush_delivery = models.BooleanField(default=False)
+    is_free_argo = models.BooleanField(default=False)
+    delivery_date = models.TextField(null=True, blank=True)
+    images = models.TextField(null=True, blank=True)
+    promotions = models.TextField(null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
+
+
+# class ProductImage(models.Model):
+#     url = models.CharField(max_length=100)
+#     original_product = models.ForeignKey(OriginalProduct, related_name='images')
+
+
+class Variant(models.Model):
+    class Meta:
+        verbose_name_plural = 'Варианты'
+        verbose_name = 'вариант'
+
+    tr_size = models.ForeignKey('TrendyolSize', null=True)
+    original_product = models.ForeignKey(OriginalProduct, related_name='variants')
+    stock = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.tr_size.name
 
 
 class Currency(models.Model):
@@ -155,27 +197,21 @@ class Product(models.Model):
         verbose_name = 'товар (izishop)'
 
     title = models.CharField(max_length=100)
-    product_id = models.CharField(max_length=100)
-    variant_id = models.CharField(max_length=100, default='', blank=True)
-    product_code = models.CharField(max_length=100, blank=True, null=True, default='')
-    price = models.FloatField()
-    original_price = models.FloatField()
-    currency = models.CharField(max_length=100, default='TL')
-    colour = models.CharField(max_length=100, blank=True, null=True)
-    brand = models.ForeignKey(Brand)
-    category = models.ForeignKey(Category)
-    department = models.ForeignKey(Department, null=True)
-    tags = models.TextField()
-    gender = models.CharField(max_length=100, default='М')
-    rating = models.FloatField()
-    status = models.IntegerField(default=1)
-    size = models.TextField()
+    title_lower = models.CharField(max_length=100, null=True, blank=True)
     link = models.OneToOneField(Link, null=True)
+    discount_price = models.FloatField(null=True, blank=True)
+    selling_price = models.FloatField(null=True, blank=True)
+    original_price = models.FloatField(null=True, blank=True)
+    description = models.TextField()
+    description_lower = models.TextField(null=True,blank=True)
+    colour = models.CharField(max_length=100)
     active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        self.title_lower = self.title.lower()
+        self.description_lower = self.description.lower()
         super(Product, self).save()
 
     def __str__(self):

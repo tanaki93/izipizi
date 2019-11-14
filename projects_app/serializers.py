@@ -88,3 +88,4 @@ class BrandDetailedSerializer(serializers.ModelSerializer):
     def get_departments(self, obj):
         departments = TrendYolDepartment.objects.filter(brand=obj)
         return TrendYolDepartmentDetailedSerializer(departments, many=True).data
+
