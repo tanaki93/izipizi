@@ -158,7 +158,7 @@ class Currency(models.Model):
         verbose_name = 'валюту'
 
     name = models.CharField(max_length=100)
-    code = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, default='TRY')
     rate = models.FloatField()
 
     def __str__(self):

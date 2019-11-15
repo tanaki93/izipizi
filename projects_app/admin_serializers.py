@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Link, Document
+from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Link, Document, OriginalProduct
 from user_app.serializers import UserSerializer
 
 
@@ -52,3 +52,42 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = ('id', 'updated_at', 'user', 'status')
+
+
+class DocumentDetailedSerializer(serializers.ModelSerializer):
+    # user = UserSerializer()
+    brands = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Document
+        fields = ('id', 'updated_at', 'status', 'brands')
+
+    def get_brands(self, obj):
+        products = (obj.original_products.all())
+        categories = TrendYolCategory.objects.filter(id__in=[i.link.tr_category.id for i in products])
+        departments = TrendYolDepartment.objects.filter(id__in=[i.department_id for i in categories])
+        brands = Brand.objects.filter(id__in=[i.brand.id for i in departments])
+        brand_arr = []
+        for brand in brands:
+            department_arr = []
+            for department in departments.filter(brand=brand):
+                categories_arr =[]
+                for category in categories.filter(department=department):
+                    category_data = {
+                        'category_id': category.id,
+                        'name': category.name
+                    }
+                    categories_arr.append(category_data)
+                department_data = {
+                    'department_id': department.id,
+                    'name': department.name,
+                    'categories': categories_arr
+                }
+                department_arr.append(department_data)
+            brand_data = {
+                'brand_id': brand.id,
+                'name': brand.name,
+                'departments': department_arr
+            }
+            brand_arr.append(brand_data)
+        return brand_arr

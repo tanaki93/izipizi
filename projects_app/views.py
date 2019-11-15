@@ -11,12 +11,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Department, Category, TrendyolSize, Size, \
-    Link, OriginalProduct, Variant, Product
+    Link, OriginalProduct, Variant, Product, Document
 # from projects_app.googletrans.client import Translator
+from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
 from projects_app.googletrans import Translator
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
-    TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer
+    TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer
 from user_app.permissions import IsOperator
 
 
@@ -95,7 +96,7 @@ def create_original_product(link, param):
     original_product.is_free_argo = param['isFreeCargo']
     images = ''
     for image in param['images']:
-        images += ('https://img-trendyol.mncdn.com/'+image + ' ')
+        images += ('https://img-trendyol.mncdn.com/' + image + ' ')
     original_product.images = images.strip()
     promotions = ''
     for promotion in param['promotions']:
@@ -389,3 +390,88 @@ def operator_department_item_view(request, id):
 
 def categories_zara_list_view(request):
     return None
+
+
+@api_view(['GET'])
+@permission_classes([IsOperator])
+def operator_documents_view(request):
+    if request.method == 'GET':
+        documents = Document.objects.filter(user=request.user)
+        return Response(status=status.HTTP_200_OK, data=DocumentSerializer(documents, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def operator_documents_item_view(request, id):
+    try:
+        document = Document.objects.get(id=id, user=request.user)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        return Response(status=status.HTTP_200_OK, data=DocumentDetailedSerializer(document).data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def operator_documents_products_view(request, id):
+    try:
+        document = Document.objects.get(id=id, user=request.user)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        page = 1
+        try:
+            page = int(request.GET.get('page', '1'))
+        except:
+            pass
+        products = document.original_products.all()
+        category_id = None
+        try:
+            category_id = int(request.GET.get('category_id'))
+        except:
+            pass
+        if category_id is not None:
+            products = products.filter(link__tr_category_id=category_id)
+        pages = products.count() // 10
+        if products.count() % 10 != 0:
+            pages += 1
+        data = {
+            'pages': pages,
+            'page': page,
+            'count': products.count(),
+            'objects': ProductSerializer(products[(page - 1) * 10: page * 10], many=True).data
+        }
+        return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
+def operator_documents_products_item_view(request, document_id, id):
+    try:
+        document = Document.objects.get(id=document_id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    try:
+        product = OriginalProduct.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    products = document.original_products.filter(id=product.id).first()
+    if request.method == 'GET':
+        return Response(status=status.HTTP_200_OK, data=ProductSerializer(products).data)
+    elif request.method == 'PUT':
+        product = Product.objects.get(link=products.link)
+        product.name = request.data.get('name', '')
+        product.description = request.data.get('description', '')
+        product.colour = request.data.get('colour', '')
+        product.selling_price = request.data.get('selling_price', '')
+        product.discount_price = request.data.get('discount_price', '')
+        product.original_price = request.data.get('original_price', '')
+        products.save()
+        status_data = None
+        try:
+            status_data = int(request.data.get('status',''))
+        except:
+            pass
+        product.link.status = status_data
+        product.link.save()
+        return Response(status=status.HTTP_200_OK)

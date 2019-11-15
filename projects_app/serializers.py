@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from product_app.models import Category, Department, Link
+from product_app.models import Category, Department, Link, OriginalProduct, Product
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -13,6 +13,12 @@ class TrendYolDepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrendYolDepartment
         fields = ('id', 'name')
+
+
+class IziProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = '__all__'
 
 
 class LinkSerializer(serializers.ModelSerializer):
@@ -89,3 +95,21 @@ class BrandDetailedSerializer(serializers.ModelSerializer):
         departments = TrendYolDepartment.objects.filter(brand=obj)
         return TrendYolDepartmentDetailedSerializer(departments, many=True).data
 
+
+class ProductSerializer(serializers.ModelSerializer):
+    link = LinkSerializer()
+    images = serializers.SerializerMethodField()
+    product = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OriginalProduct
+        fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
+                  'colour', 'promotions', 'created_at', 'active', 'product_id', 'link', 'is_rush_delivery', 'title',
+                  'original_price', 'updated_at', 'description', 'product']
+
+    def get_images(self, obj):
+        return obj.images.split()
+
+    def get_product(self, obj):
+        product = Product.objects.get(link=obj.link)
+        return IziProductSerializer(product).data
