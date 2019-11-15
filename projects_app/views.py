@@ -401,7 +401,7 @@ def operator_documents_view(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsOperator])
 def operator_documents_item_view(request, id):
     try:
         document = Document.objects.get(id=id, user=request.user)
@@ -412,7 +412,7 @@ def operator_documents_item_view(request, id):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsOperator])
 def operator_documents_products_view(request, id):
     try:
         document = Document.objects.get(id=id, user=request.user)
@@ -445,7 +445,7 @@ def operator_documents_products_view(request, id):
 
 
 @api_view(['GET', 'PUT'])
-@permission_classes([AllowAny])
+@permission_classes([IsOperator])
 def operator_documents_products_item_view(request, document_id, id):
     try:
         document = Document.objects.get(id=document_id)

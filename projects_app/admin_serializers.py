@@ -48,10 +48,14 @@ class BrandAdminDetailedSerializer(serializers.ModelSerializer):
 
 class DocumentSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    count = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'user', 'status')
+        fields = ('id', 'updated_at', 'user', 'status', 'count')
+
+    def get_count(self, obj):
+        return obj.original_products.all().count()
 
 
 class DocumentDetailedSerializer(serializers.ModelSerializer):
