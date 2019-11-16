@@ -1,17 +1,12 @@
-from django.db import transaction
-
-# Create your views here.
-from django.db import transaction
-# Create your views here.
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
-from product_app.models import TrendYolCategory, Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
+from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
     PROCESSED, IN_PROCESS
-# from projects_app.googletrans.client import Translator
 from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer
+from projects_app.serializers import ProductSerializer
 from user_app.models import User
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -61,6 +56,22 @@ def admin_users_list_view(request):
         else:
             users = User.objects.filter(user_type=role)
         return Response(data=UserSerializer(users, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        username = request.data['username']
+        password = request.data['password']
+        user = User.objects.create_user(username=username, email='', password=password)
+        try:
+            first_name = request.data.get('first_name', '')
+            last_name = request.data.get('last_name', '')
+            user.first_name = first_name
+            user.last_name = last_name
+        except:
+            pass
+        user.email = request.data.get('email', 't@m.ru')
+        user.phone = request.data.get('phone', '+996 700 121212')
+        user.user_type = int(request.data.get('user_type', 2))
+        user.save()
+        return Response(status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
@@ -84,3 +95,32 @@ def admin_documents_view(request):
     if request.method == 'GET':
         documents = Document.objects.all()
         return Response(status=status.HTTP_200_OK, data=DocumentSerializer(documents, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def admin_products_view(request):
+    if request.method == 'GET':
+        page = 1
+        try:
+            page = int(request.GET.get('page', '1'))
+        except:
+            pass
+        products = OriginalProduct.objects.all()
+        category_id = None
+        try:
+            category_id = int(request.GET.get('category_id'))
+        except:
+            pass
+        if category_id is not None:
+            products = products.filter(link__tr_category_id=category_id)
+        pages = products.count() // 10
+        if products.count() % 10 != 0:
+            pages += 1
+        data = {
+            'pages': pages,
+            'page': page,
+            'count': products.count(),
+            'objects': ProductSerializer(products[(page - 1) * 10: page * 10], many=True).data
+        }
+        return Response(status=status.HTTP_200_OK, data=data)
