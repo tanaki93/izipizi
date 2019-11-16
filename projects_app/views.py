@@ -460,7 +460,7 @@ def operator_documents_products_item_view(request, document_id, id):
         return Response(status=status.HTTP_200_OK, data=ProductSerializer(products).data)
     elif request.method == 'PUT':
         product = Product.objects.get(link=products.link)
-        product.name = request.data.get('name', '')
+        product.title = request.data.get('title', '')
         product.description = request.data.get('description', '')
         product.colour = request.data.get('colour', '')
         product.selling_price = request.data.get('selling_price', '')
@@ -469,7 +469,7 @@ def operator_documents_products_item_view(request, document_id, id):
         products.save()
         status_data = None
         try:
-            status_data = int(request.data.get('status',''))
+            status_data = int(request.data.get('status','2'))
         except:
             pass
         product.link.status = status_data
