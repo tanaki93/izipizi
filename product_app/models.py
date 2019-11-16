@@ -6,9 +6,15 @@ from django.utils.text import slugify
 from unidecode import unidecode
 
 from user_app.models import User
+
+
+def file_upload_to(instance, filename):
+    return "%s" % filename
+
+
 OUT_PROCESS = 1
 PROCESSED = 2
-IN_PROCESS =3
+IN_PROCESS = 3
 NOT_PARSED = 4
 STATUSES = (
     (OUT_PROCESS, 'Необработан'),
@@ -29,9 +35,29 @@ class Brand(models.Model):
     is_trend_yol = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    image = models.ImageField(upload_to=file_upload_to, null=True, blank=True)
 
     def __str__(self):
         return self.name
+
+
+class Slider(models.Model):
+    title = models.CharField(max_length=100, null=True)
+
+    class Meta:
+        verbose_name = 'Слайдер'
+        verbose_name_plural = 'сдайдеры'
+
+    def __str__(self):
+        return self.title
+
+
+class ImageSlider(models.Model):
+    image = models.ImageField(null=True, blank=True, upload_to=file_upload_to)
+    slider = models.ForeignKey(Slider, blank=True, null=True, related_name='images')
+
+    def __str__(self):
+        return self.image.name
 
 
 class Department(models.Model):
@@ -50,14 +76,31 @@ class Department(models.Model):
         super(Department, self).save()
 
 
+class ParentCategory(models.Model):
+    class Meta:
+        verbose_name = 'род. категорию (izishop)'
+        verbose_name_plural = 'род. категории (izishop)'
+
+    name = models.CharField(max_length=100)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(ParentCategory, self).save()
+
+
 class Category(models.Model):
     class Meta:
         verbose_name = 'категорию (izishop)'
         verbose_name_plural = 'категории (izishop)'
 
-    # parent = models.ForeignKey('self', null=True, blank=True)
+    parent = models.ForeignKey(ParentCategory, null=True, blank=True, related_name='childs')
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
+    image = models.ImageField(upload_to=file_upload_to, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -71,6 +114,7 @@ class Document(models.Model):
     class Meta:
         verbose_name = 'документ'
         verbose_name_plural = 'документы'
+
     original_products = models.ManyToManyField('OriginalProduct')
     user = models.ForeignKey(User)
     status = models.IntegerField(default=1)
@@ -203,9 +247,12 @@ class Product(models.Model):
     selling_price = models.FloatField(null=True, blank=True)
     original_price = models.FloatField(null=True, blank=True)
     description = models.TextField()
-    description_lower = models.TextField(null=True,blank=True)
+    description_lower = models.TextField(null=True, blank=True)
     colour = models.CharField(max_length=100)
     active = models.BooleanField(default=False)
+    brand = models.ForeignKey('Brand', null=True, blank=True)
+    department = models.ForeignKey('Department', null=True, blank=True)
+    category = models.ForeignKey('Category', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

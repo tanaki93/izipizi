@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^api/v1/profile/([0-9]+)/$', user_views.edit_profile_view),
     url(r'^api/v1/profile/', include('user_app.urls')),
     url(r'^api/v1/product/', include('product_app.urls')),
-    url(r'^api/v1/client/', include('product_app.client_urls')),
+    url(r'^api/v1/main/', include('product_app.client_urls')),
     url(r'^api/v1/project/', include('projects_app.urls')),
     url(r'^api/v1/operator/', include('projects_app.operator_urls')),
     url(r'^api/v1/admin/', include('projects_app.admin_urls')),

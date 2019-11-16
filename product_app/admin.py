@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from product_app.models import Category, Product, OriginalProduct, Tag, TrendyolSize, Currency, Department, Brand, \
-    TrendYolDepartment, TrendYolCategory, Size, Link, Variant, Document
+    TrendYolDepartment, TrendYolCategory, Size, Link, Variant, Document, ParentCategory, Slider, ImageSlider
 
 
 class OriginalProductAdmin(admin.ModelAdmin):
@@ -24,10 +24,22 @@ class LinkAdmin(admin.ModelAdmin):
     list_display = 'id url tr_category'.split()
 
 
+class ImageInline(admin.StackedInline):
+    model = ImageSlider
+    extra = 0
+
+
+class SliderAdmin(admin.ModelAdmin):
+    model = Slider
+    inlines = [ImageInline]
+
+
 admin.site.register(Department)
 admin.site.register(Category)
+admin.site.register(ParentCategory)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Tag)
+admin.site.register(Slider, SliderAdmin)
 admin.site.register(Document)
 admin.site.register(TrendyolSize)
 admin.site.register(Size)
