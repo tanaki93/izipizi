@@ -11,8 +11,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Department, Category, TrendyolSize, Size, \
-    Link, OriginalProduct, Variant, Product, Document
+    Link, OriginalProduct, Variant, Product, Document, ParentCategory
 # from projects_app.googletrans.client import Translator
+from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
 from projects_app.googletrans import Translator
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
@@ -366,6 +367,21 @@ def operator_category_search_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def operator_parent_category_search_view(request):
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        categories = ParentCategory.objects.filter(name_lower__contains=query.lower())
+        return Response(status=status.HTTP_200_OK, data=ParentCategorySerializer(categories, many=True).data)
+    elif request.method == 'POST':
+        name = request.data.get('name', '')
+        category = ParentCategory()
+        category.name = name
+        category.save()
+        return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def operator_category_item_view(request, id):
@@ -373,8 +389,23 @@ def operator_category_item_view(request, id):
     if request.method == 'PUT':
         # category.code = request.data.get('code', '')
         category.name = request.data.get('name', '')
+        try:
+            category.parent_id = int(request.data.get('parent_id', ''))
+        except:
+            pass
         category.save()
     return Response(status=status.HTTP_200_OK, data=CategorySerializer(category).data)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def operator_parent_category_item_view(request, id):
+    category = ParentCategory.objects.get(id=id)
+    if request.method == 'PUT':
+        # category.code = request.data.get('code', '')
+        category.name = request.data.get('name', '')
+        category.save()
+    return Response(status=status.HTTP_200_OK, data=ParentCategorySerializer(category).data)
 
 
 @api_view(['GET', 'PUT'])
@@ -470,7 +501,7 @@ def operator_documents_products_item_view(request, document_id, id):
         product.save()
         status_data = None
         try:
-            status_data = int(request.data.get('status','2'))
+            status_data = int(request.data.get('status', '2'))
         except:
             pass
         product.link.status = status_data

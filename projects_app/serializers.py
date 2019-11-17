@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from product_app.models import Category, Department, Link, OriginalProduct, Product
+from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -27,10 +27,18 @@ class LinkSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ParentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParentCategory
+        fields = '__all__'
+
+
 class CategorySerializer(serializers.ModelSerializer):
+    parent = ParentSerializer()
+
     class Meta:
         model = Category
-        fields = ('id', 'name',)
+        fields = ('id', 'name', 'parent')
 
 
 class TrendYolCategoryDetailedSerializer(serializers.ModelSerializer):

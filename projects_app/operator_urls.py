@@ -11,9 +11,11 @@ urlpatterns = [
     url(r'^izishop/departments/$', views.operator_departments_search_view),
     url(r'^izishop/departments/([0-9]+)/$', views.operator_department_item_view),
     url(r'^izishop/categories/$', views.operator_category_search_view),
+    url(r'^izishop/parent/categories/$', views.operator_parent_category_search_view),
     url(r'^documents/$', views.operator_documents_view),
     url(r'^documents/([0-9]+)/$', views.operator_documents_item_view),
     url(r'^documents/([0-9]+)/products/$', views.operator_documents_products_view),
     url(r'^documents/([0-9]+)/products/([0-9]+)/$', views.operator_documents_products_item_view),
     url(r'^izishop/categories/([0-9]+)/$', views.operator_category_item_view),
+    url(r'^izishop/parent/categories/([0-9]+)/$', views.operator_parent_category_item_view),
 ]
