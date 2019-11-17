@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^api/v1/login/$', user_views.login_view),
     url(r'^api/v1/register/', user_views.auth_register),
     url(r'^api/v1/reauth/', user_views.reauth_view),
+    url(r'^api/v1/post/', user_views.post),
     url(r'^api/v1/confirm/([-\w]+)/', user_views.confirm_user),
     url(r'^api/v1/resend/code/$', user_views.profile_resend_code_view),
 

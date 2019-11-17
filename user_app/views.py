@@ -4,6 +4,7 @@ import string
 
 from django.contrib.auth import authenticate
 from django.core.mail import EmailMessage
+from django.db import transaction
 from django.shortcuts import render
 
 # Create your views here.
@@ -13,6 +14,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
+from product_app.models import Product
 from user_app.models import User, ConfirmationCode
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -179,7 +181,7 @@ def confirm_user(request, code):
         try:
             token = ConfirmationCode.objects.get(token=code,
                                                  valid_until__gte=datetime.datetime.now())
-            token.user.is_active=True
+            token.user.is_active = True
             token.user.save()
             token.delete()
             return Response(status=status.HTTP_202_ACCEPTED)
@@ -206,3 +208,28 @@ def profile_resend_code_view(request):
         return Response(status=status.HTTP_200_OK, data={'data': 'Код отправлен на почту'})
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def post(request):
+    with transaction.atomic():
+        products = Product.objects.all()
+        # count = 0
+        for i in products:
+            # count+=1
+            try:
+                i.brand_id = i.link.tr_category.department.brand_id
+            except:
+                pass
+            try:
+                i.department_id = i.link.tr_category.department.department_id
+            except:
+                pass
+            try:
+                i.category_id = i.link.tr_category.category_id
+            except:
+                pass
+            i.save()
+            # print(count)
+    return Response(data='')
