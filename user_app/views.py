@@ -212,24 +212,18 @@ def profile_resend_code_view(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def post(request):
+def post(request, page):
     with transaction.atomic():
-        products = Product.objects.all()
-        # count = 0
+        products = Product.objects.all()[(int(page)-1)*1000: (int(page))*1000]
+        count = 0
         for i in products:
-            # count+=1
+            count+=1
             try:
                 i.brand_id = i.link.tr_category.department.brand_id
-            except:
-                pass
-            try:
                 i.department_id = i.link.tr_category.department.department_id
-            except:
-                pass
-            try:
                 i.category_id = i.link.tr_category.category_id
+                i.save()
             except:
                 pass
-            i.save()
-            # print(count)
+            print(count)
     return Response(data='')
