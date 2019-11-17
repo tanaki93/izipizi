@@ -211,7 +211,7 @@ def profile_resend_code_view(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAdmin])
 def post(request, page):
     with transaction.atomic():
         products = Product.objects.all()[(int(page)-1)*1000: (int(page))*1000]

@@ -498,6 +498,14 @@ def operator_documents_products_item_view(request, document_id, id):
         product.selling_price = request.data.get('selling_price', '')
         product.discount_price = request.data.get('discount_price', '')
         product.original_price = request.data.get('original_price', '')
+        try:
+            product.department_id = int(request.data.get('department_id', ''))
+        except:
+            pass
+        try:
+            product.category_id = int(request.data.get('category_id', ''))
+        except:
+            pass
         product.save()
         status_data = None
         try:

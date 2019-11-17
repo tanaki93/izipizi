@@ -15,14 +15,6 @@ class TrendYolDepartmentSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
-class IziProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = ['selling_price', 'discount_price', 'id', 'link', 'brand', 'category', 'department',
-                  'colour', 'created_at', 'title',
-                  'original_price', 'updated_at', 'description']
-
-
 class LinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Link
@@ -81,6 +73,30 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
+class CategoryItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name')
+
+
+class BrandItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = '__all__'
+
+
+class IziProductSerializer(serializers.ModelSerializer):
+    brand = BrandItemSerializer()
+    category = CategoryItemSerializer()
+    department = DepartmentSerializer()
+
+    class Meta:
+        model = Product
+        fields = ['selling_price', 'discount_price', 'id', 'link', 'brand', 'category', 'department',
+                  'colour', 'created_at', 'title',
+                  'original_price', 'updated_at', 'description']
+
+
 class TrendYolDepartmentDetailedSerializer(serializers.ModelSerializer):
     department = DepartmentSerializer()
     categories = serializers.SerializerMethodField()
@@ -123,4 +139,3 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_product(self, obj):
         product = Product.objects.get(link=obj.link)
         return IziProductSerializer(product).data
-
