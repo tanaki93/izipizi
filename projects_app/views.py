@@ -341,10 +341,15 @@ def operator_categories_item_view(request, id):
             depart = Category.objects.get(id=category_id)
         category.category = depart
         category.save()
-        categories = TrendYolCategory.objects.filter(name=category.name, category__isnull=True)
-        for i in categories:
-            i.category = category.category
-            i.save()
+        with transaction.atomic():
+            categories = TrendYolCategory.objects.filter(name=category.name, category__isnull=True)
+            for i in categories:
+                i.category = category.category
+                i.save()
+            products = Product.objects.filter(category__isnull=True, link__tr_category=category)
+            for j in products:
+                j.category = category.category
+                j.save()
         return Response(status=status.HTTP_200_OK)
 
 
