@@ -129,10 +129,17 @@ def create_original_product(link, param):
     product.colour = translate_text(param['color'])
     ul_soup = BeautifulSoup(param['description'], 'lxml')
     description = ''
+    try:
+        product.brand_id = original_product.link.tr_category.department.brand_id
+        product.department_id = original_product.link.tr_category.department.department_id
+        product.category_id = original_product.link.tr_category.category_id
+    except:
+        pass
     for i in (ul_soup.find_all('li')):
         description += (i.text + '| ')
     product.description = translate_text(description)
     product.save()
+
     link.status = 1
     link.save()
 
@@ -334,6 +341,10 @@ def operator_categories_item_view(request, id):
             depart = Category.objects.get(id=category_id)
         category.category = depart
         category.save()
+        categories = TrendYolCategory.objects.filter(name=category.name, category__isnull=True)
+        for i in categories:
+            i.category.name = category.category.name
+            i.category.save()
         return Response(status=status.HTTP_200_OK)
 
 
