@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+from django.db.models import SET_NULL
 from django.utils.text import slugify
 
 from unidecode import unidecode
@@ -101,6 +102,7 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     image = models.ImageField(upload_to=file_upload_to, null=True, blank=True)
+
 
     def __str__(self):
         return self.name
@@ -252,7 +254,7 @@ class Product(models.Model):
     active = models.BooleanField(default=False)
     brand = models.ForeignKey('Brand', null=True, blank=True)
     department = models.ForeignKey('Department', null=True, blank=True)
-    category = models.ForeignKey('Category', null=True, blank=True)
+    category = models.ForeignKey('Category', null=True, blank=True, on_delete=SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -289,7 +291,7 @@ class TrendYolCategory(models.Model):
     link = models.CharField(max_length=100, null=True)
     department = models.ForeignKey(TrendYolDepartment, null=True)
     is_active = models.BooleanField(default=True)
-    category = models.ForeignKey(Category, null=True, blank=True)
+    category = models.ForeignKey(Category, null=True, blank=True, on_delete=SET_NULL)
 
     def __str__(self):
         return self.name
