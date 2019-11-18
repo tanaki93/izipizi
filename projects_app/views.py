@@ -346,10 +346,10 @@ def operator_categories_item_view(request, id):
             for i in categories:
                 i.category = category.category
                 i.save()
-            products = Product.objects.filter(category__isnull=True, link__tr_category=category)
-            for j in products:
-                j.category = category.category
-                j.save()
+            # products = Product.objects.filter(category__isnull=True, link__tr_category=category)
+            # for j in products:
+            #     j.category = category.category
+            #     j.save()
         return Response(status=status.HTTP_200_OK)
 
 
