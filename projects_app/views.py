@@ -343,8 +343,8 @@ def operator_categories_item_view(request, id):
         category.save()
         categories = TrendYolCategory.objects.filter(name=category.name, category__isnull=True)
         for i in categories:
-            i.category.name = category.category.name
-            i.category.save()
+            i.category = category.category
+            i.save()
         return Response(status=status.HTTP_200_OK)
 
 
