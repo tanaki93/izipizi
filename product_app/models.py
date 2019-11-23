@@ -109,6 +109,7 @@ class Brand(models.Model):
         verbose_name_plural = 'бренды'
 
     name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, null=True, blank=True)
     link = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
     is_trend_yol = models.BooleanField(default=True)
@@ -123,7 +124,8 @@ class Brand(models.Model):
 
 
 class BrandCountry(models.Model):
-    country = models.ForeignKey(Country)
+    country = models.ForeignKey(Country, null=True)
+    brand = models.ForeignKey(Brand, null=True)
     is_active = models.BooleanField(default=True)
     mark_up = models.FloatField()
     round_digit = models.IntegerField(default=2)

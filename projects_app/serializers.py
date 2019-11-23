@@ -1,12 +1,14 @@
 from rest_framework import serializers
 
-from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory
+from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
+    BrandCountry
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
 #         serializer = self.parent.parent.__class__(value, context=self.context)
 #         return serializer.data
 from product_app.models import Brand, VendCategory, VendDepartment
+from projects_app.admin_serializers import CurrencySerializer
 
 
 class TrendYolDepartmentSerializer(serializers.ModelSerializer):
@@ -56,22 +58,51 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class BrandSerializer(serializers.ModelSerializer):
-    categories_count = serializers.SerializerMethodField()
-    departments_count = serializers.SerializerMethodField()
+    # categories_count = serializers.SerializerMethodField()
+    # departments_count = serializers.SerializerMethodField()
     project = ProjectSerializer()
+    countries = serializers.SerializerMethodField()
+    currency = CurrencySerializer()
 
     class Meta:
         model = Brand
-        fields = ('id', 'name', 'is_active', 'link', 'created_at', 'updated_at', 'project', 'categories_count',
-                  'departments_count')
+        fields = ('id', 'name', 'is_active', 'link', 'created_at', 'updated_at', 'project', 'countries', 'currency')
 
-    def get_departments_count(self, obj):
-        departments = VendDepartment.objects.filter(brand=obj).count()
-        return departments
-
-    def get_categories_count(self, obj):
-        categories = VendCategory.objects.filter(department__brand=obj).count()
-        return categories
+    # def get_departments_count(self, obj):
+    #     departments = VendDepartment.objects.filter(brand=obj).count()
+    #     return departments
+    #
+    # def get_categories_count(self, obj):
+    #     categories = VendCategory.objects.filter(department__brand=obj).count()
+    #     return categories
+    def get_countries(self, obj):
+        countries = []
+        for i in Country.objects.all():
+            brand_country = None
+            try:
+                brand_country = BrandCountry.objects.get(country=i, brand=obj)
+            except:
+                pass
+            if brand_country is not None:
+                context = {
+                    'country_id': i.id,
+                    'country_name': i.name,
+                    'country_code': i.code,
+                    'mark_up': brand_country.mark_up,
+                    'round_digit': brand_country.round_digit,
+                    'round_to': brand_country.round_to,
+                }
+            else:
+                context = {
+                    'country_id': i.id,
+                    'country_name': i.name,
+                    'country_code': i.code,
+                    'mark_up': None,
+                    'round_digit': None,
+                    'round_to': None,
+                }
+            countries.append(context)
+        return countries
 
 
 class DepartmentSerializer(serializers.ModelSerializer):

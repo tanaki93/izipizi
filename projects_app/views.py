@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from product_app.models import Brand, VendDepartment, VendCategory, Department, Category, VendSize, Size, \
-    Link, OriginalProduct, Variant, Product, Document, ParentCategory
+    Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry
 # from projects_app.googletrans.client import Translator
 from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
@@ -223,20 +223,31 @@ def brands_list_view(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def operator_brands_list_view(request):
     if request.method == 'GET':
         brands = Brand.objects.all()
         return Response(data=BrandSerializer(brands, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         is_active = request.data.get('is_active', True)
-        is_trend_yol = request.data.get('is_trend_yol', True)
+        # is_trend_yol = request.data.get('is_trend_yol', True)
         name = request.data.get('name', '')
         link = request.data.get('link', '')
+        code = request.data.get('code', '')
+        currency_id = int(request.data.get('currency_id', ''))
         if name == '':
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-        brand = Brand.objects.create(name=name, is_active=is_active, is_trend_yol=is_trend_yol, link=link)
+        brand = Brand.objects.create(name=name, is_active=is_active, link=link, code=code, currency_id=currency_id)
         brand.save()
+        countries = request.data.get('countries')
+        for i in countries:
+            brand_country = BrandCountry()
+            brand_country.brand = brand
+            brand_country.country_id = i['country_id']
+            brand_country.mark_up = i['mark_up']
+            brand_country.round_digit = i['round_digit']
+            brand_country.round_to = i['round_to']
+            brand_country.save()
         return Response(status=status.HTTP_200_OK, data=BrandSerializer(brand).data)
 
 

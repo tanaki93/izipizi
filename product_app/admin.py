@@ -3,7 +3,7 @@ from django.contrib import admin
 # Register your models here.
 from product_app.models import Category, Product, OriginalProduct, Tag, VendSize, Currency, Department, Brand, \
     VendDepartment, VendCategory, Size, Link, Variant, Document, ParentCategory, Slider, ImageSlider, Project, Language, \
-    ExchangeRate, ExchangeValue
+    ExchangeRate, ExchangeValue, Country
 
 
 class OriginalProductAdmin(admin.ModelAdmin):
@@ -55,3 +55,4 @@ admin.site.register(Project)
 admin.site.register(Language)
 admin.site.register(ExchangeRate)
 admin.site.register(ExchangeValue)
+admin.site.register(Country)
