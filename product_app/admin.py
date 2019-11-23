@@ -1,8 +1,9 @@
 from django.contrib import admin
 
 # Register your models here.
-from product_app.models import Category, Product, OriginalProduct, Tag, TrendyolSize, Currency, Department, Brand, \
-    TrendYolDepartment, TrendYolCategory, Size, Link, Variant, Document, ParentCategory, Slider, ImageSlider
+from product_app.models import Category, Product, OriginalProduct, Tag, VendSize, Currency, Department, Brand, \
+    VendDepartment, VendCategory, Size, Link, Variant, Document, ParentCategory, Slider, ImageSlider, Project, Language, \
+    ExchangeRate
 
 
 class OriginalProductAdmin(admin.ModelAdmin):
@@ -41,12 +42,15 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(Tag)
 admin.site.register(Slider, SliderAdmin)
 admin.site.register(Document)
-admin.site.register(TrendyolSize)
+admin.site.register(VendSize)
 admin.site.register(Size)
 admin.site.register(Link, LinkAdmin)
 admin.site.register(Currency)
 admin.site.register(OriginalProduct, OriginalProductAdmin)
 admin.site.register(Brand)
-admin.site.register(TrendYolDepartment)
-admin.site.register(TrendYolCategory)
+admin.site.register(VendDepartment)
+admin.site.register(VendCategory)
 admin.site.register(Variant)
+admin.site.register(Project)
+admin.site.register(Language)
+admin.site.register(ExchangeRate)

@@ -4,8 +4,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
-    PROCESSED, IN_PROCESS
-from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer
+    PROCESSED, IN_PROCESS, Country, Currency
+from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer
 from projects_app.serializers import ProductSerializer
 from user_app.models import User
 from user_app.permissions import IsAdmin
@@ -124,3 +124,39 @@ def admin_products_view(request):
             'objects': ProductSerializer(products[(page - 1) * 10: page * 10], many=True).data
         }
         return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def admin_countries_view(request):
+    if request.method == 'GET':
+        countries = Country.objects.all()
+    return None
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def admin_currencies_view(request):
+    if request.method == 'GET':
+        currencies = Currency.objects.all()
+        return Response(data=CurrencySerializer(currencies, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        name = request.data.get('name', '')
+        code = request.data.get('code', '')
+        currency = Currency.objects.create(code=code, name=name)
+        currency.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
+def admin_currencies_item_view(request, id):
+    currencies = Currency.objects.get(id=id)
+    if request.method == 'GET':
+        return Response(data=CurrencySerializer(currencies).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        currencies.name = request.data.get('name', '')
+        currencies.code = request.data.get('code', '')
+        # currency = Currency.objects.create(code=code, name=name)
+        currencies.save()
+        return Response(status=status.HTTP_200_OK)

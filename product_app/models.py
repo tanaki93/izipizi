@@ -25,6 +25,61 @@ STATUSES = (
 )
 
 
+class Project(models.Model):
+    class Meta:
+        verbose_name_plural = 'Проекты'
+        verbose_name = 'проект'
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Language(models.Model):
+    class Meta:
+        verbose_name_plural = 'языки'
+        verbose_name = 'язык'
+    code = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    is_translate = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.code
+
+
+class Currency(models.Model):
+    class Meta:
+        verbose_name_plural = 'Валюты'
+        verbose_name = 'валюту'
+
+    code = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    code_name = models.CharField(max_length=10, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class ExchangeRate(models.Model):
+    value = models.FloatField()
+    updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
+    from_currency = models.ForeignKey(Currency, related_name='from_currency', null=True)
+    to_currency = models.ForeignKey(Currency, related_name='to_currency', null=True)
+
+    def __str__(self):
+        return str(self.value)
+
+
+class Country(models.Model):
+    code = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
+    language = models.ForeignKey(Language)
+    currency = models.ForeignKey(Currency)
+
+    def __str__(self):
+        return self.name
+
+
 class Brand(models.Model):
     class Meta:
         verbose_name = 'бренд'
@@ -34,12 +89,22 @@ class Brand(models.Model):
     link = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
     is_trend_yol = models.BooleanField(default=True)
+    project = models.ForeignKey(Project, null=True, blank=True)
+    currency = models.ForeignKey(Currency, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to=file_upload_to, null=True, blank=True)
 
     def __str__(self):
         return self.name
+
+
+class BrandCountry(models.Model):
+    country = models.ForeignKey(Country)
+    is_active = models.BooleanField(default=True)
+    mark_up = models.FloatField()
+    round_digit = models.IntegerField(default=2)
+    round_to = models.CharField(max_length=10, default='00', null=True)
 
 
 class Slider(models.Model):
@@ -77,6 +142,24 @@ class Department(models.Model):
         super(Department, self).save()
 
 
+class TranslationDepartment(models.Model):
+    class Meta:
+        verbose_name = 'отделение (перевод)'
+        verbose_name_plural = 'отделения (перевод)'
+
+    department = models.ForeignKey(Department, null=True)
+    name = models.CharField(max_length=100)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+    language = models.ForeignKey(Language, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(TranslationDepartment, self).save()
+
+
 class ParentCategory(models.Model):
     class Meta:
         verbose_name = 'род. категорию (izishop)'
@@ -93,6 +176,23 @@ class ParentCategory(models.Model):
         super(ParentCategory, self).save()
 
 
+class TranslationParentCategory(models.Model):
+    class Meta:
+        verbose_name = 'род. категорию (перевод)'
+        verbose_name_plural = 'род. категории (izishop)'
+
+    parent_category = models.ForeignKey(ParentCategory)
+    name = models.CharField(max_length=100)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(TranslationParentCategory, self).save()
+
+
 class Category(models.Model):
     class Meta:
         verbose_name = 'категорию (izishop)'
@@ -103,13 +203,30 @@ class Category(models.Model):
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     image = models.ImageField(upload_to=file_upload_to, null=True, blank=True)
 
-
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
         self.name_lower = self.name.lower()
         super(Category, self).save()
+
+
+class TranslationCategory(models.Model):
+    class Meta:
+        verbose_name = 'категорию (перевод)'
+        verbose_name_plural = 'категории (перевод)'
+
+    category = models.ForeignKey(Category, null=True, blank=True, related_name='translations')
+    name = models.CharField(max_length=100)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+    language = models.ForeignKey(Language, null=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(TranslationCategory, self).save()
 
 
 class Document(models.Model):
@@ -144,7 +261,7 @@ class Link(models.Model):
         verbose_name = 'Ссылки'
 
     url = models.URLField()
-    tr_category = models.ForeignKey('TrendYolCategory', null=True, related_name='tr_categories')
+    tr_category = models.ForeignKey('VendCategory', null=True, related_name='tr_categories')
     status = models.IntegerField(default=4, choices=STATUSES)
 
     def __str__(self):
@@ -153,8 +270,8 @@ class Link(models.Model):
 
 class OriginalProduct(models.Model):
     class Meta:
-        verbose_name_plural = 'товары (trendyol)'
-        verbose_name = 'товар (trendyol)'
+        verbose_name_plural = 'товары (vend)'
+        verbose_name = 'товар (vend)'
 
     title = models.CharField(max_length=100)
     product_id = models.CharField(max_length=100)
@@ -190,7 +307,7 @@ class Variant(models.Model):
         verbose_name_plural = 'Варианты'
         verbose_name = 'вариант'
 
-    tr_size = models.ForeignKey('TrendyolSize', null=True)
+    tr_size = models.ForeignKey('VendSize', null=True)
     original_product = models.ForeignKey(OriginalProduct, related_name='variants')
     stock = models.BooleanField(default=False)
 
@@ -198,23 +315,10 @@ class Variant(models.Model):
         return self.tr_size.name
 
 
-class Currency(models.Model):
+class VendSize(models.Model):
     class Meta:
-        verbose_name_plural = 'Валюты'
-        verbose_name = 'валюту'
-
-    name = models.CharField(max_length=100)
-    code = models.CharField(max_length=100, default='TRY')
-    rate = models.FloatField()
-
-    def __str__(self):
-        return self.name
-
-
-class TrendyolSize(models.Model):
-    class Meta:
-        verbose_name_plural = 'Размер (trendyol)'
-        verbose_name = 'Размеры (trendyol)'
+        verbose_name_plural = 'Размер (vend)'
+        verbose_name = 'Размеры (vend)'
 
     name = models.CharField(max_length=100)
 
@@ -222,7 +326,7 @@ class TrendyolSize(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        super(TrendyolSize, self).save()
+        super(VendSize, self).save()
 
 
 class Size(models.Model):
@@ -230,7 +334,7 @@ class Size(models.Model):
         verbose_name_plural = 'Размер (izishop)'
         verbose_name = 'Размеры (izishop)'
 
-    trendyol_size = models.OneToOneField(TrendyolSize, null=True, blank=True)
+    vend_size = models.OneToOneField(VendSize, null=True, blank=True)
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -267,10 +371,10 @@ class Product(models.Model):
         return self.title
 
 
-class TrendYolDepartment(models.Model):
+class VendDepartment(models.Model):
     class Meta:
-        verbose_name = 'отделение (trendyol)'
-        verbose_name_plural = 'отделения (trendyol)'
+        verbose_name = 'отделение (vend)'
+        verbose_name_plural = 'отделения (vend)'
 
     name = models.CharField(max_length=100)
     link = models.CharField(max_length=100, null=True)
@@ -282,14 +386,14 @@ class TrendYolDepartment(models.Model):
         return self.name
 
 
-class TrendYolCategory(models.Model):
+class VendCategory(models.Model):
     class Meta:
-        verbose_name = 'категория (trendyol)'
-        verbose_name_plural = 'категории (trendyol)'
+        verbose_name = 'категория (vend)'
+        verbose_name_plural = 'категории (vend)'
 
     name = models.CharField(max_length=100)
     link = models.CharField(max_length=100, null=True)
-    department = models.ForeignKey(TrendYolDepartment, null=True)
+    department = models.ForeignKey(VendDepartment, null=True)
     is_active = models.BooleanField(default=True)
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=SET_NULL)
 

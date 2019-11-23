@@ -7,4 +7,8 @@ urlpatterns = [
     url(r'^document/statistics/$', views.admin_statistics_view),
     url(r'^document/list/$', views.admin_documents_view),
     url(r'^products/$', views.admin_products_view),
+    url(r'^countries/$', views.admin_countries_view),
+    url(r'^currencies/$', views.admin_currencies_view),
+    url(r'^currencies/([0-9]+)/$', views.admin_currencies_item_view),
+    url(r'^languages/$', views.admin_languages_view),
 ]

@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from product_app.models import Brand, TrendYolDepartment, TrendYolCategory, Department, Category, TrendyolSize, Size, \
+from product_app.models import Brand, VendDepartment, VendCategory, Department, Category, VendSize, Size, \
     Link, OriginalProduct, Variant, Product, Document, ParentCategory
 # from projects_app.googletrans.client import Translator
 from product_app.serializers import ParentCategorySerializer
@@ -47,13 +47,13 @@ def save_size(tr_size):
 @permission_classes([AllowAny])
 def categories_list_view(request):
     if request.method == 'GET':
-        categories = TrendYolCategory.objects.filter(is_active=True, department__brand__is_active=True,
-                                                     department__is_active=True, department__brand__is_trend_yol=True)
+        categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
+                                                 department__is_active=True, department__brand__is_trend_yol=True)
         return Response(data=TrendYolCategoryDetailedSerializer(categories, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         with transaction.atomic():
             for i in request.data:
-                category = TrendYolCategory.objects.get(id=int(i['category_id']))
+                category = VendCategory.objects.get(id=int(i['category_id']))
                 for j in i['links']:
                     link = None
                     try:
@@ -109,11 +109,11 @@ def create_original_product(link, param):
         variant_item = Variant()
         tr_size = None
         try:
-            tr_size = TrendyolSize.objects.get(name=variant['attributeValue'].upper())
+            tr_size = VendSize.objects.get(name=variant['attributeValue'].upper())
         except:
             pass
         if tr_size is None:
-            tr_size = TrendyolSize.objects.create(name=variant['attributeValue'].upper())
+            tr_size = VendSize.objects.create(name=variant['attributeValue'].upper())
             tr_size.save()
         save_size(tr_size)
         variant_item.tr_size = tr_size
@@ -176,7 +176,7 @@ def links_trendyol_list_view(request):
 @permission_classes([AllowAny])
 def brands_list_view(request):
     if request.method == 'GET':
-        brands = Brand.objects.filter(is_active=True, is_trend_yol=True)
+        brands = Brand.objects.filter(is_active=True)
         return Response(data=BrandSerializer(brands, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         for i in request.data:
@@ -185,22 +185,22 @@ def brands_list_view(request):
                 for size in i['sizes']:
                     tr_size = None
                     try:
-                        tr_size = TrendyolSize.objects.get(name=size.upper())
+                        tr_size = VendSize.objects.get(name=size.upper())
                     except:
                         pass
                     if tr_size is None:
-                        tr_size = TrendyolSize.objects.create(name=size.upper())
+                        tr_size = VendSize.objects.create(name=size.upper())
                         tr_size.save()
                     save_size(tr_size)
             with transaction.atomic():
                 for j in i['departments']:
                     department = None
                     try:
-                        department = TrendYolDepartment.objects.get(name=j['name'], link=j['link'], brand=brand)
+                        department = VendDepartment.objects.get(name=j['name'], link=j['link'], brand=brand)
                     except:
                         pass
                     if department is None:
-                        department = TrendYolDepartment()
+                        department = VendDepartment()
                         department.name = j['name']
                         department.link = j['link']
                         department.brand = brand
@@ -208,12 +208,12 @@ def brands_list_view(request):
                     for k in j['categories']:
                         category = None
                         try:
-                            category = TrendYolCategory.objects.get(name=k['name'], link=k['link'],
-                                                                    department=department)
+                            category = VendCategory.objects.get(name=k['name'], link=k['link'],
+                                                                department=department)
                         except:
                             pass
                         if category is None:
-                            category = TrendYolCategory()
+                            category = VendCategory()
                             category.name = k['name']
                             category.link = k['link']
                             category.department = department
@@ -291,7 +291,7 @@ def operator_brands_refresh_item_view(request, id):
 def operator_departments_item_view(request, id):
     department = None
     try:
-        department = TrendYolDepartment.objects.get(id=id)
+        department = VendDepartment.objects.get(id=id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
@@ -320,7 +320,7 @@ def operator_departments_item_view(request, id):
 def operator_categories_item_view(request, id):
     category = None
     try:
-        category = TrendYolCategory.objects.get(id=id)
+        category = VendCategory.objects.get(id=id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
@@ -342,7 +342,7 @@ def operator_categories_item_view(request, id):
         category.category = depart
         category.save()
         with transaction.atomic():
-            categories = TrendYolCategory.objects.filter(name=category.name, category__isnull=True)
+            categories = VendCategory.objects.filter(name=category.name, category__isnull=True)
             for i in categories:
                 i.category = category.category
                 i.save()
