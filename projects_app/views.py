@@ -263,14 +263,27 @@ def operator_brands_item_view(request, id):
         return Response(data=BrandDetailedSerializer(brand).data, status=status.HTTP_200_OK)
     elif request.method == 'PUT':
         is_active = request.data.get('is_active', True)
-        is_trend_yol = request.data.get('is_trend_yol', True)
+        # is_trend_yol = request.data.get('is_trend_yol', True)
         name = request.data.get('name', '')
         link = request.data.get('link', '')
+        code = request.data.get('code', '')
+        currency_id = int(request.data.get('currency_id', ''))
         brand.is_active = is_active
         brand.name = name
         brand.link = link
-        brand.is_trend_yol = is_trend_yol
+        brand.code = code
+        brand.currency_id = currency_id
         brand.save()
+        countries = request.data.get('countries')
+        for i in countries:
+            try:
+                brand_country = BrandCountry.objects.get(brand_id=brand.id, country_id=int(i['country_id']))
+                brand_country.mark_up = i['mark_up']
+                brand_country.round_digit = i['round_digit']
+                brand_country.round_to = i['round_to']
+                brand_country.save()
+            except:
+                pass
         return Response(status=status.HTTP_200_OK)
 
 
