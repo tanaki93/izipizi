@@ -66,7 +66,7 @@ class ExchangeRateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ExchangeRate
-        fields = 'from_currency to_currency value values'.split()
+        fields = 'id from_currency to_currency value values'.split()
 
 
 class LanguageSerializer(serializers.ModelSerializer):
