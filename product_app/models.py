@@ -103,6 +103,37 @@ class Country(models.Model):
         return self.name
 
 
+class VendColour(models.Model):
+    class Meta:
+        verbose_name = 'Цвет (vend)'
+        verbose_name_plural = 'цвет (vend)'
+
+    name = models.CharField(max_length=100)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+    name_en = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(VendColour, self).save()
+
+
+class TranslationColour(models.Model):
+    language = models.ForeignKey(Language, null=True)
+    vend_colour = models.ForeignKey(VendColour, null=True)
+    name = models.CharField(max_length=100, default='')
+    name_lower = models.CharField(max_length=100, default='', null=True)
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(TranslationColour, self).save()
+
+    def __str__(self):
+        return self.name
+
+
 class Brand(models.Model):
     class Meta:
         verbose_name = 'бренд'
@@ -379,7 +410,7 @@ class Product(models.Model):
     original_price = models.FloatField(null=True, blank=True)
     description = models.TextField()
     description_lower = models.TextField(null=True, blank=True)
-    colour = models.CharField(max_length=100)
+    colour = models.ForeignKey('VendColour', null=True)
     active = models.BooleanField(default=False)
     brand = models.ForeignKey('Brand', null=True, blank=True)
     department = models.ForeignKey('Department', null=True, blank=True)

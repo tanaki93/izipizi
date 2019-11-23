@@ -11,7 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from product_app.models import Brand, VendDepartment, VendCategory, Department, Category, VendSize, Size, \
-    Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry
+    Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry, Language, TranslationDepartment, \
+    TranslationCategory, VendColour, TranslationColour
 # from projects_app.googletrans.client import Translator
 from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
@@ -25,21 +26,21 @@ from user_app.permissions import IsOperator
 def save_size(tr_size):
     size = None
     try:
-        size = Size.objects.get(trendyol_size=tr_size)
+        size = Size.objects.get(vend_size=tr_size)
     except:
         pass
     if size is None:
         name = tr_size.name
         name_data = name.split()
         if name == 'TEK EBAT':
-            name = 'один размер'
+            name = 'one size'
         elif len(name_data) > 1:
             data = name_data[1]
             if data == 'AY':
-                name = name_data[0] + ' мес.'
+                name = name_data[0] + ' month'
             if data == 'YAŞ':
-                name = name_data[0] + ' год'
-        size = Size.objects.create(trendyol_size=tr_size, name=name)
+                name = name_data[0] + ' year'
+        size = Size.objects.create(vend_size=tr_size, name=name)
         size.save()
 
 
@@ -66,11 +67,11 @@ def categories_list_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
-def translate_text(text):
+def translate_text(text, dest='ru'):
     data = ''
     try:
         translator = Translator(service_urls=['translate.google.com.tr'])
-        data = u'' + translator.translate(text, dest='ru').text
+        data = u'' + translator.translate(text, dest=dest).text
     except:
         pass
     return data
@@ -192,6 +193,20 @@ def brands_list_view(request):
                         tr_size = VendSize.objects.create(name=size.upper())
                         tr_size.save()
                     save_size(tr_size)
+            languages = Language.objects.all()
+            with transaction.atomic():
+                for c in i['colours']:
+                    vend_colour = None
+                    try:
+                        vend_colour = VendColour.objects.get(name=c)
+                    except:
+                        pass
+                    if vend_colour is None:
+                        vend_colour = VendColour.objects.create(name=c, name_en=translate_text(c, 'en'))
+                        vend_colour.save()
+                        for language in languages:
+                            colour = TranslationColour.objects.create(name=translate_text(c, language.code), language=language, vend_colour=vend_colour)
+                            colour.save()
             with transaction.atomic():
                 for j in i['departments']:
                     department = None
@@ -205,6 +220,17 @@ def brands_list_view(request):
                         department.link = j['link']
                         department.brand = brand
                         department.save()
+                        name = translate_text(j['name'], 'en')
+                        new_dep = Department.objects.create(name=name)
+                        new_dep.save()
+                        department.department = new_dep
+                        department.save()
+                        for i in languages:
+                            translation_dep = TranslationDepartment.objects.create(department=new_dep,
+                                                                                   name=translate_text(j['name'],
+                                                                                                       i.code),
+                                                                                   language=i)
+                            translation_dep.save()
                     for k in j['categories']:
                         category = None
                         try:
@@ -218,6 +244,17 @@ def brands_list_view(request):
                             category.link = k['link']
                             category.department = department
                             category.save()
+                            name = translate_text(k['name'], 'en')
+                            new_dep = Category.objects.create(name=name)
+                            new_dep.save()
+                            category.category = new_dep
+                            category.save()
+                            for i in languages:
+                                translation_dep = TranslationCategory.objects.create(category=new_dep,
+                                                                                     name=translate_text(k['name'],
+                                                                                                         i.code),
+                                                                                     language=i)
+                                translation_dep.save()
 
         return Response(status=status.HTTP_200_OK)
 
@@ -276,14 +313,20 @@ def operator_brands_item_view(request, id):
         brand.save()
         countries = request.data.get('countries')
         for i in countries:
+            brand_country = None
             try:
                 brand_country = BrandCountry.objects.get(brand_id=brand.id, country_id=int(i['country_id']))
-                brand_country.mark_up = i['mark_up']
-                brand_country.round_digit = i['round_digit']
-                brand_country.round_to = i['round_to']
-                brand_country.save()
             except:
                 pass
+            if brand_country is None:
+                brand_country = BrandCountry()
+                brand_country.brand = brand
+                brand_country.country_id = int(i['country_id'])
+            brand_country.mark_up = i['mark_up']
+            brand_country.round_digit = i['round_digit']
+            brand_country.round_to = i['round_to']
+            brand_country.save()
+
         return Response(status=status.HTTP_200_OK)
 
 
