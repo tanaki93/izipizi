@@ -4,9 +4,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
-    PROCESSED, IN_PROCESS, Country, Currency, Language
+    PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate
 from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer, \
-    LanguageSerializer
+    LanguageSerializer, ExchangeRateSerializer
 from projects_app.serializers import ProductSerializer
 from user_app.models import User
 from user_app.permissions import IsAdmin
@@ -184,10 +184,58 @@ def admin_languages_item_view(request, id):
     languages = Language.objects.get(id=id)
     if request.method == 'GET':
         return Response(data=LanguageSerializer(languages).data, status=status.HTTP_200_OK)
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         languages.name = request.data.get('name', '')
         languages.code = request.data.get('code', '')
         languages.is_translate = request.data.get('is_translate', True)
         # currency = Currency.objects.create(code=code, name=name)
         languages.save()
         return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def admin_exchanges_view(request):
+    if request.method == 'GET':
+        exchanges = ExchangeRate.objects.all()
+        return Response(data=ExchangeRateSerializer(exchanges, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        from_currency = None
+        to_currency = None
+        try:
+            from_currency = int(request.data.get('from_currency_id'))
+            to_currency = int(request.data.get('to_currency_id'))
+        except:
+            pass
+        value = float(request.data.get('value', 0))
+        if from_currency is not None and to_currency is not None:
+            exchange = ExchangeRate.objects.create(from_currency_id=from_currency, to_currency_id=to_currency, value=value)
+            exchange.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
+def admin_exchanges_item_view(request, id):
+    exchange = ExchangeRate.objects.get(id=id)
+    if request.method == 'GET':
+        return Response(data=ExchangeRateSerializer(exchange).data, status=status.HTTP_200_OK)
+    elif request.method == 'PUT':
+        from_currency = None
+        to_currency = None
+        try:
+            from_currency = int(request.data.get('from_currency_id'))
+            to_currency = int(request.data.get('to_currency_id'))
+        except:
+            pass
+        value = float(request.data.get('value', 0))
+        if from_currency is not None and to_currency is not None:
+            exchange.to_currency_id = to_currency
+            exchange.from_currency_id = from_currency
+            exchange.value = value
+            exchange.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)

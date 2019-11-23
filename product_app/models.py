@@ -2,6 +2,8 @@ from django.db import models
 
 # Create your models here.
 from django.db.models import SET_NULL
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.text import slugify
 
 from unidecode import unidecode
@@ -29,6 +31,7 @@ class Project(models.Model):
     class Meta:
         verbose_name_plural = 'Проекты'
         verbose_name = 'проект'
+
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -39,6 +42,7 @@ class Language(models.Model):
     class Meta:
         verbose_name_plural = 'языки'
         verbose_name = 'язык'
+
     code = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     is_translate = models.BooleanField(default=True)
@@ -61,6 +65,10 @@ class Currency(models.Model):
 
 
 class ExchangeRate(models.Model):
+    class Meta:
+        verbose_name = 'обмен валют'
+        verbose_name_plural = 'обмен валют'
+
     value = models.FloatField()
     updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
     from_currency = models.ForeignKey(Currency, related_name='from_currency', null=True)
@@ -68,6 +76,21 @@ class ExchangeRate(models.Model):
 
     def __str__(self):
         return str(self.value)
+
+
+class ExchangeValue(models.Model):
+    class Meta:
+        ordering = '-updated_at'.split()
+
+    exchange = models.ForeignKey(ExchangeRate, related_name='values')
+    value = models.FloatField()
+    updated_at = models.DateTimeField(auto_now_add=True, null=True)
+
+
+@receiver(post_save, sender=ExchangeRate, dispatch_uid="update_stock_count")
+def update_stock(sender, instance, **kwargs):
+    exchange_value = ExchangeValue.objects.create(value=instance.value, exchange=instance)
+    exchange_value.save()
 
 
 class Country(models.Model):
