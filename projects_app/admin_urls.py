@@ -14,4 +14,6 @@ urlpatterns = [
     url(r'^languages/([0-9]+)/$', views.admin_languages_item_view),
     url(r'^exchanges/$', views.admin_exchanges_view),
     url(r'^exchanges/([0-9]+)/$', views.admin_exchanges_item_view),
+    url(r'^countries/$', views.admin_countries_view),
+    url(r'^countries/([0-9]+)/$', views.admin_countries_item_view),
 ]

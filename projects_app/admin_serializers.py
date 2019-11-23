@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from product_app.models import Brand, VendDepartment, VendCategory, Link, Document, OriginalProduct, Currency, Language, \
-    ExchangeRate, ExchangeValue
+    ExchangeRate, ExchangeValue, Country
 from user_app.serializers import UserSerializer
 
 
@@ -72,6 +72,15 @@ class ExchangeRateSerializer(serializers.ModelSerializer):
 class LanguageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Language
+        fields = '__all__'
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    currency = CurrencySerializer()
+    language = CurrencySerializer()
+
+    class Meta:
+        model = Country
         fields = '__all__'
 
 

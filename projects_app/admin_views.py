@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
     PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate
 from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer, \
-    LanguageSerializer, ExchangeRateSerializer
+    LanguageSerializer, ExchangeRateSerializer, CountrySerializer
 from projects_app.serializers import ProductSerializer
 from user_app.models import User
 from user_app.permissions import IsAdmin
@@ -209,7 +209,8 @@ def admin_exchanges_view(request):
             pass
         value = float(request.data.get('value', 0))
         if from_currency is not None and to_currency is not None:
-            exchange = ExchangeRate.objects.create(from_currency_id=from_currency, to_currency_id=to_currency, value=value)
+            exchange = ExchangeRate.objects.create(from_currency_id=from_currency, to_currency_id=to_currency,
+                                                   value=value)
             exchange.save()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -236,6 +237,57 @@ def admin_exchanges_item_view(request, id):
             exchange.from_currency_id = from_currency
             exchange.value = value
             exchange.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def admin_countries_view(request):
+    if request.method == 'GET':
+        countries = Country.objects.all()
+        return Response(data=CountrySerializer(countries, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        language = None
+        currency = None
+        try:
+            language = int(request.data.get('language_id'))
+            currency = int(request.data.get('currency_id'))
+        except:
+            pass
+        code = str(request.data.get('code', ''))
+        name = str(request.data.get('name', ''))
+        if language is not None and currency is not None:
+            exchange = Country.objects.create(language_id=language, currency_id=currency,name=name, code=code)
+            exchange.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
+def admin_countries_item_view(request, id):
+    country = Country.objects.get(id=id)
+    if request.method == 'GET':
+        return Response(data=CountrySerializer(country).data, status=status.HTTP_200_OK)
+    elif request.method == 'PUT':
+        language = None
+        currency = None
+        try:
+            language = int(request.data.get('language_id'))
+            currency = int(request.data.get('currency_id'))
+        except:
+            pass
+        code = str(request.data.get('code', ''))
+        name = str(request.data.get('name', ''))
+        if language is not None and currency is not None:
+            country.language_id = language
+            country.currency_id = currency
+            country.code = code
+            country.name = name
+            country.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
