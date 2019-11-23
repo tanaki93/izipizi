@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from product_app.models import Brand, VendDepartment, VendCategory, Link, Document, OriginalProduct, Currency
+from product_app.models import Brand, VendDepartment, VendCategory, Link, Document, OriginalProduct, Currency, Language
 from user_app.serializers import UserSerializer
 
 
@@ -51,6 +51,11 @@ class CurrencySerializer(serializers.ModelSerializer):
         model = Currency
         fields = '__all__'
 
+
+class LanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Language
+        fields = '__all__'
 
 class DocumentSerializer(serializers.ModelSerializer):
     user = UserSerializer()

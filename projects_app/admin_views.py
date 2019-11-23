@@ -4,8 +4,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
-    PROCESSED, IN_PROCESS, Country, Currency
-from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer
+    PROCESSED, IN_PROCESS, Country, Currency, Language
+from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer, \
+    LanguageSerializer
 from projects_app.serializers import ProductSerializer
 from user_app.models import User
 from user_app.permissions import IsAdmin
@@ -162,5 +163,31 @@ def admin_currencies_item_view(request, id):
         return Response(status=status.HTTP_200_OK)
 
 
-def admin_languages_view():
-    return None
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def admin_languages_view(request):
+    if request.method == 'GET':
+        languages = Language.objects.all()
+        return Response(data=LanguageSerializer(languages, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        name = request.data.get('name', '')
+        code = request.data.get('code', '')
+        is_translate = request.data.get('is_translate', True)
+        language = Language.objects.create(code=code, name=name, is_translate=is_translate)
+        language.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
+def admin_languages_item_view(request, id):
+    languages = Language.objects.get(id=id)
+    if request.method == 'GET':
+        return Response(data=LanguageSerializer(languages).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        languages.name = request.data.get('name', '')
+        languages.code = request.data.get('code', '')
+        languages.is_translate = request.data.get('is_translate', True)
+        # currency = Currency.objects.create(code=code, name=name)
+        languages.save()
+        return Response(status=status.HTTP_200_OK)
