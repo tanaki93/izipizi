@@ -66,7 +66,7 @@ class BrandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Brand
-        fields = ('id', 'name', 'is_active', 'link', 'created_at', 'updated_at', 'project', 'countries', 'currency')
+        fields = ('id', 'name', 'is_active', 'link','code', 'created_at', 'updated_at', 'project', 'countries', 'currency')
 
     # def get_departments_count(self, obj):
     #     departments = VendDepartment.objects.filter(brand=obj).count()
