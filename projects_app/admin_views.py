@@ -155,7 +155,7 @@ def admin_currencies_item_view(request, id):
     currencies = Currency.objects.get(id=id)
     if request.method == 'GET':
         return Response(data=CurrencySerializer(currencies).data, status=status.HTTP_200_OK)
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         currencies.name = request.data.get('name', '')
         currencies.code = request.data.get('code', '')
         # currency = Currency.objects.create(code=code, name=name)
