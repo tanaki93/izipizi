@@ -160,3 +160,7 @@ def admin_currencies_item_view(request, id):
         # currency = Currency.objects.create(code=code, name=name)
         currencies.save()
         return Response(status=status.HTTP_200_OK)
+
+
+def admin_languages_view():
+    return None
