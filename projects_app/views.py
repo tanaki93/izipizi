@@ -651,6 +651,14 @@ def operator_documents_view(request):
 
 @api_view(['GET'])
 @permission_classes([IsOperator])
+def operator_documents_all_view(request):
+    if request.method == 'GET':
+        documents = Document.objects.all()
+        return Response(status=status.HTTP_200_OK, data=DocumentSerializer(documents, many=True).data)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsOperator])
 def operator_documents_item_view(request, id):
     try:
         document = Document.objects.get(id=id, user=request.user)
@@ -658,6 +666,11 @@ def operator_documents_item_view(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
         return Response(status=status.HTTP_200_OK, data=DocumentDetailedSerializer(document).data)
+    elif request.method == 'PUT':
+        document = Document.objects.get(id=id)
+        document.user = request.user
+        document.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

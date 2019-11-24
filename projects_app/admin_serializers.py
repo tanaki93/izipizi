@@ -84,12 +84,19 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class DepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendDepartment
+        fields = '__all__'
+
+
 class DocumentSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    department = DepartmentSerializer()
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'user', 'status')
+        fields = ('id', 'updated_at', 'user', 'status', 'department')
 
 
 class DocumentDetailedSerializer(serializers.ModelSerializer):

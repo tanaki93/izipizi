@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^izishop/sizes/$', views.operator_sizes_view),
     url(r'^izishop/parent/categories/$', views.operator_parent_category_search_view),
     url(r'^documents/$', views.operator_documents_view),
+    url(r'^documents/all/$', views.operator_documents_all_view),
     url(r'^documents/([0-9]+)/$', views.operator_documents_item_view),
     url(r'^documents/([0-9]+)/products/$', views.operator_documents_products_view),
     url(r'^documents/([0-9]+)/products/([0-9]+)/$', views.operator_documents_products_item_view),
