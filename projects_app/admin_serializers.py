@@ -114,38 +114,38 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 class DocumentDetailedSerializer(serializers.ModelSerializer):
     # user = UserSerializer()
-    brands = serializers.SerializerMethodField()
+    # brands = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'status', 'brands')
+        fields = ('id', 'updated_at', 'status')
 
-    def get_brands(self, obj):
-        products = (obj.original_products.all())
-        categories = VendCategory.objects.filter(id__in=[i.link.tr_category.id for i in products])
-        departments = VendDepartment.objects.filter(id__in=[i.department_id for i in categories])
-        brands = Brand.objects.filter(id__in=[i.brand.id for i in departments])
-        brand_arr = []
-        for brand in brands:
-            department_arr = []
-            for department in departments.filter(brand=brand):
-                categories_arr = []
-                for category in categories.filter(department=department):
-                    category_data = {
-                        'category_id': category.id,
-                        'name': category.name
-                    }
-                    categories_arr.append(category_data)
-                department_data = {
-                    'department_id': department.id,
-                    'name': department.name,
-                    'categories': categories_arr
-                }
-                department_arr.append(department_data)
-            brand_data = {
-                'brand_id': brand.id,
-                'name': brand.name,
-                'departments': department_arr
-            }
-            brand_arr.append(brand_data)
-        return brand_arr
+    # def get_brands(self, obj):
+    #     products = (obj.original_products.all())
+    #     categories = VendCategory.objects.filter(id__in=[i.link.tr_category.id for i in products])
+    #     departments = VendDepartment.objects.filter(id__in=[i.department_id for i in categories])
+    #     brands = Brand.objects.filter(id__in=[i.brand.id for i in departments])
+    #     brand_arr = []
+    #     for brand in brands:
+    #         department_arr = []
+    #         for department in departments.filter(brand=brand):
+    #             categories_arr = []
+    #             for category in categories.filter(department=department):
+    #                 category_data = {
+    #                     'category_id': category.id,
+    #                     'name': category.name
+    #                 }
+    #                 categories_arr.append(category_data)
+    #             department_data = {
+    #                 'department_id': department.id,
+    #                 'name': department.name,
+    #                 'categories': categories_arr
+    #             }
+    #             department_arr.append(department_data)
+    #         brand_data = {
+    #             'brand_id': brand.id,
+    #             'name': brand.name,
+    #             'departments': department_arr
+    #         }
+    #         brand_arr.append(brand_data)
+    #     return brand_arr
