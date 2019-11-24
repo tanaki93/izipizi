@@ -3,7 +3,8 @@ from django.contrib import admin
 # Register your models here.
 from product_app.models import Category, Product, OriginalProduct, Tag, VendSize, Currency, Department, Brand, \
     VendDepartment, VendCategory, Size, Link, Variant, Document, ParentCategory, Slider, ImageSlider, Project, Language, \
-    ExchangeRate, ExchangeValue, Country, TranslationCategory, TranslationDepartment, TranslationColour, VendColour
+    ExchangeRate, ExchangeValue, Country, TranslationCategory, TranslationDepartment, TranslationColour, VendColour, \
+    BrandCountry
 
 
 class OriginalProductAdmin(admin.ModelAdmin):
@@ -37,6 +38,7 @@ class SliderAdmin(admin.ModelAdmin):
 
 admin.site.register(Department)
 admin.site.register(Category)
+admin.site.register(BrandCountry)
 admin.site.register(TranslationCategory)
 admin.site.register(TranslationDepartment)
 admin.site.register(TranslationColour)

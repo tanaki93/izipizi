@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^brands/$', views.client_brands_view),
     url(r'^sliders/$', views.client_sliders_view),
     url(r'^products/$', views.client_products_view),
+    url(r'^products/([0-9]+)/$', views.client_products_item_view),
 ]

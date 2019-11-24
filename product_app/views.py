@@ -62,7 +62,7 @@ def client_sliders_view(request):
 @permission_classes([AllowAny])
 def client_products_view(request):
     if request.method == 'GET':
-        products = Product.objects.filter(link__status=2)
+        products = Product.objects.all()
         brand_id = None
         try:
             brand_id = int(request.GET.get('brand_id'))
@@ -101,3 +101,14 @@ def client_products_view(request):
             'objects': ProductSerializer(products[(page - 1) * 16: page * 16], many=True).data
         }
         return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def client_products_item_view(request, id):
+    if request.method=='GET':
+        try:
+            product = Product.objects.get(id = id)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(data=ProductSerializer(product).data, status=status.HTTP_200_OK)
