@@ -661,7 +661,7 @@ def operator_documents_all_view(request):
 @permission_classes([IsOperator])
 def operator_documents_item_view(request, id):
     try:
-        document = Document.objects.get(id=id, user=request.user)
+        document = Document.objects.get(id=id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
