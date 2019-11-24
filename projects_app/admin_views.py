@@ -1,10 +1,11 @@
+from django.db import transaction
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
-    PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate
+    PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate, VendDepartment, DocumentProduct
 from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer, \
     LanguageSerializer, ExchangeRateSerializer, CountrySerializer
 from projects_app.serializers import ProductSerializer
@@ -20,27 +21,26 @@ def admin_brands_list_view(request):
         brands = Brand.objects.all()
         return Response(data=BrandAdminDetailedSerializer(brands, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        user_id = int(request.data.get('user_id', 0))
-        user = None
+        brand = None
         try:
-            user = User.objects.get(id=user_id)
+            brand = Brand.objects.get(id=int(request.data.get('brand_id')))
         except:
             pass
-        if user is None:
-            return Response(data={'error': 'user not found'})
-        else:
-            categories = request.data.get('categories', [])
-            # print(categories)
-            document = Document()
-            products = OriginalProduct.objects.filter(link__tr_category_id__in=categories, link__status=1)
-            document.user = user
-            document.save()
-            document.original_products.add(*list(products))
-            for i in products:
-                i.link.status = 3
-                i.link.save()
-            document.save()
-            return Response(status=status.HTTP_200_OK)
+        with transaction.atomic():
+            for i in VendDepartment.objects.filter(brand=brand):
+                document = None
+                try:
+                    document = Document.objects.get(department=i)
+                except:
+                    pass
+                if document is None:
+                    document = Document.objects.create(department=i)
+                    document.save()
+                    products = OriginalProduct.objects.filter(link__tr_category__department=i)
+                    for j in products:
+                        document_product = DocumentProduct.objects.create(product=j, document=document)
+                        document.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST'])
@@ -259,7 +259,7 @@ def admin_countries_view(request):
         code = str(request.data.get('code', ''))
         name = str(request.data.get('name', ''))
         if language is not None and currency is not None:
-            exchange = Country.objects.create(language_id=language, currency_id=currency,name=name, code=code)
+            exchange = Country.objects.create(language_id=language, currency_id=currency, name=name, code=code)
             exchange.save()
             return Response(status=status.HTTP_200_OK)
         else:

@@ -290,14 +290,19 @@ class Document(models.Model):
         verbose_name = 'документ'
         verbose_name_plural = 'документы'
 
-    original_products = models.ManyToManyField('OriginalProduct')
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, null=True, blank=True)
+    department = models.ForeignKey('VendDepartment', null=True, blank=True)
     status = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
     def __str__(self):
         return self.updated_at.__str__()
+
+
+class DocumentProduct(models.Model):
+    product = models.ForeignKey('OriginalProduct', null=True)
+    document = models.ForeignKey(Document, null=True, blank=True)
 
 
 class Tag(models.Model):

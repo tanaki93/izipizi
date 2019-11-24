@@ -36,15 +36,15 @@ class TrendYolDepartmentDetailedSerializer(serializers.ModelSerializer):
 
 
 class BrandAdminDetailedSerializer(serializers.ModelSerializer):
-    departments = serializers.SerializerMethodField()
+    # departments = serializers.SerializerMethodField()
 
     class Meta:
         model = Brand
-        fields = ('id', 'name', 'is_active', 'departments')
+        fields = ('id', 'name', 'is_active')
 
-    def get_departments(self, obj):
-        departments = VendDepartment.objects.filter(brand=obj)
-        return TrendYolDepartmentDetailedSerializer(departments, many=True).data
+    # def get_departments(self, obj):
+    #     departments = VendDepartment.objects.filter(brand=obj)
+    #     return TrendYolDepartmentDetailedSerializer(departments, many=True).data
 
 
 class CurrencySerializer(serializers.ModelSerializer):
@@ -86,14 +86,10 @@ class CountrySerializer(serializers.ModelSerializer):
 
 class DocumentSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    count = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'user', 'status', 'count')
-
-    def get_count(self, obj):
-        return obj.original_products.all().count()
+        fields = ('id', 'updated_at', 'user', 'status')
 
 
 class DocumentDetailedSerializer(serializers.ModelSerializer):
