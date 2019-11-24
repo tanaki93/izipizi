@@ -83,7 +83,13 @@ def create_original_product(link, param):
     original_product.link = link
     original_product.product_code = param['productCode']
     original_product.title = param['name']
-    original_product.colour = param['color']
+    for i in param['attributes']:
+        if i['key']['name'] == 'Renk':
+            colour = i['value']['name']
+            vend = VendColour.objects.filter(name=colour)
+            if len(vend) > 0:
+                original_product.colour = vend.first()
+            break
     original_product.product_id = param['id']
     original_product.discount_price = param['price']['discountedPrice']['value']
     original_product.original_price = param['price']['originalPrice']['value']
@@ -99,7 +105,7 @@ def create_original_product(link, param):
     original_product.is_free_argo = param['isFreeCargo']
     images = ''
     for image in param['images']:
-        images += ('https://img-trendyol.mncdn.com/' + image + ' ')
+        images += ('https://trendyol.com' + image + ' ')
     original_product.images = images.strip()
     promotions = ''
     for promotion in param['promotions']:
@@ -127,19 +133,22 @@ def create_original_product(link, param):
         variant_item.save()
     product = Product()
     product.link = link
-    product.title = translate_text(param['name'])
-    product.colour = translate_text(param['color'])
-    ul_soup = BeautifulSoup(param['description'], 'lxml')
-    description = ''
     try:
         product.brand_id = original_product.link.tr_category.department.brand_id
+    except:
+        pass
+    try:
         product.department_id = original_product.link.tr_category.department.department_id
+    except:
+        pass
+    try:
         product.category_id = original_product.link.tr_category.category_id
     except:
         pass
-    for i in (ul_soup.find_all('li')):
-        description += (i.text + '| ')
-    product.description = translate_text(description)
+    try:
+        product.colour = original_product.colour
+    except:
+        pass
     product.save()
 
     link.status = 1
@@ -151,7 +160,7 @@ def create_original_product(link, param):
 def links_trendyol_list_view(request):
     if request.method == 'GET':
         links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
-                                    tr_category__department__brand__is_trend_yol=True, originalproduct__isnull=True)
+                                    originalproduct__isnull=True)
         # print(links)
         return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
@@ -514,7 +523,7 @@ def operator_colours_item_view(request, id):
                 pass
             if tr is None:
                 tr = TranslationColour.objects.create(vend_colour=colour, language_id=int(i['lang_id']),
-                                                        name=i['translation'])
+                                                      name=i['translation'])
             else:
                 tr.name = i['translation']
             tr.save()
