@@ -700,6 +700,18 @@ def operator_documents_products_view(request, id):
         if colour_id is not None:
             products = products.filter(colour_id=colour_id)
         return Response(status=status.HTTP_200_OK, data=ProductSerializer(products, many=True).data)
+    else:
+        data = request.data.get('products', [])
+        name = request.data.get('attribute_name', '')
+        id = int(request.data.get('attribute_id', ''))
+        for i in data:
+            product = Product.objects.get(link__originalproduct=OriginalProduct.objects.get(id=i))
+            if name == 'colour':
+                product.colour_id = id
+            elif name == 'category':
+                product.category_id = id
+        return Response(status=status.HTTP_200_OK)
+
 
 
 @api_view(['GET'])
