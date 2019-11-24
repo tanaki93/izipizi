@@ -19,7 +19,7 @@ from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedS
 from projects_app.googletrans import Translator
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
-    TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer
+    TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer
 from user_app.permissions import IsOperator
 
 
@@ -205,7 +205,8 @@ def brands_list_view(request):
                         vend_colour = VendColour.objects.create(name=c, name_en=translate_text(c, 'en'))
                         vend_colour.save()
                         for language in languages:
-                            colour = TranslationColour.objects.create(name=translate_text(c, language.code), language=language, vend_colour=vend_colour)
+                            colour = TranslationColour.objects.create(name=translate_text(c, language.code),
+                                                                      language=language, vend_colour=vend_colour)
                             colour.save()
             with transaction.atomic():
                 for j in i['departments']:
@@ -240,8 +241,9 @@ def brands_list_view(request):
                                 new_dep.save()
                                 for i in languages:
                                     translation_dep = TranslationDepartment.objects.create(department=new_dep,
-                                                                                           name=translate_text(j['name'],
-                                                                                                               i.code).capitalize(),
+                                                                                           name=translate_text(
+                                                                                               j['name'],
+                                                                                               i.code).capitalize(),
                                                                                            language=i)
                                     translation_dep.save()
                             department.department = new_dep
@@ -261,7 +263,7 @@ def brands_list_view(request):
                             category.department = department
                             category.save()
                             flag = True
-                            if len(cats)>0:
+                            if len(cats) > 0:
                                 cat = cats.first()
                                 if cat.category is not None:
                                     category.category = cat.category
@@ -279,8 +281,9 @@ def brands_list_view(request):
                                     new_dep.save()
                                     for i in languages:
                                         translation_dep = TranslationCategory.objects.create(category=new_dep,
-                                                                                             name=translate_text(k['name'],
-                                                                                                                 i.code).capitalize(),
+                                                                                             name=translate_text(
+                                                                                                 k['name'],
+                                                                                                 i.code).capitalize(),
                                                                                              language=i)
                                         translation_dep.save()
                                 category.category = new_dep
@@ -464,7 +467,8 @@ def operator_departments_search_view(request):
         for i in request.data.get('languages'):
             tr = None
             try:
-                tr = TranslationDepartment.objects.create(department=category, language_id=int(i['lang_id']), name=i['name'])
+                tr = TranslationDepartment.objects.create(department=category, language_id=int(i['lang_id']),
+                                                          name=i['name'])
                 tr.save()
             except:
                 pass
@@ -484,6 +488,14 @@ def operator_category_search_view(request):
         category.name = name
         category.save()
         return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def operator_sizes_view(request):
+    if request.method == 'GET':
+        sizes = VendSize.objects.all()
+        return Response(status=status.HTTP_200_OK, data=VendSizeSerializer(sizes, many=True).data)
 
 
 @api_view(['GET', 'POST'])
@@ -520,7 +532,8 @@ def operator_category_item_view(request, id):
             except:
                 pass
             if tr is None:
-                tr = TranslationCategory.objects.create(department=category, language_id=int(i['lang_id']), name=i['name'])
+                tr = TranslationCategory.objects.create(department=category, language_id=int(i['lang_id']),
+                                                        name=i['name'])
             else:
                 tr.name = i['name']
             tr.save()
@@ -553,7 +566,8 @@ def operator_department_item_view(request, id):
             except:
                 pass
             if tr is None:
-                tr = TranslationDepartment.objects.create(department=deparment, language_id=int(i['lang_id']), name=i['name'])
+                tr = TranslationDepartment.objects.create(department=deparment, language_id=int(i['lang_id']),
+                                                          name=i['name'])
             else:
                 tr.name = i['name']
             tr.save()

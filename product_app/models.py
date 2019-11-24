@@ -390,7 +390,7 @@ class Size(models.Model):
         verbose_name_plural = 'Размер (izishop)'
         verbose_name = 'Размеры (izishop)'
 
-    vend_size = models.OneToOneField(VendSize, null=True, blank=True)
+    vend_size = models.OneToOneField(VendSize, null=True, blank=True, related_name='size')
     name = models.CharField(max_length=100)
 
     def __str__(self):

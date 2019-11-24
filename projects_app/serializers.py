@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
-    BrandCountry, Language, TranslationCategory, TranslationDepartment
+    BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -15,6 +15,20 @@ class TrendYolDepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendDepartment
         fields = ('id', 'name')
+
+
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Size
+        fields = ('id', 'name')
+
+
+class VendSizeSerializer(serializers.ModelSerializer):
+    size = SizeSerializer()
+
+    class Meta:
+        model = VendSize
+        fields = ('id', 'name', 'size')
 
 
 class LinkSerializer(serializers.ModelSerializer):
