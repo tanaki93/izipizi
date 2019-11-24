@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
 from product_app.models import Category, ParentCategory, Brand, Department, Slider, ImageSlider, Product, \
-    OriginalProduct, Country, BrandCountry, ExchangeRate
-
+    OriginalProduct, Country, BrandCountry, ExchangeRate, Language, TranslationDepartment, TranslationCategory
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -12,9 +11,20 @@ from projects_app.serializers import VendColourSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
         fields = ('id', 'name', 'image')
+
+    def get_name(self, obj):
+        try:
+            language = Language.objects.get(code='ru')
+            translation = TranslationCategory.objects.get(category=obj, language=language)
+            return translation.name.capitalize()
+        except:
+            pass
+        return obj.name
 
 
 class ParentCategorySerializer(serializers.ModelSerializer):
@@ -35,13 +45,25 @@ class BrandSerializer(serializers.ModelSerializer):
 
 
 class DepartmentsSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = Department
         fields = ('id', 'name')
 
+    def get_name(self, obj):
+        try:
+            language = Language.objects.get(code='ru')
+            translation = TranslationDepartment.objects.get(department=obj, language=language)
+            return translation.name.capitalize()
+        except:
+            pass
+        return obj.name
+
 
 class DepartmentSerializer(serializers.ModelSerializer):
     parent_categories = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = Department
@@ -51,6 +73,15 @@ class DepartmentSerializer(serializers.ModelSerializer):
         categories = Category.objects.filter(categories__department__department=obj)
         parents = ParentCategory.objects.filter(childs__in=categories).distinct()
         return ParentCategorySerializer(parents, many=True).data
+
+    def get_name(self, obj):
+        try:
+            language = Language.objects.get(code='ru')
+            translation = TranslationDepartment.objects.get(department=obj, language=language)
+            return translation.name.capitalize()
+        except:
+            pass
+        return obj.name
 
 
 class ImageSerializer(serializers.ModelSerializer):

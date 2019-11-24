@@ -418,8 +418,8 @@ class Product(models.Model):
     colour = models.ForeignKey('VendColour', null=True)
     active = models.BooleanField(default=False)
     brand = models.ForeignKey('Brand', null=True, blank=True)
-    department = models.ForeignKey('Department', null=True, blank=True)
-    category = models.ForeignKey('Category', null=True, blank=True, on_delete=SET_NULL)
+    department = models.ForeignKey('VendDepartment', null=True, blank=True)
+    category = models.ForeignKey('VendCategory', null=True, blank=True, on_delete=SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

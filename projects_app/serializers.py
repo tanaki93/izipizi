@@ -32,31 +32,40 @@ class VendSizeSerializer(serializers.ModelSerializer):
 
 
 class VendColourSerializer(serializers.ModelSerializer):
-    languages = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
 
     class Meta:
         model = VendSize
-        fields = ('id', 'name', 'languages')
+        fields = ('id', 'name')
 
-    def get_languages(self, obj):
-        data = []
-        for i in Language.objects.all():
-            tr = None
-            try:
-                tr = TranslationColour.objects.get(vend_colour=obj, language=i)
-            except:
-                pass
-            context = {
-                'lang_id': i.id,
-                'lang_name': i.name,
-                'lang_code': i.code,
-            }
-            if tr is not None:
-                context['translation'] = tr.name
-            else:
-                context['translation'] = None
-            data.append(context)
-        return data
+    def get_name(self, obj):
+        try:
+            language = Language.objects.get(code='ru')
+            translation = TranslationColour.objects.get(vend_colour=obj, language=language)
+            return translation.name.capitalize()
+        except:
+            pass
+        return obj.name
+
+    # def get_languages(self, obj):
+    #     data = []
+    #     for i in Language.objects.all():
+    #         tr = None
+    #         try:
+    #             tr = TranslationColour.objects.get(vend_colour=obj, language=i)
+    #         except:
+    #             pass
+    #         context = {
+    #             'lang_id': i.id,
+    #             'lang_name': i.name,
+    #             'lang_code': i.code,
+    #         }
+    #         if tr is not None:
+    #             context['translation'] = tr.name
+    #         else:
+    #             context['translation'] = None
+    #         data.append(context)
+    #     return data
 
 
 class LinkSerializer(serializers.ModelSerializer):
