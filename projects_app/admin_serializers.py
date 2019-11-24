@@ -100,10 +100,16 @@ class DocumentSerializer(serializers.ModelSerializer):
         fields = ('id', 'updated_at', 'user', 'status', 'department', 'brand')
 
     def get_department(self, obj):
-        return obj.department.name
+        try:
+            return obj.department.name
+        except:
+            return 'Нет отделения'
 
     def get_brand(self, obj):
-        return obj.department.brand.name
+        try:
+            return obj.department.brand.name
+        except:
+            return 'Нет бренда'
 
 
 class DocumentDetailedSerializer(serializers.ModelSerializer):
