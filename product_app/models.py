@@ -301,7 +301,7 @@ class Document(models.Model):
 
 
 class DocumentProduct(models.Model):
-    product = models.ForeignKey('OriginalProduct', null=True)
+    product = models.ForeignKey('OriginalProduct', null=True, related_name='originalproduct')
     document = models.ForeignKey(Document, null=True, blank=True)
 
 

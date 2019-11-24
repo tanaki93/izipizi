@@ -674,36 +674,44 @@ def operator_documents_item_view(request, id):
 
 
 @api_view(['GET'])
-@permission_classes([IsOperator])
+@permission_classes([AllowAny])
 def operator_documents_products_view(request, id):
     try:
-        document = Document.objects.get(id=id, user=request.user)
+        document = Document.objects.get(id=id)
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        page = 1
-        try:
-            page = int(request.GET.get('page', '1'))
-        except:
-            pass
-        products = document.original_products.all()
+        department = document.department
+        products = OriginalProduct.objects.filter(originalproduct__document=document)
+        query = request.GET.get('query', '')
+        products = products.filter(title__contains=query)
         category_id = None
         try:
             category_id = int(request.GET.get('category_id'))
         except:
             pass
         if category_id is not None:
-            products = products.filter(link__tr_category_id=category_id)
-        pages = products.count() // 10
-        if products.count() % 10 != 0:
-            pages += 1
-        data = {
-            'pages': pages,
-            'page': page,
-            'count': products.count(),
-            'objects': ProductSerializer(products[(page - 1) * 10: page * 10], many=True).data
-        }
-        return Response(status=status.HTTP_200_OK, data=data)
+            products = products.filter(category_id=category_id)
+        colour_id = None
+        try:
+            colour_id = int(request.GET.get('colour_id'))
+        except:
+            pass
+        if colour_id is not None:
+            products = products.filter(colour_id=colour_id)
+        return Response(status=status.HTTP_200_OK, data=ProductSerializer(products, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def operator_documents_products_brands_view(request, id):
+    try:
+        document = Document.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        department = document.department
+        return Response(status=status.HTTP_200_OK, data=BrandDetailedSerializer(department.brand).data)
 
 
 @api_view(['GET', 'PUT'])

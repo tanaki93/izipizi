@@ -255,11 +255,11 @@ class BrandItemSerializer(serializers.ModelSerializer):
 class IziProductSerializer(serializers.ModelSerializer):
     brand = BrandItemSerializer()
     category = CategoryItemSerializer()
-    department = DepartmentSerializer()
+    # department = DepartmentSerializer()
 
     class Meta:
         model = Product
-        fields = ['selling_price', 'discount_price', 'id', 'link', 'brand', 'category', 'department',
+        fields = ['selling_price', 'discount_price', 'id', 'link', 'brand', 'category',
                   'colour', 'created_at', 'title',
                   'original_price', 'updated_at', 'description']
 
@@ -293,12 +293,15 @@ class ProductSerializer(serializers.ModelSerializer):
     link = LinkSerializer()
     images = serializers.SerializerMethodField()
     product = serializers.SerializerMethodField()
+    department = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+    colour = serializers.SerializerMethodField()
 
     class Meta:
         model = OriginalProduct
         fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
                   'colour', 'promotions', 'created_at', 'active', 'product_id', 'link', 'is_rush_delivery', 'title',
-                  'original_price', 'updated_at', 'description', 'product']
+                  'original_price', 'updated_at', 'description', 'product', 'department', 'category', 'colour']
 
     def get_images(self, obj):
         return obj.images.split()
@@ -306,3 +309,15 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_product(self, obj):
         product = Product.objects.get(link=obj.link)
         return IziProductSerializer(product).data
+
+    def get_department(self, obj):
+        product = Product.objects.get(link=obj.link)
+        return product.department.name
+
+    def get_category(self, obj):
+        product = Product.objects.get(link=obj.link)
+        return product.category.name
+
+    def get_colour(self, obj):
+        product = Product.objects.get(link=obj.link)
+        return product.colour.name

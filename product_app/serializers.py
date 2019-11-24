@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from product_app.models import Category, ParentCategory, Brand, Department, Slider, ImageSlider, Product, \
-    OriginalProduct, Country, BrandCountry, ExchangeRate, Language, TranslationDepartment, TranslationCategory
+    OriginalProduct, Country, BrandCountry, ExchangeRate, Language, TranslationDepartment, TranslationCategory, \
+    VendDepartment, VendCategory
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -14,13 +15,13 @@ class CategorySerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
 
     class Meta:
-        model = Category
-        fields = ('id', 'name', 'image')
+        model = VendCategory
+        fields = ('id', 'name')
 
     def get_name(self, obj):
         try:
             language = Language.objects.get(code='ru')
-            translation = TranslationCategory.objects.get(category=obj, language=language)
+            translation = TranslationCategory.objects.get(category=obj.category, language=language)
             return translation.name.capitalize()
         except:
             pass
@@ -48,13 +49,13 @@ class DepartmentsSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
 
     class Meta:
-        model = Department
+        model = VendDepartment
         fields = ('id', 'name')
 
     def get_name(self, obj):
         try:
             language = Language.objects.get(code='ru')
-            translation = TranslationDepartment.objects.get(department=obj, language=language)
+            translation = TranslationDepartment.objects.get(department=obj.department, language=language)
             return translation.name.capitalize()
         except:
             pass
