@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
-    BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size
+    BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -29,6 +29,34 @@ class VendSizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendSize
         fields = ('id', 'name', 'size')
+
+
+class VendColourSerializer(serializers.ModelSerializer):
+    languages = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VendSize
+        fields = ('id', 'name', 'languages')
+
+    def get_languages(self, obj):
+        data = []
+        for i in Language.objects.all():
+            tr = None
+            try:
+                tr = TranslationColour.objects.get(vend_colour=obj, language=i)
+            except:
+                pass
+            context = {
+                'lang_id': i.id,
+                'lang_name': i.name,
+                'lang_code': i.code,
+            }
+            if tr is not None:
+                context['translation'] = tr.name
+            else:
+                context['translation'] = None
+            data.append(context)
+        return data
 
 
 class LinkSerializer(serializers.ModelSerializer):

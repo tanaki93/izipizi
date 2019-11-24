@@ -19,7 +19,8 @@ from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedS
 from projects_app.googletrans import Translator
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
-    TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer
+    TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer, \
+    VendColourSerializer
 from user_app.permissions import IsOperator
 
 
@@ -477,6 +478,51 @@ def operator_departments_search_view(request):
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
+def operator_colours_view(request):
+    if request.method == 'GET':
+        colours = VendColour.objects.all()
+        return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colours, many=True).data)
+    elif request.method == 'POST':
+        name = request.data.get('name', '')
+        colour = VendColour()
+        colour.name = name
+        colour.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationColour.objects.create(vend_colour=colour, language_id=int(i['lang_id']),
+                                                      name=i['translation'])
+                tr.save()
+            except:
+                pass
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def operator_colours_item_view(request, id):
+    colour = VendColour.objects.get(id=id)
+    if request.method == 'PUT':
+        # category.code = request.data.get('code', '')
+        colour.name = request.data.get('name', '')
+        colour.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationColour.objects.get(vend_colour=colour, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationColour.objects.create(vend_colour=colour, language_id=int(i['lang_id']),
+                                                        name=i['translation'])
+            else:
+                tr.name = i['translation']
+            tr.save()
+    return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colour).data)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def operator_category_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -491,7 +537,7 @@ def operator_category_search_view(request):
             tr = None
             try:
                 tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                          name=i['translation'])
+                                                        name=i['translation'])
                 tr.save()
             except:
                 pass
