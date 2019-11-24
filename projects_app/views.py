@@ -591,11 +591,11 @@ def operator_category_item_view(request, id):
         for i in request.data.get('languages'):
             tr = None
             try:
-                tr = TranslationCategory.objects.get(department=category, language_id=int(i['lang_id']))
+                tr = TranslationCategory.objects.get(category=category, language_id=int(i['lang_id']))
             except:
                 pass
             if tr is None:
-                tr = TranslationCategory.objects.create(department=category, language_id=int(i['lang_id']),
+                tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
                                                         name=i['translation'])
             else:
                 tr.name = i['translation']
