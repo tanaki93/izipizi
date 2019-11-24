@@ -434,9 +434,9 @@ class VendDepartment(models.Model):
 
     name = models.CharField(max_length=100)
     link = models.CharField(max_length=100, null=True)
-    brand = models.ForeignKey(Brand)
+    brand = models.ForeignKey(Brand, related_name='brand')
     is_active = models.BooleanField(default=True)
-    department = models.ForeignKey(Department, null=True)
+    department = models.ForeignKey(Department, null=True, related_name='departments')
 
     def __str__(self):
         return self.name

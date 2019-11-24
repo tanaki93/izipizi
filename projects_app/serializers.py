@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
-    BrandCountry
+    BrandCountry, Language, TranslationCategory, TranslationDepartment
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -31,10 +31,37 @@ class ParentSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     parent = ParentSerializer()
+    languages = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'parent')
+        fields = ('id', 'name', 'parent', 'languages')
+
+    def get_languages(self, obj):
+        data = []
+        languages = Language.objects.all()
+        for i in languages:
+            tr = None
+            try:
+                tr = TranslationCategory.objects.get(language=i, category=obj)
+            except:
+                pass
+            if tr is None:
+                context = {
+                    'lang_id': i.id,
+                    'lang_code': i.code,
+                    'lang_name': i.name,
+                    'translation': None,
+                }
+            else:
+                context = {
+                    'lang_id': i.id,
+                    'lang_code': i.code,
+                    'lang_name': i.name,
+                    'translation': tr.name,
+                }
+            data.append(context)
+        return data
 
 
 class TrendYolCategoryDetailedSerializer(serializers.ModelSerializer):
@@ -66,7 +93,8 @@ class BrandSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Brand
-        fields = ('id', 'name', 'is_active', 'link','code', 'created_at', 'updated_at', 'project', 'countries', 'currency')
+        fields = (
+            'id', 'name', 'is_active', 'link', 'code', 'created_at', 'updated_at', 'project', 'countries', 'currency')
 
     # def get_departments_count(self, obj):
     #     departments = VendDepartment.objects.filter(brand=obj).count()
@@ -105,10 +133,44 @@ class BrandSerializer(serializers.ModelSerializer):
         return countries
 
 
+class VendDepartmentSerializer(serializers.ModelSerializer):
+    brand = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VendDepartment
+        fields = ('id', 'name', 'brand')
+
+    def get_brand(self, obj):
+        return obj.brand.name
+
+
 class DepartmentSerializer(serializers.ModelSerializer):
+    languages = serializers.SerializerMethodField()
+    departments = VendDepartmentSerializer(many=True)
+
     class Meta:
         model = Department
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'languages', 'departments')
+
+    def get_languages(self, obj):
+        data = []
+        for i in Language.objects.all():
+            tr = None
+            try:
+                tr = TranslationDepartment.objects.get(department=obj, language=i)
+            except:
+                pass
+            context = {
+                'lang_id': i.id,
+                'lang_name': i.name,
+                'lang_code': i.code,
+            }
+            if tr is not None:
+                context['translation'] = tr.name
+            else:
+                context['translation'] = None
+            data.append(context)
+        return data
 
 
 class CategoryItemSerializer(serializers.ModelSerializer):

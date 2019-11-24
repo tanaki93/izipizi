@@ -221,16 +221,22 @@ def brands_list_view(request):
                         department.brand = brand
                         department.save()
                         name = translate_text(j['name'], 'en')
-                        new_dep = Department.objects.create(name=name)
-                        new_dep.save()
+                        new_dep = None
+                        try:
+                            new_dep = Department.objects.get(name=name)
+                        except:
+                            pass
+                        if new_dep is None:
+                            new_dep = Department.objects.create(name=name)
+                            new_dep.save()
+                            for i in languages:
+                                translation_dep = TranslationDepartment.objects.create(department=new_dep,
+                                                                                       name=translate_text(j['name'],
+                                                                                                           i.code).capitalize(),
+                                                                                       language=i)
+                                translation_dep.save()
                         department.department = new_dep
                         department.save()
-                        for i in languages:
-                            translation_dep = TranslationDepartment.objects.create(department=new_dep,
-                                                                                   name=translate_text(j['name'],
-                                                                                                       i.code),
-                                                                                   language=i)
-                            translation_dep.save()
                     for k in j['categories']:
                         category = None
                         try:
@@ -245,16 +251,23 @@ def brands_list_view(request):
                             category.department = department
                             category.save()
                             name = translate_text(k['name'], 'en')
-                            new_dep = Category.objects.create(name=name)
-                            new_dep.save()
+                            new_dep = None
+                            try:
+                                new_dep = Category.objects.get(name=name)
+                            except:
+                                pass
+                            if new_dep is None:
+                                new_dep = Category.objects.create(name=name)
+                                new_dep.save()
+                                for i in languages:
+                                    translation_dep = TranslationCategory.objects.create(category=new_dep,
+                                                                                         name=translate_text(k['name'],
+                                                                                                             i.code).capitalize(),
+                                                                                         language=i)
+                                    translation_dep.save()
                             category.category = new_dep
                             category.save()
-                            for i in languages:
-                                translation_dep = TranslationCategory.objects.create(category=new_dep,
-                                                                                     name=translate_text(k['name'],
-                                                                                                         i.code),
-                                                                                     language=i)
-                                translation_dep.save()
+
 
         return Response(status=status.HTTP_200_OK)
 
@@ -289,7 +302,7 @@ def operator_brands_list_view(request):
 
 
 @api_view(['GET', 'PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def operator_brands_item_view(request, id):
     brand = None
     try:
@@ -421,7 +434,7 @@ def operator_categories_item_view(request, id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def operator_departments_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -432,6 +445,13 @@ def operator_departments_search_view(request):
         category = Department()
         category.name = name
         category.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationDepartment.objects.create(department=category, language_id=int(i['lang_id']), name=i['name'])
+                tr.save()
+            except:
+                pass
         return Response(status=status.HTTP_200_OK)
 
 
@@ -477,6 +497,17 @@ def operator_category_item_view(request, id):
         except:
             pass
         category.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationCategory.objects.get(department=category, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationCategory.objects.create(department=category, language_id=int(i['lang_id']), name=i['name'])
+            else:
+                tr.name = i['name']
+            tr.save()
     return Response(status=status.HTTP_200_OK, data=CategorySerializer(category).data)
 
 
@@ -499,6 +530,17 @@ def operator_department_item_view(request, id):
         # deparment.code = request.data.get('code', '')
         deparment.name = request.data.get('name', '')
         deparment.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationDepartment.objects.get(department=deparment, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationDepartment.objects.create(department=deparment, language_id=int(i['lang_id']), name=i['name'])
+            else:
+                tr.name = i['name']
+            tr.save()
     return Response(status=status.HTTP_200_OK, data=DepartmentSerializer(deparment).data)
 
 
