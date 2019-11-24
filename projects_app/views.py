@@ -723,7 +723,7 @@ def operator_documents_products_brands_view(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
         department = document.department
-        return Response(status=status.HTTP_200_OK, data=BrandDetailedSerializer(department.brand).data)
+        return Response(status=status.HTTP_200_OK, data=TrendYolDepartmentDetailedSerializer(department).data)
 
 
 @api_view(['GET', 'PUT'])
