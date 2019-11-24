@@ -468,7 +468,7 @@ def operator_departments_search_view(request):
             tr = None
             try:
                 tr = TranslationDepartment.objects.create(department=category, language_id=int(i['lang_id']),
-                                                          name=i['name'])
+                                                          name=i['translation'])
                 tr.save()
             except:
                 pass
@@ -487,6 +487,14 @@ def operator_category_search_view(request):
         category = Category()
         category.name = name
         category.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
+                                                          name=i['translation'])
+                tr.save()
+            except:
+                pass
         return Response(status=status.HTTP_200_OK)
 
 
@@ -533,9 +541,9 @@ def operator_category_item_view(request, id):
                 pass
             if tr is None:
                 tr = TranslationCategory.objects.create(department=category, language_id=int(i['lang_id']),
-                                                        name=i['name'])
+                                                        name=i['translation'])
             else:
-                tr.name = i['name']
+                tr.name = i['translation']
             tr.save()
     return Response(status=status.HTTP_200_OK, data=CategorySerializer(category).data)
 
@@ -567,9 +575,9 @@ def operator_department_item_view(request, id):
                 pass
             if tr is None:
                 tr = TranslationDepartment.objects.create(department=deparment, language_id=int(i['lang_id']),
-                                                          name=i['name'])
+                                                          name=i['translation'])
             else:
-                tr.name = i['name']
+                tr.name = i['translation']
             tr.save()
     return Response(status=status.HTTP_200_OK, data=DepartmentSerializer(deparment).data)
 
