@@ -29,13 +29,29 @@ class ParentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class VendCategorySerializer(serializers.ModelSerializer):
+    brand = serializers.SerializerMethodField()
+    department = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VendCategory
+        fields = ('id', 'name', 'department', 'brand')
+
+    def get_brand(self, obj):
+        return obj.department.brand.name
+
+    def get_department(self, obj):
+        return obj.department.name
+
+
 class CategorySerializer(serializers.ModelSerializer):
     parent = ParentSerializer()
     languages = serializers.SerializerMethodField()
+    categories = VendCategorySerializer(many=True)
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'parent', 'languages')
+        fields = ('id', 'name', 'parent', 'languages', 'categories')
 
     def get_languages(self, obj):
         data = []

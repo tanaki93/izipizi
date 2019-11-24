@@ -451,7 +451,7 @@ class VendCategory(models.Model):
     link = models.CharField(max_length=100, null=True)
     department = models.ForeignKey(VendDepartment, null=True)
     is_active = models.BooleanField(default=True)
-    category = models.ForeignKey(Category, null=True, blank=True, on_delete=SET_NULL)
+    category = models.ForeignKey(Category, null=True, blank=True, on_delete=SET_NULL, related_name='categories')
 
     def __str__(self):
         return self.name
