@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from product_app.models import Brand, VendDepartment, VendCategory, Link, Document, OriginalProduct, Currency, Language, \
-    ExchangeRate, ExchangeValue, Country
+    ExchangeRate, ExchangeValue, Country, DocumentProduct
 from user_app.serializers import UserSerializer
 
 
@@ -94,10 +94,12 @@ class DocumentSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     department = serializers.SerializerMethodField()
     brand = serializers.SerializerMethodField()
+    products = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'user', 'status', 'department', 'brand')
+        fields = ('id', 'updated_at', 'user', 'status', 'department', 'brand', 'products')
 
     def get_department(self, obj):
         try:
@@ -110,6 +112,12 @@ class DocumentSerializer(serializers.ModelSerializer):
             return obj.department.brand.name
         except:
             return 'Нет бренда'
+
+    def get_products(self, obj):
+        return DocumentProduct.objects.filter(document=obj).count()
+
+    def get_status(self, obj):
+        return obj.status
 
 
 class DocumentDetailedSerializer(serializers.ModelSerializer):

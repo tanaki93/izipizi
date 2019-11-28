@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from product_app.models import Product
+from product_app.models import Product, DocumentProduct, OriginalProduct
 from user_app.models import User, ConfirmationCode
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -211,18 +211,22 @@ def profile_resend_code_view(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAdmin])
+@permission_classes([AllowAny])
 def post(request, page):
     with transaction.atomic():
-        products = Product.objects.all()[(int(page)-1)*2000: (int(page))*2000]
-        count = 0
-        for i in products:
-            count+=1
-            try:
-                i.department_id = i.link.tr_category.department.id
-                i.category_id = i.link.tr_category.id
-                i.save()
-            except:
-                pass
-            print(count)
+        # products = Product.objects.all()[(int(page)-1)*2000: (int(page))*2000]
+        # count = 0
+        # for i in products:
+        #     count+=1
+        #     try:
+        #         i.department_id = i.link.tr_category.department.id
+        #         i.category_id = i.link.tr_category.id
+        #         i.save()
+        #     except:
+        #         pass
+        #     print(count)
+        d = DocumentProduct.objects.all()
+        for i in d:
+            i.step=1
+            i.save()
     return Response(data='')

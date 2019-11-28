@@ -292,7 +292,9 @@ class Document(models.Model):
 
     user = models.ForeignKey(User, null=True, blank=True)
     department = models.ForeignKey('VendDepartment', null=True, blank=True)
+    brand = models.ForeignKey('Brand', null=True, blank=True)
     status = models.IntegerField(default=1)
+    step = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
@@ -303,6 +305,7 @@ class Document(models.Model):
 class DocumentProduct(models.Model):
     product = models.ForeignKey('OriginalProduct', null=True, related_name='originalproduct')
     document = models.ForeignKey(Document, null=True, blank=True)
+    step = models.IntegerField(default=1, null=True, blank=True)
 
 
 class Tag(models.Model):
@@ -335,6 +338,7 @@ class OriginalProduct(models.Model):
         verbose_name = 'товар (vend)'
 
     title = models.CharField(max_length=100)
+    title_lower = models.CharField(max_length=100, null=True, blank=True)
     product_id = models.CharField(max_length=100)
     product_code = models.CharField(max_length=100, blank=True, null=True, default='')
     discount_price = models.FloatField(null=True, blank=True)
@@ -344,6 +348,9 @@ class OriginalProduct(models.Model):
     colour = models.ForeignKey('VendColour', blank=True, null=True)
     # status = models.IntegerField(default=1)
     link = models.OneToOneField(Link, null=True, related_name='originalproduct')
+    brand = models.ForeignKey('Brand', null=True, blank=True)
+    department = models.ForeignKey('VendDepartment', null=True, blank=True)
+    category = models.ForeignKey('VendCategory', null=True, blank=True, on_delete=SET_NULL)
     is_rush_delivery = models.BooleanField(default=False)
     is_free_argo = models.BooleanField(default=False)
     delivery_date = models.TextField(null=True, blank=True)
@@ -356,6 +363,10 @@ class OriginalProduct(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        self.title_lower = self.title.lower()
+        super(OriginalProduct, self).save()
 
 
 # class ProductImage(models.Model):
@@ -410,16 +421,9 @@ class Product(models.Model):
     title = models.CharField(max_length=100)
     title_lower = models.CharField(max_length=100, null=True, blank=True)
     link = models.OneToOneField(Link, null=True)
-    discount_price = models.FloatField(null=True, blank=True)
-    selling_price = models.FloatField(null=True, blank=True)
-    original_price = models.FloatField(null=True, blank=True)
     description = models.TextField()
     description_lower = models.TextField(null=True, blank=True)
-    colour = models.ForeignKey('VendColour', null=True)
     active = models.BooleanField(default=False)
-    brand = models.ForeignKey('Brand', null=True, blank=True)
-    department = models.ForeignKey('VendDepartment', null=True, blank=True)
-    category = models.ForeignKey('VendCategory', null=True, blank=True, on_delete=SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

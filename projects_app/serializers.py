@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
-    BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour
+    BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour, VendColour
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -32,40 +32,41 @@ class VendSizeSerializer(serializers.ModelSerializer):
 
 
 class VendColourSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
+    # name = serializers.SerializerMethodField()
+    languages = serializers.SerializerMethodField()
 
     class Meta:
-        model = VendSize
-        fields = ('id', 'name')
+        model = VendColour
+        fields = ('id', 'name', 'languages', 'name_en')
 
-    def get_name(self, obj):
-        try:
-            language = Language.objects.get(code='ru')
-            translation = TranslationColour.objects.get(vend_colour=obj, language=language)
-            return translation.name.capitalize()
-        except:
-            pass
-        return obj.name
+    # def get_name(self, obj):
+    #     try:
+    #         language = Language.objects.get(code='ru')
+    #         translation = TranslationColour.objects.get(vend_colour=obj, language=language)
+    #         return translation.name.capitalize()
+    #     except:
+    #         pass
+    #     return obj.name
 
-    # def get_languages(self, obj):
-    #     data = []
-    #     for i in Language.objects.all():
-    #         tr = None
-    #         try:
-    #             tr = TranslationColour.objects.get(vend_colour=obj, language=i)
-    #         except:
-    #             pass
-    #         context = {
-    #             'lang_id': i.id,
-    #             'lang_name': i.name,
-    #             'lang_code': i.code,
-    #         }
-    #         if tr is not None:
-    #             context['translation'] = tr.name
-    #         else:
-    #             context['translation'] = None
-    #         data.append(context)
-    #     return data
+    def get_languages(self, obj):
+        data = []
+        for i in Language.objects.all():
+            tr = None
+            try:
+                tr = TranslationColour.objects.get(vend_colour=obj, language=i)
+            except:
+                pass
+            context = {
+                'lang_id': i.id,
+                'lang_name': i.name,
+                'lang_code': i.code,
+            }
+            if tr is not None:
+                context['translation'] = tr.name
+            else:
+                context['translation'] = None
+            data.append(context)
+        return data
 
 
 class LinkSerializer(serializers.ModelSerializer):
@@ -253,15 +254,14 @@ class BrandItemSerializer(serializers.ModelSerializer):
 
 
 class IziProductSerializer(serializers.ModelSerializer):
-    brand = BrandItemSerializer()
-    category = CategoryItemSerializer()
+    # brand = BrandItemSerializer()
+    # category = CategoryItemSerializer()
     # department = DepartmentSerializer()
 
     class Meta:
         model = Product
-        fields = ['selling_price', 'discount_price', 'id', 'link', 'brand', 'category',
-                  'colour', 'created_at', 'title',
-                  'original_price', 'updated_at', 'description']
+        fields = ['id', 'link', 'created_at', 'title',
+                  'updated_at', 'description']
 
 
 class TrendYolDepartmentDetailedSerializer(serializers.ModelSerializer):
@@ -289,18 +289,63 @@ class BrandDetailedSerializer(serializers.ModelSerializer):
         return TrendYolDepartmentDetailedSerializer(departments, many=True).data
 
 
+class ColourSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendColour
+        fields = '__all__'
+
+
+class VendCategoryDetailedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendCategory
+        fields = ('id', 'name', 'link', 'is_active',)
+
+
+class VendDepartmentDetailedSerializer(serializers.ModelSerializer):
+    categories = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VendDepartment
+        fields = ('id', 'name', 'is_active', 'categories')
+
+    def get_categories(self, obj):
+        categories = VendCategory.objects.filter(department=obj)
+        return VendCategoryDetailedSerializer(categories, many=True).data
+
+
+class BrandProcessSerializer(serializers.ModelSerializer):
+    departments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Brand
+        fields = ('id', 'name', 'is_active', 'departments')
+
+    def get_departments(self, obj):
+        departments = VendDepartment.objects.filter(brand=obj)
+        return VendDepartmentDetailedSerializer(departments, many=True).data
+
+
+class VendBrandSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Brand
+        fields = ('id', 'name')
+
+
 class ProductSerializer(serializers.ModelSerializer):
     link = LinkSerializer()
     images = serializers.SerializerMethodField()
     product = serializers.SerializerMethodField()
-    department = serializers.SerializerMethodField()
-    category = serializers.SerializerMethodField()
-    colour = serializers.SerializerMethodField()
+    department = TrendYolDepartmentSerializer()
+    brand = VendBrandSerializer()
+    category = TrendYolCategorySerializer()
+    colour = ColourSerializer()
 
     class Meta:
         model = OriginalProduct
         fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
-                  'colour', 'promotions', 'created_at', 'active', 'product_id', 'link', 'is_rush_delivery', 'title',
+                  'colour', 'promotions', 'created_at', 'active', 'brand', 'product_id', 'link', 'is_rush_delivery',
+                  'title',
                   'original_price', 'updated_at', 'description', 'product', 'department', 'category', 'colour']
 
     def get_images(self, obj):
@@ -309,15 +354,3 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_product(self, obj):
         product = Product.objects.get(link=obj.link)
         return IziProductSerializer(product).data
-
-    def get_department(self, obj):
-        product = Product.objects.get(link=obj.link)
-        return product.department.name
-
-    def get_category(self, obj):
-        product = Product.objects.get(link=obj.link)
-        return product.category.name
-
-    def get_colour(self, obj):
-        product = Product.objects.get(link=obj.link)
-        return product.colour.name

@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from product_app.models import Brand, VendDepartment, VendCategory, Department, Category, VendSize, Size, \
     Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry, Language, TranslationDepartment, \
-    TranslationCategory, VendColour, TranslationColour
+    TranslationCategory, VendColour, TranslationColour, DocumentProduct
 # from projects_app.googletrans.client import Translator
 from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
@@ -20,7 +20,7 @@ from projects_app.googletrans import Translator
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer, \
-    VendColourSerializer
+    VendColourSerializer, BrandProcessSerializer
 from user_app.permissions import IsOperator
 
 
@@ -131,28 +131,28 @@ def create_original_product(link, param):
         else:
             variant_item.stock = False
         variant_item.save()
+    try:
+        original_product.brand_id = original_product.link.tr_category.department.brand_id
+    except:
+        pass
+    try:
+        original_product.department_id = original_product.link.tr_category.department_id
+    except:
+        pass
+    try:
+        original_product.category_id = original_product.link.tr_category_id
+    except:
+        pass
+    original_product.save()
     product = Product()
     product.link = link
-    try:
-        product.brand_id = original_product.link.tr_category.department.brand_id
-    except:
-        pass
-    try:
-        product.department_id = original_product.link.tr_category.department.department_id
-    except:
-        pass
-    try:
-        product.category_id = original_product.link.tr_category.category_id
-    except:
-        pass
-    try:
-        product.colour = original_product.colour
-    except:
-        pass
+
     product.save()
 
     link.status = 1
     link.save()
+    product_document = DocumentProduct.objects.create(product=original_product)
+    product_document.save()
 
 
 @api_view(['GET', 'POST'])
@@ -493,8 +493,10 @@ def operator_colours_view(request):
         return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colours, many=True).data)
     elif request.method == 'POST':
         name = request.data.get('name', '')
+        name_en = request.data.get('name_en', '')
         colour = VendColour()
         colour.name = name
+        colour.name_en = name_en
         colour.save()
         for i in request.data.get('languages'):
             tr = None
@@ -514,6 +516,7 @@ def operator_colours_item_view(request, id):
     if request.method == 'PUT':
         # category.code = request.data.get('code', '')
         colour.name = request.data.get('name', '')
+        colour.name_en = request.data.get('name_en', '')
         colour.save()
         for i in request.data.get('languages'):
             tr = None
@@ -665,11 +668,121 @@ def operator_documents_item_view(request, id):
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
+
         return Response(status=status.HTTP_200_OK, data=DocumentDetailedSerializer(document).data)
     elif request.method == 'PUT':
         document = Document.objects.get(id=id)
         document.user = request.user
         document.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def operator_documents_process_view(request, id):
+    try:
+        document = Document.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        department = None
+        try:
+            department = document.department
+        except:
+            pass
+        data = {
+            'step': document.step,
+            'id': document.id,
+        }
+        if department is None:
+            data['department_id'] = None
+            data['department_name'] = None
+        else:
+            data['department_id'] = document.department.id
+            data['department_name'] = document.department.name
+        data['brand'] = BrandProcessSerializer(document.brand).data
+        data['colours'] = VendColourSerializer(VendColour.objects.all(), many=True).data
+        return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['GET', 'POST', 'PUT'])
+@permission_classes([IsOperator])
+def operator_documents_process_products_view(request, id):
+    try:
+        document = Document.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+
+        data = {}
+        products = OriginalProduct.objects.filter(originalproduct__document_id=id, originalproduct__step=document.step)
+        if query != "":
+            products = products.filter(title_lower__contains=query)
+        department_id = None
+        try:
+            department_id = int(request.GET.get('department_id', ''))
+        except:
+            pass
+        if department_id is not None:
+            products = products.filter(department_id=department_id)
+        category_id = None
+        try:
+            category_id = int(request.GET.get('category_id', ''))
+        except:
+            pass
+        if category_id is not None:
+            products = products.filter(category_id=category_id)
+        colour_id = None
+        try:
+            colour_id = int(request.GET.get('colour_id', ''))
+        except:
+            pass
+        if colour_id is not None:
+            products = products.filter(colour_id=colour_id)
+        length = products.count()
+        pages = length // 200
+        if pages == 0:
+            pages = 1
+        elif length % 200 != 0:
+            pages += 1
+        data['count'] = length
+        data['pages'] = pages
+        data['products'] = ProductSerializer(products[:200], many=True).data
+        return Response(status=status.HTTP_200_OK, data=data)
+    elif request.method == 'POST':
+        with transaction.atomic():
+            for i in request.data.get('products'):
+                try:
+                    product = OriginalProduct.objects.get(id=int(i))
+                except:
+                    pass
+                if product is not None:
+                    document_product = DocumentProduct.objects.get(document=document, product=product)
+                    document_product.step = document.step + 1
+                    document_product.save()
+            size = DocumentProduct.objects.filter(document=document, step=document.step).count()
+            if size == 0:
+                document.step = document.step + 1
+                document.save()
+            return Response(status=status.HTTP_200_OK)
+    elif request.method == 'PUT':
+        with transaction.atomic():
+            option = request.data.get('option', '')
+            id = None
+            try:
+                id = int(request.data.get('id', ''))
+            except:
+                pass
+            for i in request.data.get('products'):
+                product = OriginalProduct.objects.get(id=int(i))
+                if option == 'department':
+                    product.department_id = id
+                elif option == 'category':
+                    product.category_id = id
+                elif option == 'colour':
+                    product.colour_id = id
+                product.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -711,7 +824,6 @@ def operator_documents_products_view(request, id):
             elif name == 'category':
                 product.category_id = id
         return Response(status=status.HTTP_200_OK)
-
 
 
 @api_view(['GET'])

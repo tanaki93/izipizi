@@ -30,16 +30,22 @@ def admin_brands_list_view(request):
             for i in VendDepartment.objects.filter(brand=brand):
                 document = None
                 try:
-                    document = Document.objects.get(department=i)
+                    document = Document.objects.get(department=i, brand=brand)
                 except:
                     pass
                 if document is None:
-                    document = Document.objects.create(department=i)
+                    document = Document.objects.create(department=i, brand=brand)
                     document.save()
-                    products = OriginalProduct.objects.filter(link__tr_category__department=i)
+                    products = OriginalProduct.objects.filter(department=i)
                     for j in products:
-                        document_product = DocumentProduct.objects.create(product=j, document=document)
-                        document.save()
+                        document_product = None
+                        try:
+                            document_product = DocumentProduct.objects.get(product=j)
+                        except:
+                            pass
+                        if document_product is not None:
+                            document_product.document = document
+                            document_product.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -79,13 +85,13 @@ def admin_users_list_view(request):
 @permission_classes([IsAdmin])
 def admin_statistics_view(request):
     if request.method == 'GET':
-        links = Link.objects.all()
+        document_product = DocumentProduct.objects.all()
         data = {
-            'not_parsed': links.filter(status=NOT_PARSED).count(),
-            'out_process': links.filter(status=OUT_PROCESS).count(),
-            'in_process': links.filter(status=IN_PROCESS).count(),
-            'processed': links.filter(status=PROCESSED).count(),
-            'all': links.count(),
+            'not_parsed': 0,
+            'out_process': document_product.filter(step=1).count(),
+            'in_process': document_product.filter(step__in=[2, 3, 4]).count(),
+            'processed': document_product.filter(step=5).count(),
+            'all': document_product.count(),
         }
         return Response(status=status.HTTP_200_OK, data=data)
 
