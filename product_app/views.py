@@ -182,7 +182,7 @@ def client_products_view(request):
 def client_products_item_view(request, id):
     if request.method == 'GET':
         try:
-            product = Product.objects.get(id=id)
+            product = OriginalProduct.objects.get(id=id)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(data=MainProductSerializer(product).data, status=status.HTTP_200_OK)
