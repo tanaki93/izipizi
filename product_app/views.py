@@ -1,12 +1,16 @@
+import json
+
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from product_app.models import Category, Department, ParentCategory, Brand, Slider, Product
+from product_app.models import Category, Department, ParentCategory, Brand, Slider, Product, OriginalProduct, \
+    VendColour, BrandCountry, ExchangeRate, VendSize
 from product_app.serializers import CategorySerializer, ParentCategorySerializer, BrandSerializer, DepartmentSerializer, \
-    SliderSerializer, ProductSerializer
+    SliderSerializer, MainProductSerializer
+from projects_app.serializers import MainColourSerializer, VendSizeSerializer
 from user_app.permissions import IsAdmin
 
 
@@ -58,32 +62,96 @@ def client_sliders_view(request):
         return Response(status=status.HTTP_200_OK, data=SliderSerializer(sliders, many=True).data)
 
 
+def get_price(price):
+    try:
+        brand_country = BrandCountry.objects.all().first()
+        exchange = ExchangeRate.objects.all().first()
+        x = (price / exchange.value)
+        return x / brand_country.mark_up
+    except:
+        return 0
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def client_products_view(request):
     if request.method == 'GET':
-        products = Product.objects.all()
+        products = OriginalProduct.objects.all()
         brand_id = None
         try:
             brand_id = int(request.GET.get('brand_id'))
         except:
             pass
+
         if brand_id is not None:
             products = products.filter(brand_id=brand_id)
+        js = []
+        try:
+            brands = str(request.GET.get('brands'))
+            js = list(json.loads(brands))
+        except:
+            pass
+        if len(js) > 0:
+            products = products.filter(brand_id__in=js)
+        js = []
+        sizes = str(request.GET.get('sizes')).strip()
+        if len(sizes) > 2:
+            sizes_arr = sizes[1: len(sizes) - 1].split(',')
+            js = [i.strip().upper() for i in sizes_arr]
+        if len(js) > 0:
+            products = products.filter(variants__tr_size__name__in=js)
+        price_from = None
+        try:
+            price_from = int(request.GET.get('price_from'))
+        except:
+            pass
+        if price_from is not None:
+            products = products.filter(discount_price__gte=get_price(price_from))
+
+        price_to = None
+        try:
+            price_to = int(request.GET.get('price_to'))
+        except:
+            pass
+        if price_to is not None:
+            products = products.filter(discount_price__lte=get_price(price_to))
+
+        department_id = None
+        try:
+            department_id = int(request.GET.get('department_id'))
+        except:
+            pass
+        if department_id is not None:
+            products = products.filter(department__department_id=department_id)
+
+        colour_id = None
+        try:
+            colour_id = int(request.GET.get('colour_id'))
+        except:
+            pass
+        if colour_id is not None:
+            products = products.filter(colour_id=colour_id)
         parent_category_id = None
         try:
             parent_category_id = int(request.GET.get('parent_category_id'))
         except:
             pass
         if parent_category_id is not None:
-            products = products.filter(category__parent_id=parent_category_id)
+            products = products.filter(category__category__parent_id=parent_category_id)
         category_id = None
         try:
             category_id = int(request.GET.get('category_id'))
         except:
             pass
         if category_id is not None:
-            products = products.filter(category_id=category_id)
+            products = products.filter(category__category_id=category_id)
+        order_by = ''
+        try:
+            order_by = str(request.GET.get('order_by', ''))
+        except:
+            pass
+        if order_by != '':
+            products = products.order_by(order_by)
         pages = products.count() // 16
         if products.count() % 16 != 0:
             pages += 1
@@ -98,7 +166,7 @@ def client_products_view(request):
                 'page': page,
                 'count': products.count(),
             },
-            'objects': ProductSerializer(products[(page - 1) * 16: page * 16], many=True).data
+            'objects': MainProductSerializer(products[(page - 1) * 16: page * 16], many=True).data
         }
         return Response(status=status.HTTP_200_OK, data=data)
 
@@ -106,9 +174,25 @@ def client_products_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def client_products_item_view(request, id):
-    if request.method=='GET':
+    if request.method == 'GET':
         try:
-            product = Product.objects.get(id = id)
+            product = Product.objects.get(id=id)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response(data=ProductSerializer(product).data, status=status.HTTP_200_OK)
+        return Response(data=MainProductSerializer(product).data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def client_colours_view(request):
+    if request.method == 'GET':
+        return Response(data=MainColourSerializer(VendColour.objects.all(), many=True).data, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def client_sizes_view(request):
+    if request.method == 'GET':
+        return Response(data=VendSizeSerializer(VendSize.objects.all(), many=True).data, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -786,6 +786,32 @@ def operator_documents_process_products_view(request, id):
         return Response(status=status.HTTP_200_OK)
 
 
+@api_view(['PUT'])
+@permission_classes([IsOperator])
+def operator_documents_process_products_item_view(request, id, product_id):
+    try:
+        document = Document.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'PUT':
+        with transaction.atomic():
+            option = request.data.get('option', '')
+            id = None
+            try:
+                id = int(request.data.get('id', ''))
+            except:
+                pass
+            product = OriginalProduct.objects.get(id=product_id, originalproduct__document=document)
+            if option == 'department':
+                product.department_id = id
+            elif option == 'category':
+                product.category_id = id
+            elif option == 'colour':
+                product.colour_id = id
+            product.save()
+        return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def operator_documents_products_view(request, id):

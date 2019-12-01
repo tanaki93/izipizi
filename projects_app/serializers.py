@@ -24,11 +24,17 @@ class SizeSerializer(serializers.ModelSerializer):
 
 
 class VendSizeSerializer(serializers.ModelSerializer):
-    size = SizeSerializer()
+    name_en = serializers.SerializerMethodField()
 
     class Meta:
         model = VendSize
-        fields = ('id', 'name', 'size')
+        fields = ('id', 'name', 'name_en')
+
+    def get_name_en(self, obj):
+        try:
+            return obj.size.name
+        except:
+            return obj.name
 
 
 class VendColourSerializer(serializers.ModelSerializer):
@@ -67,6 +73,24 @@ class VendColourSerializer(serializers.ModelSerializer):
                 context['translation'] = None
             data.append(context)
         return data
+
+
+class MainColourSerializer(serializers.ModelSerializer):
+    name_ru = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VendColour
+        fields = ('id', 'name', 'name_ru', 'name_en')
+
+    def get_name_ru(self, obj):
+        try:
+            language = Language.objects.get(code='ru')
+            translation = TranslationColour.objects.get(vend_colour=obj, language=language)
+            return translation.name.capitalize()
+        except:
+            pass
+        return ''
+
 
 
 class LinkSerializer(serializers.ModelSerializer):
@@ -326,7 +350,6 @@ class BrandProcessSerializer(serializers.ModelSerializer):
 
 
 class VendBrandSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Brand
         fields = ('id', 'name')

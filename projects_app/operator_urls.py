@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^documents/([0-9]+)/$', views.operator_documents_item_view),
     url(r'^documents/([0-9]+)/process/$', views.operator_documents_process_view),
     url(r'^documents/([0-9]+)/process/products/$', views.operator_documents_process_products_view),
+    url(r'^documents/([0-9]+)/process/products/([0-9]+)/$', views.operator_documents_process_products_item_view),
     url(r'^documents/([0-9]+)/products/$', views.operator_documents_products_view),
     url(r'^documents/([0-9]+)/products/brands/$', views.operator_documents_products_brands_view),
     url(r'^documents/([0-9]+)/products/([0-9]+)/$', views.operator_documents_products_item_view),
