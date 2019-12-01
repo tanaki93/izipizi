@@ -91,15 +91,21 @@ def client_products_view(request):
             js = list(json.loads(brands))
         except:
             pass
+
         if len(js) > 0:
             products = products.filter(brand_id__in=js)
         js = []
-        sizes = str(request.GET.get('sizes')).strip()
-        if len(sizes) > 2:
-            sizes_arr = sizes[1: len(sizes) - 1].split(',')
-            js = [i.strip().upper() for i in sizes_arr]
+        try:
+            sizes = str(request.GET.get('sizes', '')).strip()
+            if len(sizes) > 2:
+                sizes_arr = sizes[1: len(sizes) - 1].split(',')
+                js = [i.strip().upper() for i in sizes_arr]
+        except:
+            pass
+
         if len(js) > 0:
             products = products.filter(variants__tr_size__name__in=js)
+        print(len(products))
         price_from = None
         try:
             price_from = int(request.GET.get('price_from'))
