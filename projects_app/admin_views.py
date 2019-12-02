@@ -300,7 +300,7 @@ def admin_countries_item_view(request, id):
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT','POST'])
 @permission_classes([AllowAny])
 def admin_documents_item_view(request, id):
     try:
