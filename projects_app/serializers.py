@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
-    BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour, VendColour
+    BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour, VendColour, \
+    DocumentComment
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -35,6 +36,12 @@ class VendSizeSerializer(serializers.ModelSerializer):
             return obj.size.name
         except:
             return obj.name
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentComment
+        fields = ('id', 'text', 'updated_at')
 
 
 class VendColourSerializer(serializers.ModelSerializer):
@@ -90,7 +97,6 @@ class MainColourSerializer(serializers.ModelSerializer):
         except:
             pass
         return ''
-
 
 
 class LinkSerializer(serializers.ModelSerializer):

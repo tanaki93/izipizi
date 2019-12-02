@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from product_app.models import Brand, VendDepartment, VendCategory, Department, Category, VendSize, Size, \
     Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry, Language, TranslationDepartment, \
-    TranslationCategory, VendColour, TranslationColour, DocumentProduct
+    TranslationCategory, VendColour, TranslationColour, DocumentProduct, DocumentComment
 # from projects_app.googletrans.client import Translator
 from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
@@ -20,7 +20,7 @@ from projects_app.googletrans import Translator
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer, \
-    VendColourSerializer, BrandProcessSerializer
+    VendColourSerializer, BrandProcessSerializer, CommentSerializer
 from user_app.permissions import IsOperator
 
 
@@ -661,7 +661,7 @@ def operator_documents_all_view(request):
 
 
 @api_view(['GET', 'PUT'])
-@permission_classes([IsOperator])
+@permission_classes([AllowAny])
 def operator_documents_item_view(request, id):
     try:
         document = Document.objects.get(id=id)
@@ -702,6 +702,7 @@ def operator_documents_process_view(request, id):
             data['department_name'] = document.department.name
         data['brand'] = BrandProcessSerializer(document.brand).data
         data['colours'] = VendColourSerializer(VendColour.objects.all(), many=True).data
+        data['comments'] = CommentSerializer(DocumentComment.objects.filter(document=document), many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
 
 

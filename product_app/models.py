@@ -308,6 +308,12 @@ class DocumentProduct(models.Model):
     step = models.IntegerField(default=1, null=True, blank=True)
 
 
+class DocumentComment(models.Model):
+    document = models.ForeignKey(Document, null=True, blank=True, related_name='comments')
+    text = models.TextField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+
 class Tag(models.Model):
     class Meta:
         verbose_name = 'тэг'

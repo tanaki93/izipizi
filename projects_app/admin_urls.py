@@ -6,6 +6,8 @@ urlpatterns = [
     url(r'^document/users/$', views.admin_users_list_view),
     url(r'^document/statistics/$', views.admin_statistics_view),
     url(r'^document/list/$', views.admin_documents_view),
+    url(r'^documents/([0-9]+)/process/$', views.admin_documents_item_view),
+    url(r'^documents/([0-9]+)/process/products/$', views.admin_documents_process_products_view),
     url(r'^products/$', views.admin_products_view),
     url(r'^countries/$', views.admin_countries_view),
     url(r'^currencies/$', views.admin_currencies_view),

@@ -5,10 +5,11 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
-    PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate, VendDepartment, DocumentProduct
+    PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate, VendDepartment, DocumentProduct, DocumentComment, \
+    VendColour
 from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer, \
-    LanguageSerializer, ExchangeRateSerializer, CountrySerializer
-from projects_app.serializers import ProductSerializer
+    LanguageSerializer, ExchangeRateSerializer, CountrySerializer, DocumentDetailedSerializer
+from projects_app.serializers import ProductSerializer, BrandProcessSerializer, VendColourSerializer, CommentSerializer
 from user_app.models import User
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -297,3 +298,89 @@ def admin_countries_item_view(request, id):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
+def admin_documents_item_view(request, id):
+    try:
+        document = Document.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        department = None
+        try:
+            department = document.department
+        except:
+            pass
+        data = {
+            'step': document.step,
+            'id': document.id,
+        }
+        if department is None:
+            data['department_id'] = None
+            data['department_name'] = None
+        else:
+            data['department_id'] = document.department.id
+            data['department_name'] = document.department.name
+        data['brand'] = BrandProcessSerializer(document.brand).data
+        data['colours'] = VendColourSerializer(VendColour.objects.all(), many=True).data
+        data['comments'] = CommentSerializer(DocumentComment.objects.filter(document=document), many=True).data
+        return Response(status=status.HTTP_200_OK, data=data)
+    elif request.method == 'PUT':
+        comment = request.data.get('comment', '')
+        document_comment = DocumentComment.objects.create(document=document, text=comment)
+        document_comment.save()
+        document.step = 1
+        document.save()
+        with transaction.atomic():
+            for i in DocumentProduct.objects.filter(document=document):
+                i.step = 1
+                i.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdmin])
+def admin_documents_process_products_view(request, id):
+    try:
+        document = Document.objects.get(id=id)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        data = {}
+        products = OriginalProduct.objects.filter(originalproduct__document_id=id, originalproduct__step=document.step)
+        if query != "":
+            products = products.filter(title_lower__contains=query)
+        department_id = None
+        try:
+            department_id = int(request.GET.get('department_id', ''))
+        except:
+            pass
+        if department_id is not None:
+            products = products.filter(department_id=department_id)
+        category_id = None
+        try:
+            category_id = int(request.GET.get('category_id', ''))
+        except:
+            pass
+        if category_id is not None:
+            products = products.filter(category_id=category_id)
+        colour_id = None
+        try:
+            colour_id = int(request.GET.get('colour_id', ''))
+        except:
+            pass
+        if colour_id is not None:
+            products = products.filter(colour_id=colour_id)
+        length = products.count()
+        pages = length // 200
+        if pages == 0:
+            pages = 1
+        elif length % 200 != 0:
+            pages += 1
+        data['count'] = length
+        data['pages'] = pages
+        data['products'] = ProductSerializer(products[:200], many=True).data
+        return Response(status=status.HTTP_200_OK, data=data)
