@@ -99,7 +99,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'user', 'status', 'department', 'brand', 'products')
+        fields = ('id', 'updated_at', 'user','step', 'status', 'department', 'brand', 'products')
 
     def get_department(self, obj):
         try:
