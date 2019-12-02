@@ -338,6 +338,10 @@ def admin_documents_item_view(request, id):
                 i.step = 1
                 i.save()
         return Response(status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        document.step = 5
+        document.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
