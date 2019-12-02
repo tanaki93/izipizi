@@ -148,9 +148,6 @@ def create_original_product(link, param):
     product.link = link
 
     product.save()
-
-    link.status = 1
-    link.save()
     product_document = DocumentProduct.objects.create(product=original_product)
     product_document.save()
 
@@ -159,7 +156,7 @@ def create_original_product(link, param):
 @permission_classes([AllowAny])
 def links_trendyol_list_view(request):
     if request.method == 'GET':
-        links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+        links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,tr_category__department__is_active=True,
                                     originalproduct__isnull=True)
         # print(links)
         return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
@@ -178,8 +175,10 @@ def links_trendyol_list_view(request):
                     original_product = link.originalproduct
                 except:
                     pass
+                print(original_product)
                 if original_product is None:
                     create_original_product(link, i['product'])
+
         return Response(status=status.HTTP_200_OK)
 
 
