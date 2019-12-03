@@ -46,6 +46,7 @@ class Language(models.Model):
     code = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     is_translate = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.code
@@ -59,6 +60,7 @@ class Currency(models.Model):
     code = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     code_name = models.CharField(max_length=10, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -73,6 +75,7 @@ class ExchangeRate(models.Model):
     updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
     from_currency = models.ForeignKey(Currency, related_name='from_currency', null=True)
     to_currency = models.ForeignKey(Currency, related_name='to_currency', null=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.value)
@@ -98,6 +101,7 @@ class Country(models.Model):
     name = models.CharField(max_length=100)
     language = models.ForeignKey(Language)
     currency = models.ForeignKey(Currency)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

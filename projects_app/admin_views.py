@@ -156,7 +156,7 @@ def admin_currencies_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([AllowAny])
 def admin_currencies_item_view(request, id):
     currencies = Currency.objects.get(id=id)
@@ -167,6 +167,9 @@ def admin_currencies_item_view(request, id):
         currencies.code = request.data.get('code', '')
         # currency = Currency.objects.create(code=code, name=name)
         currencies.save()
+        return Response(status=status.HTTP_200_OK)
+    elif request.method == 'DELETE':
+        currencies.delete()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -180,12 +183,13 @@ def admin_languages_view(request):
         name = request.data.get('name', '')
         code = request.data.get('code', '')
         is_translate = request.data.get('is_translate', True)
-        language = Language.objects.create(code=code, name=name, is_translate=is_translate)
+        is_active = request.data.get('is_active', True)
+        language = Language.objects.create(code=code, name=name, is_translate=is_translate, is_active=is_active)
         language.save()
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([AllowAny])
 def admin_languages_item_view(request, id):
     languages = Language.objects.get(id=id)
@@ -195,8 +199,12 @@ def admin_languages_item_view(request, id):
         languages.name = request.data.get('name', '')
         languages.code = request.data.get('code', '')
         languages.is_translate = request.data.get('is_translate', True)
+        languages.is_active = request.data.get('is_active', True)
         # currency = Currency.objects.create(code=code, name=name)
         languages.save()
+        return Response(status=status.HTTP_200_OK)
+    elif request.method == 'DELETE':
+        languages.delete()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -215,16 +223,17 @@ def admin_exchanges_view(request):
         except:
             pass
         value = float(request.data.get('value', 0))
+        is_active = request.data.get('is_active', True)
         if from_currency is not None and to_currency is not None:
             exchange = ExchangeRate.objects.create(from_currency_id=from_currency, to_currency_id=to_currency,
-                                                   value=value)
+                                                   value=value, is_active=is_active)
             exchange.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([AllowAny])
 def admin_exchanges_item_view(request, id):
     exchange = ExchangeRate.objects.get(id=id)
@@ -239,14 +248,19 @@ def admin_exchanges_item_view(request, id):
         except:
             pass
         value = float(request.data.get('value', 0))
+        is_active = request.data.get('is_active', True)
         if from_currency is not None and to_currency is not None:
             exchange.to_currency_id = to_currency
             exchange.from_currency_id = from_currency
             exchange.value = value
+            exchange.is_active = is_active
             exchange.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+    elif request.method == 'DELETE':
+        exchange.delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST'])
@@ -265,15 +279,16 @@ def admin_countries_view(request):
             pass
         code = str(request.data.get('code', ''))
         name = str(request.data.get('name', ''))
+        is_active = request.data.get('is_active', True)
         if language is not None and currency is not None:
-            exchange = Country.objects.create(language_id=language, currency_id=currency, name=name, code=code)
+            exchange = Country.objects.create(language_id=language, currency_id=currency, name=name, code=code, is_active=is_active)
             exchange.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([AllowAny])
 def admin_countries_item_view(request, id):
     country = Country.objects.get(id=id)
@@ -289,15 +304,20 @@ def admin_countries_item_view(request, id):
             pass
         code = str(request.data.get('code', ''))
         name = str(request.data.get('name', ''))
+        is_active = request.data.get('is_active', True)
         if language is not None and currency is not None:
             country.language_id = language
             country.currency_id = currency
             country.code = code
             country.name = name
+            country.is_active = is_active
             country.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+    elif request.method == 'DELETE':
+        country.delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'PUT','POST'])
