@@ -133,7 +133,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'parent', 'languages', 'categories')
+        fields = ('id', 'name', 'parent', 'languages', 'categories', 'code', 'position', 'is_active')
 
     def get_languages(self, obj):
         data = []
@@ -150,6 +150,7 @@ class CategorySerializer(serializers.ModelSerializer):
                     'lang_code': i.code,
                     'lang_name': i.name,
                     'translation': None,
+                    'is_active': None,
                 }
             else:
                 context = {
@@ -157,6 +158,7 @@ class CategorySerializer(serializers.ModelSerializer):
                     'lang_code': i.code,
                     'lang_name': i.name,
                     'translation': tr.name,
+                    'is_active': tr.is_active,
                 }
             data.append(context)
         return data
@@ -248,7 +250,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Department
-        fields = ('id', 'name', 'languages', 'departments')
+        fields = ('id', 'name', 'languages', 'departments', 'position', 'code', 'is_active')
 
     def get_languages(self, obj):
         data = []
@@ -265,8 +267,10 @@ class DepartmentSerializer(serializers.ModelSerializer):
             }
             if tr is not None:
                 context['translation'] = tr.name
+                context['is_active'] = tr.is_active
             else:
                 context['translation'] = None
+                context['is_active'] = None
             data.append(context)
         return data
 

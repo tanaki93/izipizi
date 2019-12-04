@@ -193,6 +193,9 @@ class Department(models.Model):
 
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
+    position = models.IntegerField(null=True, blank=True)
+    code = models.CharField(max_length=100, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -211,6 +214,7 @@ class TranslationDepartment(models.Model):
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     language = models.ForeignKey(Language, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -222,11 +226,15 @@ class TranslationDepartment(models.Model):
 
 class ParentCategory(models.Model):
     class Meta:
+        ordering = 'position'.split()
         verbose_name = 'род. категорию (izishop)'
         verbose_name_plural = 'род. категории (izishop)'
 
     name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, null=True, blank=True)
+    position = models.IntegerField(null=True, blank=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -242,8 +250,10 @@ class TranslationParentCategory(models.Model):
         verbose_name_plural = 'род. категории (izishop)'
 
     parent_category = models.ForeignKey(ParentCategory)
+    language = models.ForeignKey(Language, null=True)
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -260,6 +270,9 @@ class Category(models.Model):
 
     parent = models.ForeignKey(ParentCategory, null=True, blank=True, related_name='childs')
     name = models.CharField(max_length=100)
+    position = models.IntegerField(null=True, blank=True)
+    code = models.CharField(max_length=100, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     image = models.ImageField(upload_to=file_upload_to, null=True, blank=True)
 
@@ -280,6 +293,7 @@ class TranslationCategory(models.Model):
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     language = models.ForeignKey(Language, null=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

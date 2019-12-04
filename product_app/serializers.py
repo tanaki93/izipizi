@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from product_app.models import Category, ParentCategory, Brand, Department, Slider, ImageSlider, Product, \
     OriginalProduct, Country, BrandCountry, ExchangeRate, Language, TranslationDepartment, TranslationCategory, \
-    VendDepartment, VendCategory, Variant, Size
+    VendDepartment, VendCategory, Variant, Size, TranslationParentCategory
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -64,13 +64,42 @@ class ChildCategorySerializer(serializers.ModelSerializer):
 
 class ParentCategorySerializer(serializers.ModelSerializer):
     childs = serializers.SerializerMethodField()
+    languages = serializers.SerializerMethodField()
 
     class Meta:
         model = ParentCategory
-        fields = ('id', 'name', 'childs')
+        fields = ('id', 'name', 'childs', 'code', 'position', 'is_active', 'languages')
 
     def get_childs(self, obj):
         return ChildCategorySerializer(Category.objects.filter(parent=obj), many=True).data
+
+    def get_languages(self, obj):
+        data = []
+        languages = Language.objects.all()
+        for i in languages:
+            tr = None
+            try:
+                tr = TranslationParentCategory.objects.get(language=i, parent_category=obj)
+            except:
+                pass
+            if tr is None:
+                context = {
+                    'lang_id': i.id,
+                    'lang_code': i.code,
+                    'lang_name': i.name,
+                    'translation': None,
+                    'is_active': None,
+                }
+            else:
+                context = {
+                    'lang_id': i.id,
+                    'lang_code': i.code,
+                    'lang_name': i.name,
+                    'translation': tr.name,
+                    'is_active': tr.is_active,
+                }
+            data.append(context)
+        return data
 
 
 class BrandSerializer(serializers.ModelSerializer):
