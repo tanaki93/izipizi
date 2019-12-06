@@ -728,11 +728,11 @@ def operator_department_item_parents_view(request, deparment_id):
         for i in request.data.get('languages'):
             tr = None
             try:
-                tr = TranslationParentCategory.objects.get(category=category, language_id=int(i['lang_id']))
+                tr = TranslationParentCategory.objects.get(parent_category=category, language_id=int(i['lang_id']))
             except:
                 pass
             if tr is None:
-                tr = TranslationParentCategory.objects.create(category=category, language_id=int(i['lang_id']),
+                tr = TranslationParentCategory.objects.create(parent_category=category, language_id=int(i['lang_id']),
                                                               name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
