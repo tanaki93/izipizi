@@ -574,7 +574,7 @@ def operator_category_search_view(request):
             tr = None
             try:
                 tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                        name=i['translation'], is_active=bool(i['is_active']))
+                                                        name=i['translation'], is_active=(i['is_active']))
                 tr.save()
             except:
                 pass
@@ -611,7 +611,7 @@ def operator_parent_category_search_view(request):
                 pass
             if tr is None:
                 tr = TranslationParentCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                              name=i['translation'], is_active=bool(i['is_active']))
+                                                              name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
             tr.save()
@@ -640,7 +640,7 @@ def operator_category_item_view(request, id):
                 pass
             if tr is None:
                 tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                        name=i['translation'], is_active=bool(i['is_active']))
+                                                        name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
             tr.save()
@@ -670,7 +670,7 @@ def operator_parent_category_item_view(request, id):
                 pass
             if tr is None:
                 tr = TranslationParentCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                              name=i['translation'], is_active=bool(i['is_active']))
+                                                              name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
             tr.save()
@@ -733,7 +733,7 @@ def operator_department_item_parents_view(request, deparment_id):
                 pass
             if tr is None:
                 tr = TranslationParentCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                              name=i['translation'], is_active=bool(i['is_active']))
+                                                              name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
             tr.save()
@@ -763,7 +763,7 @@ def operator_department_parents_categories_view(request, parent_id):
                 pass
             if tr is None:
                 tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                              name=i['translation'], is_active=bool(i['is_active']))
+                                                              name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
             tr.save()
