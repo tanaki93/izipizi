@@ -231,6 +231,7 @@ class ParentCategory(models.Model):
         verbose_name_plural = 'род. категории (izishop)'
 
     name = models.CharField(max_length=100)
+    department = models.ForeignKey(Department, null=True, blank=True)
     code = models.CharField(max_length=100, null=True, blank=True)
     position = models.IntegerField(null=True, blank=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
@@ -247,7 +248,7 @@ class ParentCategory(models.Model):
 class TranslationParentCategory(models.Model):
     class Meta:
         verbose_name = 'род. категорию (перевод)'
-        verbose_name_plural = 'род. категории (izishop)'
+        verbose_name_plural = 'род. категории (перевод)'
 
     parent_category = models.ForeignKey(ParentCategory)
     language = models.ForeignKey(Language, null=True)

@@ -461,7 +461,7 @@ def operator_categories_item_view(request, id):
                 tr = None
                 try:
                     tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                              name=i['translation'], is_active=i['is_active'])
+                                                            name=i['translation'], is_active=i['is_active'])
                     tr.save()
                 except:
                     pass
@@ -618,8 +618,8 @@ def operator_parent_category_search_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'PUT'])
-@permission_classes([IsAuthenticated])
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([AllowAny])
 def operator_category_item_view(request, id):
     category = Category.objects.get(id=id)
     if request.method == 'PUT':
@@ -644,7 +644,12 @@ def operator_category_item_view(request, id):
             else:
                 tr.name = i['translation']
             tr.save()
-    return Response(status=status.HTTP_200_OK, data=CategorySerializer(category).data)
+        return Response(status=status.HTTP_200_OK, data=CategorySerializer(category).data)
+    elif request.method == 'GET':
+        return Response(status=status.HTTP_200_OK, data=CategorySerializer(category).data)
+    elif request.method == 'DELETE':
+        category.delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -676,7 +681,7 @@ def operator_parent_category_item_view(request, id):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def operator_department_item_view(request, id):
     deparment = Department.objects.get(id=id)
     if request.method == 'PUT':
@@ -698,8 +703,104 @@ def operator_department_item_view(request, id):
                 tr.name = i['translation']
             tr.save()
         return Response(status=status.HTTP_200_OK, data=DepartmentSerializer(deparment).data)
+    elif request.method == 'GET':
+        return Response(data=DepartmentSerializer(deparment).data)
     elif request.method == 'DELETE':
         deparment.delete()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def operator_department_item_parents_view(request, deparment_id):
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        categories = ParentCategory.objects.filter(name_lower__contains=query.lower(), department_id=deparment_id)
+        return Response(status=status.HTTP_200_OK, data=ParentCategorySerializer(categories, many=True).data)
+    elif request.method == 'POST':
+        category = ParentCategory()
+        category.code = request.data.get('code', '')
+        category.name = request.data.get('name', '')
+        category.department_id = deparment_id
+        category.position = request.data.get('position', 1)
+        category.is_active = request.data.get('is_active', True)
+        category.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationParentCategory.objects.get(category=category, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationParentCategory.objects.create(category=category, language_id=int(i['lang_id']),
+                                                              name=i['translation'], is_active=bool(i['is_active']))
+            else:
+                tr.name = i['translation']
+            tr.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def operator_department_parents_categories_view(request, parent_id):
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        categories = Category.objects.filter(name_lower__contains=query.lower(), parent_id=parent_id)
+        return Response(status=status.HTTP_200_OK, data=CategorySerializer(categories, many=True).data)
+    elif request.method == 'POST':
+        category = Category()
+        category.code = request.data.get('code', '')
+        category.name = request.data.get('name', '')
+        category.parent_id = parent_id
+        category.position = request.data.get('position', 1)
+        category.is_active = request.data.get('is_active', True)
+        category.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationCategory.objects.get(category=category, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
+                                                              name=i['translation'], is_active=bool(i['is_active']))
+            else:
+                tr.name = i['translation']
+            tr.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([AllowAny])
+def operator_department_parents_item_view(request, id):
+    parent = ParentCategory.objects.get(id=id)
+    if request.method == 'PUT':
+        parent.code = request.data.get('code', '')
+        parent.name = request.data.get('name', '')
+        try:
+            parent.department_id = int(request.data.get('department_id', ''))
+        except:
+            pass
+        parent.position = request.data.get('position', 1)
+        parent.is_active = request.data.get('is_active', True)
+        parent.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationParentCategory.objects.get(parent_category=parent, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationParentCategory.objects.create(parent_category=parent, language_id=int(i['lang_id']),
+                                                              name=i['translation'], is_active=i['is_active'])
+            else:
+                tr.name = i['translation']
+            tr.save()
+        return Response(status=status.HTTP_200_OK, data=ParentCategorySerializer(parent).data)
+    elif request.method == 'GET':
+        return Response(data=ParentCategorySerializer(parent).data)
+    elif request.method == 'DELETE':
+        parent.delete()
         return Response(status=status.HTTP_200_OK)
 
 

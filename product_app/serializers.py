@@ -9,7 +9,7 @@ from product_app.models import Category, ParentCategory, Brand, Department, Slid
 #         serializer = self.parent.parent.__class__(value, context=self.context)
 #         return serializer.data
 from projects_app.serializers import VendColourSerializer, VendBrandSerializer, MainColourSerializer, SizeSerializer, \
-    VendSizeSerializer
+    VendSizeSerializer, DepartmentSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -62,13 +62,20 @@ class ChildCategorySerializer(serializers.ModelSerializer):
         return ''
 
 
+class IziDepSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = 'id name'.split()
+
+
 class ParentCategorySerializer(serializers.ModelSerializer):
     childs = serializers.SerializerMethodField()
+    department = IziDepSerializer()
     languages = serializers.SerializerMethodField()
 
     class Meta:
         model = ParentCategory
-        fields = ('id', 'name', 'childs', 'code', 'position', 'is_active', 'languages')
+        fields = ('id', 'name', 'childs', 'code', 'position', 'is_active', 'languages', 'department')
 
     def get_childs(self, obj):
         return ChildCategorySerializer(Category.objects.filter(parent=obj), many=True).data
