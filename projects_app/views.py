@@ -902,14 +902,14 @@ def operator_documents_process_products_view(request, id):
         except:
             pass
         if department_id is not None:
-            products = products.filter(department_id=department_id)
+            products = products.filter(link__product__department_id=department_id)
         category_id = None
         try:
             category_id = int(request.GET.get('category_id', ''))
         except:
             pass
         if category_id is not None:
-            products = products.filter(category_id=category_id)
+            products = products.filter(link__product__category_id=category_id)
         colour_id = None
         try:
             colour_id = int(request.GET.get('colour_id', ''))

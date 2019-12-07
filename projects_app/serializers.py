@@ -334,7 +334,7 @@ class BrandDetailedSerializer(serializers.ModelSerializer):
 class ColourSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendColour
-        fields = '__all__'
+        fields = ('id', 'name', 'name_en')
 
 
 class VendCategoryDetailedSerializer(serializers.ModelSerializer):
