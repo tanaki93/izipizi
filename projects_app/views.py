@@ -266,38 +266,38 @@ def brands_list_view(request):
                         except:
                             pass
                         if category is None:
-                            cats = VendCategory.objects.filter(name=k['name'])
+                            # cats = VendCategory.objects.filter(name=k['name'])
                             category = VendCategory()
                             category.name = k['name']
                             category.link = k['link']
                             category.department = department
                             category.save()
-                            flag = True
-                            if len(cats) > 0:
-                                cat = cats.first()
-                                if cat.category is not None:
-                                    category.category = cat.category
-                                    category.save()
-                                    flag = False
-                            if flag:
-                                name = translate_text(k['name'], 'en')
-                                new_dep = None
-                                try:
-                                    new_dep = Category.objects.get(name=name)
-                                except:
-                                    pass
-                                if new_dep is None:
-                                    new_dep = Category.objects.create(name=name)
-                                    new_dep.save()
-                                    for i in languages:
-                                        translation_dep = TranslationCategory.objects.create(category=new_dep,
-                                                                                             name=translate_text(
-                                                                                                 k['name'],
-                                                                                                 i.code).capitalize(),
-                                                                                             language=i)
-                                        translation_dep.save()
-                                category.category = new_dep
-                                category.save()
+                            # flag = True
+                            # if len(cats) > 0:
+                            #     cat = cats.first()
+                            #     if cat.category is not None:
+                            #         category.category = cat.category
+                            #         category.save()
+                            #         flag = False
+                            # if flag:
+                            #     name = translate_text(k['name'], 'en')
+                            #     new_dep = None
+                            #     try:
+                            #         new_dep = Category.objects.get(name=name)
+                            #     except:
+                            #         pass
+                            #     if new_dep is None:
+                            #         new_dep = Category.objects.create(name=name)
+                            #         new_dep.save()
+                            #         for i in languages:
+                            #             translation_dep = TranslationCategory.objects.create(category=new_dep,
+                            #                                                                  name=translate_text(
+                            #                                                                      k['name'],
+                            #                                                                      i.code).capitalize(),
+                            #                                                                  language=i)
+                            #             translation_dep.save()
+                            #     category.category = new_dep
+                            #     category.save()
         return Response(status=status.HTTP_200_OK)
 
 
