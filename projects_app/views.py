@@ -469,15 +469,15 @@ def operator_categories_item_view(request, id):
             category = Category.objects.get(id=category_id)
         category.category = category
         category.save()
-        with transaction.atomic():
-            categories = VendCategory.objects.filter(name=category.name, category__isnull=True)
-            for i in categories:
-                i.category = category.category
-                i.save()
-            # products = Product.objects.filter(category__isnull=True, link__tr_category=category)
-            # for j in products:
-            #     j.category = category.category
-            #     j.save()
+        # with transaction.atomic():
+        #     categories = VendCategory.objects.filter(name=category.name, category__isnull=True)
+        #     for i in categories:
+        #         i.category = category.category
+        #         i.save()
+        # products = Product.objects.filter(category__isnull=True, link__tr_category=category)
+        # for j in products:
+        #     j.category = category.category
+        #     j.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -763,7 +763,7 @@ def operator_department_parents_categories_view(request, parent_id):
                 pass
             if tr is None:
                 tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
-                                                              name=i['translation'], is_active=(i['is_active']))
+                                                        name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
             tr.save()
