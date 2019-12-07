@@ -433,7 +433,7 @@ def operator_departments_item_view(request, id):
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'POST', 'PUT'])
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def operator_categories_item_view(request, id):
     category = None
@@ -454,6 +454,7 @@ def operator_categories_item_view(request, id):
             category = Category()
             category.code = request.data.get('code', '')
             category.position = request.data.get('position', 1)
+            category.parent_id = int(request.data.get('parent_id'))
             category.name = request.data.get('name', '')
             category.is_active = request.data.get('is_active', True)
             category.save()
@@ -478,6 +479,10 @@ def operator_categories_item_view(request, id):
         # for j in products:
         #     j.category = category.category
         #     j.save()
+        return Response(status=status.HTTP_200_OK)
+    elif request.method == 'DELETE':
+        category.category = None
+        category.save()
         return Response(status=status.HTTP_200_OK)
 
 
