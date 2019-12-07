@@ -105,10 +105,18 @@ class LinkSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ParentDepartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Department
+        fields = '__all__'
+
+
 class ParentSerializer(serializers.ModelSerializer):
+    department = ParentDepartmentSerializer()
+
     class Meta:
         model = ParentCategory
-        fields = '__all__'
+        fields = 'name code position id is_active department'.split()
 
 
 class VendCategorySerializer(serializers.ModelSerializer):
