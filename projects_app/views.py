@@ -560,7 +560,7 @@ def operator_colours_item_view(request, id):
 def operator_category_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
-        categories = Category.objects.filter(name_lower__contains=query.lower())
+        categories = Category.objects.filter(name_lower__contains=query.lower(), parent__isnull=False)
         return Response(status=status.HTTP_200_OK, data=CategorySerializer(categories, many=True).data)
     elif request.method == 'POST':
         name = request.data.get('name', '')
