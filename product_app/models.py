@@ -99,8 +99,8 @@ def update_stock(sender, instance, **kwargs):
 class Country(models.Model):
     code = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
-    language = models.ForeignKey(Language)
-    currency = models.ForeignKey(Currency)
+    language = models.ForeignKey(Language, null=True, on_delete=SET_NULL)
+    currency = models.ForeignKey(Currency, null=True, on_delete=SET_NULL)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -231,7 +231,7 @@ class ParentCategory(models.Model):
         verbose_name_plural = 'род. категории (izishop)'
 
     name = models.CharField(max_length=100)
-    department = models.ForeignKey(Department, null=True, blank=True)
+    department = models.ForeignKey(Department, null=True, blank=True, on_delete=SET_NULL)
     code = models.CharField(max_length=100, null=True, blank=True)
     position = models.IntegerField(null=True, blank=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
@@ -250,7 +250,7 @@ class TranslationParentCategory(models.Model):
         verbose_name = 'род. категорию (перевод)'
         verbose_name_plural = 'род. категории (перевод)'
 
-    parent_category = models.ForeignKey(ParentCategory)
+    parent_category = models.ForeignKey(ParentCategory, on_delete=SET_NULL, null=True)
     language = models.ForeignKey(Language, null=True)
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
@@ -269,7 +269,7 @@ class Category(models.Model):
         verbose_name = 'категорию (izishop)'
         verbose_name_plural = 'категории (izishop)'
 
-    parent = models.ForeignKey(ParentCategory, null=True, blank=True, related_name='childs')
+    parent = models.ForeignKey(ParentCategory, null=True, blank=True, related_name='childs', on_delete=SET_NULL)
     name = models.CharField(max_length=100)
     position = models.IntegerField(null=True, blank=True)
     code = models.CharField(max_length=100, null=True, blank=True)
@@ -290,7 +290,7 @@ class TranslationCategory(models.Model):
         verbose_name = 'категорию (перевод)'
         verbose_name_plural = 'категории (перевод)'
 
-    category = models.ForeignKey(Category, null=True, blank=True, related_name='translations')
+    category = models.ForeignKey(Category, null=True, blank=True, related_name='translations', on_delete=SET_NULL)
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     language = models.ForeignKey(Language, null=True)
@@ -309,7 +309,7 @@ class Document(models.Model):
         verbose_name = 'документ'
         verbose_name_plural = 'документы'
 
-    user = models.ForeignKey(User, null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=SET_NULL)
     department = models.ForeignKey('VendDepartment', null=True, blank=True)
     brand = models.ForeignKey('Brand', null=True, blank=True)
     status = models.IntegerField(default=1)
@@ -350,7 +350,7 @@ class Link(models.Model):
         verbose_name = 'Ссылки'
 
     url = models.URLField()
-    tr_category = models.ForeignKey('VendCategory', null=True, related_name='tr_categories')
+    tr_category = models.ForeignKey('VendCategory', null=True, related_name='tr_categories', on_delete=SET_NULL)
     status = models.IntegerField(default=4, choices=STATUSES)
 
     def __str__(self):
@@ -372,9 +372,9 @@ class OriginalProduct(models.Model):
     currency = models.CharField(max_length=100, default='TL')
     colour = models.ForeignKey('VendColour', blank=True, null=True)
     # status = models.IntegerField(default=1)
-    link = models.OneToOneField(Link, null=True, related_name='originalproduct')
-    brand = models.ForeignKey('Brand', null=True, blank=True)
-    department = models.ForeignKey('VendDepartment', null=True, blank=True)
+    link = models.OneToOneField(Link, null=True, related_name='originalproduct', on_delete=SET_NULL)
+    brand = models.ForeignKey('Brand', null=True, blank=True, on_delete=SET_NULL)
+    department = models.ForeignKey('VendDepartment', null=True, blank=True, on_delete=SET_NULL)
     category = models.ForeignKey('VendCategory', null=True, blank=True, on_delete=SET_NULL)
     is_rush_delivery = models.BooleanField(default=False)
     is_free_argo = models.BooleanField(default=False)
@@ -405,7 +405,7 @@ class Variant(models.Model):
         verbose_name = 'вариант'
 
     tr_size = models.ForeignKey('VendSize', null=True)
-    original_product = models.ForeignKey(OriginalProduct, related_name='variants')
+    original_product = models.ForeignKey(OriginalProduct, related_name='variants', on_delete=SET_NULL, null=True)
     stock = models.BooleanField(default=False)
 
     def __str__(self):
@@ -431,7 +431,7 @@ class Size(models.Model):
         verbose_name_plural = 'Размер (izishop)'
         verbose_name = 'Размеры (izishop)'
 
-    vend_size = models.OneToOneField(VendSize, null=True, blank=True, related_name='size')
+    vend_size = models.OneToOneField(VendSize, null=True, blank=True, related_name='size', on_delete=SET_NULL)
     name = models.CharField(max_length=100)
 
     def __str__(self):
@@ -445,7 +445,7 @@ class Product(models.Model):
 
     title = models.CharField(max_length=100)
     title_lower = models.CharField(max_length=100, null=True, blank=True)
-    link = models.OneToOneField(Link, null=True)
+    link = models.OneToOneField(Link, null=True, on_delete=SET_NULL)
     description = models.TextField()
     description_lower = models.TextField(null=True, blank=True)
     active = models.BooleanField(default=False)
@@ -468,7 +468,7 @@ class VendDepartment(models.Model):
 
     name = models.CharField(max_length=100)
     link = models.CharField(max_length=100, null=True)
-    brand = models.ForeignKey(Brand, related_name='brand')
+    brand = models.ForeignKey(Brand, related_name='brand', on_delete=SET_NULL, null=True)
     is_active = models.BooleanField(default=True)
     department = models.ForeignKey(Department, null=True, related_name='departments')
 
