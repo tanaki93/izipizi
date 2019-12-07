@@ -451,6 +451,8 @@ class Product(models.Model):
     active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    department = models.ForeignKey('Department', null=True, blank=True, on_delete=SET_NULL)
+    category = models.ForeignKey('Category', null=True, blank=True, on_delete=SET_NULL)
 
     def save(self, *args, **kwargs):
         self.title_lower = self.title.lower()
