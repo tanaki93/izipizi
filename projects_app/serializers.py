@@ -346,7 +346,7 @@ class VendCategoryDetailedSerializer(serializers.ModelSerializer):
 class CategoryDetailedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'link', 'is_active',)
+        fields = ('id', 'name', 'is_active',)
 
 
 class VendDepartmentDetailedSerializer(serializers.ModelSerializer):
