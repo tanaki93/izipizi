@@ -343,6 +343,12 @@ class VendCategoryDetailedSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'link', 'is_active',)
 
 
+class CategoryDetailedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'link', 'is_active',)
+
+
 class VendDepartmentDetailedSerializer(serializers.ModelSerializer):
     categories = serializers.SerializerMethodField()
 
@@ -355,6 +361,18 @@ class VendDepartmentDetailedSerializer(serializers.ModelSerializer):
         return VendCategoryDetailedSerializer(categories, many=True).data
 
 
+class DepartmentDetailedSerializer(serializers.ModelSerializer):
+    categories = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Department
+        fields = ('id', 'name', 'is_active', 'categories')
+
+    def get_categories(self, obj):
+        categories = Category.objects.filter(parent__department=obj)
+        return CategoryDetailedSerializer(categories, many=True).data
+
+
 class BrandProcessSerializer(serializers.ModelSerializer):
     departments = serializers.SerializerMethodField()
 
@@ -363,8 +381,8 @@ class BrandProcessSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'is_active', 'departments')
 
     def get_departments(self, obj):
-        departments = VendDepartment.objects.filter(brand=obj)
-        return VendDepartmentDetailedSerializer(departments, many=True).data
+        departments = Department.objects.filter(departments__brand=obj)
+        return DepartmentDetailedSerializer(departments, many=True).data
 
 
 class VendBrandSerializer(serializers.ModelSerializer):
@@ -389,7 +407,8 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
                   'colour', 'promotions', 'created_at', 'active', 'brand', 'product_id', 'link', 'is_rush_delivery',
                   'title',
-                  'original_price', 'updated_at', 'description', 'product', 'department', 'category','izi_category','izi_department', 'colour']
+                  'original_price', 'updated_at', 'description', 'product', 'department', 'category', 'izi_category',
+                  'izi_department', 'colour']
 
     def get_images(self, obj):
         return obj.images.split()
