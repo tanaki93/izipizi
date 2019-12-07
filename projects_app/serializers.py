@@ -377,9 +377,11 @@ class ProductSerializer(serializers.ModelSerializer):
     link = LinkSerializer()
     images = serializers.SerializerMethodField()
     product = serializers.SerializerMethodField()
-    department = TrendYolDepartmentSerializer()
+    vend_department = TrendYolDepartmentSerializer()
+    department = serializers.SerializerMethodField()
     brand = VendBrandSerializer()
-    category = TrendYolCategorySerializer()
+    vend_category = TrendYolCategorySerializer()
+    category = serializers.SerializerMethodField()
     colour = ColourSerializer()
 
     class Meta:
@@ -387,7 +389,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
                   'colour', 'promotions', 'created_at', 'active', 'brand', 'product_id', 'link', 'is_rush_delivery',
                   'title',
-                  'original_price', 'updated_at', 'description', 'product', 'department', 'category', 'colour']
+                  'original_price', 'updated_at', 'description', 'product', 'department', 'category','vend_category','vend_department', 'colour']
 
     def get_images(self, obj):
         return obj.images.split()
@@ -395,3 +397,21 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_product(self, obj):
         product = Product.objects.get(link=obj.link)
         return IziProductSerializer(product).data
+
+    def get_category(self, obj):
+        category = None
+        try:
+            product = Product.objects.get(link=obj.link)
+            category = product.category
+        except:
+            pass
+        return CategoryItemSerializer(category).data
+
+    def get_department(self, obj):
+        department = None
+        try:
+            product = Product.objects.get(link=obj.link)
+            department = product.department
+        except:
+            pass
+        return ParentDepartmentSerializer(department).data
