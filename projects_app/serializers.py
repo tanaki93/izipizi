@@ -377,11 +377,11 @@ class ProductSerializer(serializers.ModelSerializer):
     link = LinkSerializer()
     images = serializers.SerializerMethodField()
     product = serializers.SerializerMethodField()
-    vend_department = TrendYolDepartmentSerializer()
-    department = serializers.SerializerMethodField()
+    department = TrendYolDepartmentSerializer()
+    izi_department = serializers.SerializerMethodField()
     brand = VendBrandSerializer()
-    vend_category = TrendYolCategorySerializer()
-    category = serializers.SerializerMethodField()
+    category = TrendYolCategorySerializer()
+    izi_category = serializers.SerializerMethodField()
     colour = ColourSerializer()
 
     class Meta:
@@ -389,7 +389,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
                   'colour', 'promotions', 'created_at', 'active', 'brand', 'product_id', 'link', 'is_rush_delivery',
                   'title',
-                  'original_price', 'updated_at', 'description', 'product', 'department', 'category','vend_category','vend_department', 'colour']
+                  'original_price', 'updated_at', 'description', 'product', 'department', 'category','izi_category','izi_department', 'colour']
 
     def get_images(self, obj):
         return obj.images.split()
@@ -398,7 +398,7 @@ class ProductSerializer(serializers.ModelSerializer):
         product = Product.objects.get(link=obj.link)
         return IziProductSerializer(product).data
 
-    def get_category(self, obj):
+    def get_izi_category(self, obj):
         category = None
         try:
             product = Product.objects.get(link=obj.link)
@@ -407,7 +407,7 @@ class ProductSerializer(serializers.ModelSerializer):
             pass
         return CategoryItemSerializer(category).data
 
-    def get_department(self, obj):
+    def get_izi_department(self, obj):
         department = None
         try:
             product = Product.objects.get(link=obj.link)
