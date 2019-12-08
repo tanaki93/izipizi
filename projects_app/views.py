@@ -458,24 +458,24 @@ def operator_categories_item_view(request, id):
     elif request.method == 'POST':
         category_id = int(request.data.get('category_id', 0))
         if category_id == 0:
-            category = Category()
-            category.code = request.data.get('code', '')
-            category.position = request.data.get('position', 1)
-            category.parent_id = int(request.data.get('parent_id'))
-            category.name = request.data.get('name', '')
-            category.is_active = request.data.get('is_active', True)
-            category.save()
+            izi_category = Category()
+            izi_category.code = request.data.get('code', '')
+            izi_category.position = request.data.get('position', 1)
+            izi_category.parent_id = int(request.data.get('parent_id'))
+            izi_category.name = request.data.get('name', '')
+            izi_category.is_active = request.data.get('is_active', True)
+            izi_category.save()
             for i in request.data.get('languages'):
                 tr = None
                 try:
-                    tr = TranslationCategory.objects.create(category=category, language_id=int(i['lang_id']),
+                    tr = TranslationCategory.objects.create(category=izi_category, language_id=int(i['lang_id']),
                                                             name=i['translation'], is_active=i['is_active'])
                     tr.save()
                 except:
                     pass
         else:
-            category = Category.objects.get(id=category_id)
-        category.category = category
+            izi_category = Category.objects.get(id=category_id)
+        category.category = izi_category
         category.save()
         # with transaction.atomic():
         #     categories = VendCategory.objects.filter(name=category.name, category__isnull=True)
