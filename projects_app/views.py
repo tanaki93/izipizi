@@ -1001,7 +1001,7 @@ def operator_documents_process_products_item_view(request, id, product_id):
             elif option == 'colour':
                 product.colour_id = id
             product.save()
-        return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK, data=ProductSerializer(product).data)
 
 
 @api_view(['GET'])
