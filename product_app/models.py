@@ -485,7 +485,6 @@ class VendCategory(models.Model):
     class Meta:
         verbose_name = 'категория (vend)'
         verbose_name_plural = 'категории (vend)'
-        ordering = '-category'.split()
 
     name = models.CharField(max_length=100)
     link = models.CharField(max_length=100, null=True)
