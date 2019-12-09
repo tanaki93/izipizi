@@ -73,7 +73,7 @@ class ExchangeRate(models.Model):
         verbose_name_plural = 'обмен валют'
 
     value = models.FloatField()
-    updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
+    updated_at = models.DateField(null=True, blank=True)
     date = models.DateField(null=True, blank=True)
     from_currency = models.ForeignKey(Currency, related_name='from_currency', null=True)
     to_currency = models.ForeignKey(Currency, related_name='to_currency', null=True)
@@ -94,7 +94,7 @@ class ExchangeValue(models.Model):
 
 @receiver(post_save, sender=ExchangeRate, dispatch_uid="update_stock_count")
 def update_stock(sender, instance, **kwargs):
-    exchange_value = ExchangeValue.objects.create(value=instance.value, exchange=instance)
+    exchange_value = ExchangeValue.objects.create(value=instance.value, exchange=instance, updated_at=instance.date)
     exchange_value.save()
 
 
