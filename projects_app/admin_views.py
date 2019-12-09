@@ -334,7 +334,6 @@ def admin_countries_item_view(request, id):
         country.delete()
         return Response(status=status.HTTP_200_OK)
 
-
 @api_view(['GET', 'PUT','POST'])
 @permission_classes([AllowAny])
 def admin_documents_item_view(request, id):
