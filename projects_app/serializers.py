@@ -268,7 +268,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'languages', 'departments', 'position', 'code', 'is_active', 'is_related')
 
     def get_is_related(self, obj):
-        count = ParentCategory.objects.filter(department=obj)
+        count = ParentCategory.objects.filter(department=obj).count()
         if count > 0:
             return True
         count = VendDepartment.objects.filter(department=obj).count()
