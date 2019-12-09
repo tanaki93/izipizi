@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from product_app.models import Product, DocumentProduct, OriginalProduct
+from product_app.models import Product, DocumentProduct, OriginalProduct, VendColour, IziColour
 from user_app.models import User, ConfirmationCode
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -225,8 +225,10 @@ def post(request, page):
         #     except:
         #         pass
         #     print(count)
-        d = DocumentProduct.objects.all()
+        d = VendColour.objects.all()
         for i in d:
-            i.step=1
+            izi_colour = IziColour.objects.create(name=i.name_en)
+            izi_colour.save()
+            i.izi_colour = izi_colour
             i.save()
     return Response(data='')

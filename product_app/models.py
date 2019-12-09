@@ -118,6 +118,7 @@ class VendColour(models.Model):
     name = models.CharField(max_length=100)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     name_en = models.CharField(max_length=100, null=True, blank=True)
+    izi_colour = models.ForeignKey('IziColour', null=True, blank=True, on_delete=SET_NULL)
 
     def __str__(self):
         return self.name
@@ -127,9 +128,23 @@ class VendColour(models.Model):
         super(VendColour, self).save()
 
 
+class IziColour(models.Model):
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    code = models.CharField(max_length=100, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(IziColour, self).save()
+
+
 class TranslationColour(models.Model):
     language = models.ForeignKey(Language, null=True)
-    vend_colour = models.ForeignKey(VendColour, null=True)
+    colour = models.ForeignKey(IziColour, null=True, blank=True, related_name='translations')
     name = models.CharField(max_length=100, default='')
     name_lower = models.CharField(max_length=100, default='', null=True)
 

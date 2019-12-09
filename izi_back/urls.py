@@ -28,7 +28,6 @@ urlpatterns = [
     url(r'^api/v1/post/([0-9]+)/', user_views.post),
     url(r'^api/v1/confirm/([-\w]+)/', user_views.confirm_user),
     url(r'^api/v1/resend/code/$', user_views.profile_resend_code_view),
-
     url(r'^api/v1/add_profile/$', user_views.add_profile_view),
     url(r'^api/v1/profile/([0-9]+)/$', user_views.edit_profile_view),
     url(r'^api/v1/profile/', include('user_app.urls')),

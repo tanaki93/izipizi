@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
     BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour, VendColour, \
-    DocumentComment
+    DocumentComment, IziColour
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -44,29 +44,55 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'updated_at')
 
 
+class IziColourSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IziColour
+        fields = '__all__'
+
+
 class VendColourSerializer(serializers.ModelSerializer):
     # name = serializers.SerializerMethodField()
     languages = serializers.SerializerMethodField()
+    izi_colour = IziColourSerializer()
 
     class Meta:
         model = VendColour
-        fields = ('id', 'name', 'languages', 'name_en')
-
-    # def get_name(self, obj):
-    #     try:
-    #         language = Language.objects.get(code='ru')
-    #         translation = TranslationColour.objects.get(vend_colour=obj, language=language)
-    #         return translation.name.capitalize()
-    #     except:
-    #         pass
-    #     return obj.name
+        fields = ('id', 'name', 'languages', 'name_en', 'izi_colour')
 
     def get_languages(self, obj):
         data = []
         for i in Language.objects.all():
             tr = None
             try:
-                tr = TranslationColour.objects.get(vend_colour=obj, language=i)
+                tr = TranslationColour.objects.get(vend_colour=obj.izi_colour, language=i)
+            except:
+                pass
+            context = {
+                'lang_id': i.id,
+                'lang_name': i.name,
+                'lang_code': i.code,
+            }
+            if tr is not None:
+                context['translation'] = tr.name
+            else:
+                context['translation'] = None
+            data.append(context)
+        return data
+
+
+class IziColorSerializer(serializers.ModelSerializer):
+    languages = serializers.SerializerMethodField()
+
+    class Meta:
+        model = IziColour
+        fields = ('id', 'name', 'languages', 'code', 'is_active')
+
+    def get_languages(self, obj):
+        data = []
+        for i in Language.objects.all():
+            tr = None
+            try:
+                tr = TranslationColour.objects.get(colour=obj, language=i)
             except:
                 pass
             context = {
@@ -263,6 +289,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
     languages = serializers.SerializerMethodField()
     departments = VendDepartmentSerializer(many=True)
     is_related = serializers.SerializerMethodField()
+
     class Meta:
         model = Department
         fields = ('id', 'name', 'languages', 'departments', 'position', 'code', 'is_active', 'is_related')

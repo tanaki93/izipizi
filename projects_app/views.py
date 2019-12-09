@@ -12,7 +12,8 @@ from rest_framework.response import Response
 
 from product_app.models import Brand, VendDepartment, VendCategory, Department, Category, VendSize, Size, \
     Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry, Language, TranslationDepartment, \
-    TranslationCategory, VendColour, TranslationColour, DocumentProduct, DocumentComment, TranslationParentCategory
+    TranslationCategory, VendColour, TranslationColour, DocumentProduct, DocumentComment, TranslationParentCategory, \
+    IziColour
 # from projects_app.googletrans.client import Translator
 from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
@@ -20,7 +21,8 @@ from projects_app.googletrans import Translator
 from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, TrendYolDepartmentSerializer, \
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer, \
-    VendColourSerializer, BrandProcessSerializer, CommentSerializer
+    VendColourSerializer, BrandProcessSerializer, CommentSerializer, ColourSerializer, ColourSerializer, \
+    IziColorSerializer
 from user_app.permissions import IsOperator
 
 
@@ -525,12 +527,22 @@ def operator_colours_view(request):
     if request.method == 'GET':
         colours = VendColour.objects.all()
         return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colours, many=True).data)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def operator_izishop_colours_view(request):
+    if request.method == 'GET':
+        colours = IziColour.objects.all()
+        return Response(status=status.HTTP_200_OK, data=IziColorSerializer(colours, many=True).data)
     elif request.method == 'POST':
         name = request.data.get('name', '')
-        name_en = request.data.get('name_en', '')
-        colour = VendColour()
+        is_active = request.data.get('is_active', True)
+        code = request.data.get('code', '').upper()
+        colour = IziColour()
         colour.name = name
-        colour.name_en = name_en
+        colour.code = code
+        colour.is_active = is_active
         colour.save()
         for i in request.data.get('languages'):
             tr = None
@@ -541,6 +553,31 @@ def operator_colours_view(request):
             except:
                 pass
         return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def operator_izishop_colours_item_view(request, id):
+    colour = IziColour.objects.get(id=id)
+    if request.method == 'PUT':
+        colour.code = request.data.get('code', '').upper()
+        colour.name = request.data.get('name', '')
+        is_active = request.data.get('is_active', True)
+        colour.is_active = is_active
+        colour.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationColour.objects.get(vend_colour=colour, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationColour.objects.create(vend_colour=colour, language_id=int(i['lang_id']),
+                                                      name=i['translation'])
+            else:
+                tr.name = i['translation']
+            tr.save()
+    return Response(status=status.HTTP_200_OK, data=IziColorSerializer(colour).data)
 
 
 @api_view(['GET', 'PUT'])

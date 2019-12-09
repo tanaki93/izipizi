@@ -9,7 +9,9 @@ urlpatterns = [
     url(r'^trendyol/departments/([0-9]+)/$', views.operator_departments_item_view),
     url(r'^trendyol/categories/([0-9]+)/$', views.operator_categories_item_view),
 
-    url(r'^izishop/colours/$', views.operator_colours_view),
+    url(r'^izishop/colours/$', views.operator_izishop_colours_view),
+    url(r'^izishop/colours/([0-9]+)/$', views.operator_izishop_colours_item_view),
+    url(r'^trendyol/colours/$', views.operator_colours_view),
     url(r'^izishop/colours/([0-9]+)/$', views.operator_colours_item_view),
 
     url(r'^izishop/categories/$', views.operator_category_search_view),
