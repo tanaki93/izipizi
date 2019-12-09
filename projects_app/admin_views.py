@@ -139,16 +139,8 @@ def admin_products_view(request):
         return Response(status=status.HTTP_200_OK, data=data)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def admin_countries_view(request):
-    if request.method == 'GET':
-        countries = Country.objects.all()
-    return None
-
-
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def admin_currencies_view(request):
     if request.method == 'GET':
         currencies = Currency.objects.all()
@@ -173,11 +165,6 @@ def admin_currencies_item_view(request, id):
         currencies.code = request.data.get('code', '')
         currencies.code_name = request.data.get('code_name', '')
         currencies.is_active = request.data.get('is_active', True)
-        try:
-            date = datetime.datetime.strptime(request.data.get('date'), "%Y-%m-%d")
-            currencies.date = date
-        except:
-            pass
         # currency = Currency.objects.create(code=code, name=name)
         currencies.save()
         return Response(status=status.HTTP_200_OK)
@@ -235,11 +222,17 @@ def admin_exchanges_view(request):
             to_currency = int(request.data.get('to_currency_id'))
         except:
             pass
+
         value = float(request.data.get('value', 0))
         is_active = request.data.get('is_active', True)
         if from_currency is not None and to_currency is not None:
             exchange = ExchangeRate.objects.create(from_currency_id=from_currency, to_currency_id=to_currency,
                                                    value=value, is_active=is_active)
+            try:
+                date = datetime.datetime.strptime(request.data.get('date'), "%Y-%m-%d")
+                exchange.date = date
+            except:
+                pass
             exchange.save()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -266,6 +259,11 @@ def admin_exchanges_item_view(request, id):
             exchange.to_currency_id = to_currency
             exchange.from_currency_id = from_currency
             exchange.value = value
+            try:
+                date = datetime.datetime.strptime(request.data.get('date'), "%Y-%m-%d")
+                exchange.date = date
+            except:
+                pass
             exchange.is_active = is_active
             exchange.save()
             return Response(status=status.HTTP_200_OK)

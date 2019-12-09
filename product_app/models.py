@@ -74,6 +74,7 @@ class ExchangeRate(models.Model):
 
     value = models.FloatField()
     updated_at = models.DateTimeField(null=True, blank=True, auto_now=True)
+    date = models.DateField(null=True, blank=True)
     from_currency = models.ForeignKey(Currency, related_name='from_currency', null=True)
     to_currency = models.ForeignKey(Currency, related_name='to_currency', null=True)
     is_active = models.BooleanField(default=True)

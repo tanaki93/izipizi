@@ -48,9 +48,26 @@ class BrandAdminDetailedSerializer(serializers.ModelSerializer):
 
 
 class CurrencySerializer(serializers.ModelSerializer):
+    is_related = serializers.SerializerMethodField()
+
     class Meta:
         model = Currency
-        fields = '__all__'
+        fields = 'id code name code_name is_active is_related'.split()
+
+    def get_is_related(self, obj):
+        count = Country.objects.filter(currency=obj).count()
+        if count > 0:
+            return True
+        count = ExchangeRate.objects.filter(to_currency=obj).count()
+        if count > 0:
+            return True
+        count = ExchangeRate.objects.filter(from_currency=obj).count()
+        if count > 0:
+            return True
+        count = Brand.objects.filter(currency=obj).count()
+        if count > 0:
+            return True
+        return False
 
 
 class ValueSerializer(serializers.ModelSerializer):
@@ -63,16 +80,25 @@ class ExchangeRateSerializer(serializers.ModelSerializer):
     from_currency = CurrencySerializer()
     to_currency = CurrencySerializer()
     values = ValueSerializer(many=True)
+    is_related = serializers.SerializerMethodField()
 
     class Meta:
         model = ExchangeRate
-        fields = 'id from_currency to_currency value values'.split()
+        fields = 'id from_currency to_currency date value values is_related'.split()
 
 
 class LanguageSerializer(serializers.ModelSerializer):
+    is_related = serializers.SerializerMethodField()
+
     class Meta:
         model = Language
-        fields = '__all__'
+        fields = 'id code name is_translate is_active is_related'.split()
+
+    def get_is_related(self, obj):
+        count = Country.objects.filter(language=obj).count()
+        if count > 0:
+            return True
+        return False
 
 
 class CountrySerializer(serializers.ModelSerializer):
