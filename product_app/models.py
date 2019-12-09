@@ -211,7 +211,7 @@ class TranslationDepartment(models.Model):
         verbose_name_plural = 'отделения (перевод)'
 
     department = models.ForeignKey(Department, null=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     language = models.ForeignKey(Language, null=True, blank=True)
     is_active = models.BooleanField(default=True)

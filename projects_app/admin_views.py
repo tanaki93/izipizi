@@ -143,7 +143,7 @@ def admin_countries_view(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def admin_currencies_view(request):
     if request.method == 'GET':
         currencies = Currency.objects.all()
@@ -165,6 +165,7 @@ def admin_currencies_item_view(request, id):
     elif request.method == 'PUT':
         currencies.name = request.data.get('name', '')
         currencies.code = request.data.get('code', '')
+        currencies.is_active = request.data.get('is_active', True)
         # currency = Currency.objects.create(code=code, name=name)
         currencies.save()
         return Response(status=status.HTTP_200_OK)
