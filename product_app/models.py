@@ -233,11 +233,11 @@ class ParentCategory(models.Model):
         verbose_name = 'род. категорию (izishop)'
         verbose_name_plural = 'род. категории (izishop)'
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, default='')
     department = models.ForeignKey(Department, null=True, blank=True, on_delete=SET_NULL)
     code = models.CharField(max_length=100, null=True, blank=True)
     position = models.IntegerField(null=True, blank=True)
-    name_lower = models.CharField(max_length=100, null=True, blank=True)
+    name_lower = models.CharField(max_length=100, null=True, blank=True, default='')
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
