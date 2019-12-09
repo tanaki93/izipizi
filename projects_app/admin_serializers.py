@@ -86,6 +86,9 @@ class ExchangeRateSerializer(serializers.ModelSerializer):
         model = ExchangeRate
         fields = 'id from_currency to_currency date value values is_related'.split()
 
+    def get_is_related(self, obj):
+        return True
+
 
 class LanguageSerializer(serializers.ModelSerializer):
     is_related = serializers.SerializerMethodField()
