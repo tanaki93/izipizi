@@ -182,6 +182,10 @@ def admin_languages_view(request):
     elif request.method == 'POST':
         name = request.data.get('name', '')
         code = request.data.get('code', '')
+        if code != '':
+            count = Language.objects.filter(code=code).count()
+            if count > 0:
+                return Response(status=status.HTTP_409_CONFLICT, data={'error': 'Данный код уже существует'})
         is_translate = request.data.get('is_translate', True)
         is_active = request.data.get('is_active', True)
         language = Language.objects.create(code=code, name=name, is_translate=is_translate, is_active=is_active)
