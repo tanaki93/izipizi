@@ -528,7 +528,6 @@ def operator_colours_view(request):
         colours = VendColour.objects.all()
         return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colours, many=True).data)
 
-
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def operator_izishop_colours_view(request):
