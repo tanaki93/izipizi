@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from product_app.models import Brand, VendDepartment, VendCategory, Link, Document, OriginalProduct, Currency, Language, \
-    ExchangeRate, ExchangeValue, Country, DocumentProduct
+    ExchangeRate, ExchangeValue, Country, DocumentProduct, BrandCountry
 from user_app.serializers import UserSerializer
 
 
@@ -78,10 +78,17 @@ class LanguageSerializer(serializers.ModelSerializer):
 class CountrySerializer(serializers.ModelSerializer):
     currency = CurrencySerializer()
     language = CurrencySerializer()
+    is_related = serializers.SerializerMethodField()
 
     class Meta:
         model = Country
-        fields = '__all__'
+        fields = 'id code name currency language is_active is_related'.split()
+
+    def get_is_related(self, obj):
+        count = BrandCountry.objects.filter(country=obj).count()
+        if count > 0:
+            return True
+        return False
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -99,7 +106,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'user','step', 'status', 'department', 'brand', 'products')
+        fields = ('id', 'updated_at', 'user', 'step', 'status', 'department', 'brand', 'products')
 
     def get_department(self, obj):
         try:

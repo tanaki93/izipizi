@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import transaction
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -50,7 +52,6 @@ def admin_brands_list_view(request):
                         else:
                             document_product = DocumentProduct.objects.create(product=j, document=document)
                             document_product.save()
-
         return Response(status=status.HTTP_200_OK)
 
 
@@ -155,7 +156,8 @@ def admin_currencies_view(request):
     elif request.method == 'POST':
         name = request.data.get('name', '')
         code = request.data.get('code', '')
-        currency = Currency.objects.create(code=code, name=name)
+        code_name = request.data.get('code_name', '')
+        currency = Currency.objects.create(code=code, name=name, code_name=code_name)
         currency.save()
         return Response(status=status.HTTP_200_OK)
 
@@ -169,7 +171,13 @@ def admin_currencies_item_view(request, id):
     elif request.method == 'PUT':
         currencies.name = request.data.get('name', '')
         currencies.code = request.data.get('code', '')
+        currencies.code_name = request.data.get('code_name', '')
         currencies.is_active = request.data.get('is_active', True)
+        try:
+            date = datetime.datetime.strptime(request.data.get('date'), "%Y-%m-%d")
+            currencies.date = date
+        except:
+            pass
         # currency = Currency.objects.create(code=code, name=name)
         currencies.save()
         return Response(status=status.HTTP_200_OK)

@@ -60,6 +60,7 @@ class Currency(models.Model):
     code = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     code_name = models.CharField(max_length=10, null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
