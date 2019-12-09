@@ -114,10 +114,7 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = 'id code name currency language is_active is_related'.split()
 
     def get_is_related(self, obj):
-        count = BrandCountry.objects.filter(country=obj).count()
-        if count > 0:
-            return True
-        return False
+        return True
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
