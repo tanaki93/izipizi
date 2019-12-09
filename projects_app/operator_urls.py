@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^izishop/colours/$', views.operator_izishop_colours_view),
     url(r'^izishop/colours/([0-9]+)/$', views.operator_izishop_colours_item_view),
     url(r'^trendyol/colours/$', views.operator_colours_view),
-    url(r'^izishop/colours/([0-9]+)/$', views.operator_colours_item_view),
+    url(r'^trendyol/colours/([0-9]+)/$', views.operator_colours_item_view),
 
     url(r'^izishop/categories/$', views.operator_category_search_view),
     url(r'^izishop/sizes/$', views.operator_sizes_view),
