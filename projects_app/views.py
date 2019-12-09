@@ -319,7 +319,7 @@ def operator_brands_list_view(request):
         # is_trend_yol = request.data.get('is_trend_yol', True)
         name = request.data.get('name', '')
         link = request.data.get('link', '')
-        code = request.data.get('code', '')
+        code = request.data.get('code', '').upper()
         currency_id = int(request.data.get('currency_id', ''))
         if name == '':
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -352,7 +352,7 @@ def operator_brands_item_view(request, id):
         # is_trend_yol = request.data.get('is_trend_yol', True)
         name = request.data.get('name', '')
         link = request.data.get('link', '')
-        code = request.data.get('code', '')
+        code = request.data.get('code', '').upper()
         currency_id = int(request.data.get('currency_id', ''))
         brand.is_active = is_active
         brand.name = name
@@ -422,7 +422,7 @@ def operator_departments_item_view(request, id):
         if department_id == 0:
             depart = Department()
             depart.name = request.data.get('name', '')
-            depart.code = request.data.get('code', '')
+            depart.code = request.data.get('code', '').upper()
             depart.is_active = request.data.get('is_active', True)
             depart.save()
             for i in request.data.get('languages'):
@@ -459,7 +459,7 @@ def operator_categories_item_view(request, id):
         category_id = int(request.data.get('category_id', 0))
         if category_id == 0:
             izi_category = Category()
-            izi_category.code = request.data.get('code', '')
+            izi_category.code = request.data.get('code', '').upper()
             izi_category.position = request.data.get('position', 1)
             izi_category.parent_id = int(request.data.get('parent_id'))
             izi_category.name = request.data.get('name', '')
@@ -505,7 +505,7 @@ def operator_departments_search_view(request):
         category = Department()
         category.name = name
         category.position = request.data.get('position', 1)
-        category.code = request.data.get('code', '')
+        category.code = request.data.get('code', '').upper()
         category.is_active = request.data.get('is_active', True)
         category.save()
         for i in request.data.get('languages'):
@@ -579,7 +579,7 @@ def operator_category_search_view(request):
         category = Category()
         category.name = name
         category.position = request.data.get('position', 1)
-        category.code = request.data.get('code', '')
+        category.code = request.data.get('code', '').upper()
         category.is_active = request.data.get('is_active', True)
         category.save()
         for i in request.data.get('languages'):
@@ -610,7 +610,7 @@ def operator_parent_category_search_view(request):
         return Response(status=status.HTTP_200_OK, data=ParentCategorySerializer(categories, many=True).data)
     elif request.method == 'POST':
         category = ParentCategory()
-        category.code = request.data.get('code', '')
+        category.code = request.data.get('code', '').upper()
         category.name = request.data.get('name', '')
         category.position = request.data.get('position', 1)
         category.is_active = request.data.get('is_active', True)
@@ -635,7 +635,7 @@ def operator_parent_category_search_view(request):
 def operator_category_item_view(request, id):
     category = Category.objects.get(id=id)
     if request.method == 'PUT':
-        category.code = request.data.get('code', '')
+        category.code = request.data.get('code', '').upper()
         category.name = request.data.get('name', '')
         category.position = request.data.get('position', 1)
         category.is_active = request.data.get('is_active', True)
@@ -669,7 +669,7 @@ def operator_category_item_view(request, id):
 def operator_parent_category_item_view(request, id):
     category = ParentCategory.objects.get(id=id)
     if request.method == 'PUT':
-        category.code = request.data.get('code', '')
+        category.code = request.data.get('code', '').upper()
         category.name = request.data.get('name', '')
         category.position = request.data.get('position', 1)
         category.is_active = request.data.get('is_active', True)
@@ -697,7 +697,7 @@ def operator_parent_category_item_view(request, id):
 def operator_department_item_view(request, id):
     deparment = Department.objects.get(id=id)
     if request.method == 'PUT':
-        deparment.code = request.data.get('code', '')
+        deparment.code = request.data.get('code', '').upper()
         deparment.name = request.data.get('name', '')
         deparment.position = request.data.get('position', 1)
         deparment.is_active = request.data.get('is_active', True)
@@ -731,7 +731,7 @@ def operator_department_item_parents_view(request, deparment_id):
         return Response(status=status.HTTP_200_OK, data=ParentCategorySerializer(categories, many=True).data)
     elif request.method == 'POST':
         category = ParentCategory()
-        category.code = request.data.get('code', '')
+        category.code = request.data.get('code', '').upper()
         category.name = request.data.get('name', '')
         category.department_id = deparment_id
         category.position = request.data.get('position', 1)
@@ -761,7 +761,7 @@ def operator_department_parents_categories_view(request, parent_id):
         return Response(status=status.HTTP_200_OK, data=CategorySerializer(categories, many=True).data)
     elif request.method == 'POST':
         category = Category()
-        category.code = request.data.get('code', '')
+        category.code = request.data.get('code', '').upper()
         category.name = request.data.get('name', '')
         category.parent_id = parent_id
         category.position = request.data.get('position', 1)
@@ -787,7 +787,7 @@ def operator_department_parents_categories_view(request, parent_id):
 def operator_department_parents_item_view(request, id):
     parent = ParentCategory.objects.get(id=id)
     if request.method == 'PUT':
-        parent.code = request.data.get('code', '')
+        parent.code = request.data.get('code', '').upper()
         parent.name = request.data.get('name', '')
         try:
             parent.department_id = int(request.data.get('department_id', ''))
