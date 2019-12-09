@@ -147,7 +147,7 @@ def admin_currencies_view(request):
         return Response(data=CurrencySerializer(currencies, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         name = request.data.get('name', '')
-        code = request.data.get('code', '')
+        code = request.data.get('code', '').upper()
         code_name = request.data.get('code_name', '')
         currency = Currency.objects.create(code=code, name=name, code_name=code_name)
         currency.save()
@@ -162,7 +162,7 @@ def admin_currencies_item_view(request, id):
         return Response(data=CurrencySerializer(currencies).data, status=status.HTTP_200_OK)
     elif request.method == 'PUT':
         currencies.name = request.data.get('name', '')
-        currencies.code = request.data.get('code', '')
+        currencies.code = request.data.get('code', '').upper()
         currencies.code_name = request.data.get('code_name', '')
         currencies.is_active = request.data.get('is_active', True)
         # currency = Currency.objects.create(code=code, name=name)
@@ -181,7 +181,7 @@ def admin_languages_view(request):
         return Response(data=LanguageSerializer(languages, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         name = request.data.get('name', '')
-        code = request.data.get('code', '')
+        code = request.data.get('code', '').upper()
         if code != '':
             count = Language.objects.filter(code=code).count()
             if count > 0:
@@ -201,7 +201,7 @@ def admin_languages_item_view(request, id):
         return Response(data=LanguageSerializer(languages).data, status=status.HTTP_200_OK)
     elif request.method == 'PUT':
         languages.name = request.data.get('name', '')
-        languages.code = request.data.get('code', '')
+        languages.code = request.data.get('code', '').upper()
         languages.is_translate = request.data.get('is_translate', True)
         languages.is_active = request.data.get('is_active', True)
         # currency = Currency.objects.create(code=code, name=name)
@@ -292,7 +292,7 @@ def admin_countries_view(request):
             currency = int(request.data.get('currency_id'))
         except:
             pass
-        code = str(request.data.get('code', ''))
+        code = str(request.data.get('code', '')).upper()
         name = str(request.data.get('name', ''))
         is_active = request.data.get('is_active', True)
         if language is not None and currency is not None:
@@ -317,7 +317,7 @@ def admin_countries_item_view(request, id):
             currency = int(request.data.get('currency_id'))
         except:
             pass
-        code = str(request.data.get('code', ''))
+        code = str(request.data.get('code', '')).upper()
         name = str(request.data.get('name', ''))
         is_active = request.data.get('is_active', True)
         if language is not None and currency is not None:
