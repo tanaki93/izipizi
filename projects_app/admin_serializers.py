@@ -106,7 +106,7 @@ class LanguageSerializer(serializers.ModelSerializer):
 
 class CountrySerializer(serializers.ModelSerializer):
     currency = CurrencySerializer()
-    language = CurrencySerializer()
+    language = LanguageSerializer()
     is_related = serializers.SerializerMethodField()
 
     class Meta:
@@ -114,7 +114,10 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = 'id code name currency language is_active is_related'.split()
 
     def get_is_related(self, obj):
-        return True
+        count = BrandCountry.objects.filter(country=obj).count()
+        if count > 0:
+            return True
+        return False
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
