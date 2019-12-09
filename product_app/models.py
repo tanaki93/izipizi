@@ -244,7 +244,11 @@ class ParentCategory(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.name_lower = self.name.lower()
+        try:
+            self.name_lower = self.name.lower()
+        except:
+            self.name_lower = ''
+            pass
         super(ParentCategory, self).save()
 
 
