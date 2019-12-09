@@ -47,6 +47,10 @@ def admin_brands_list_view(request):
                         if document_product is not None:
                             document_product.document = document
                             document_product.save()
+                        else:
+                            document_product = DocumentProduct.objects.create(product=j, document=document)
+                            document_product.save()
+
         return Response(status=status.HTTP_200_OK)
 
 
