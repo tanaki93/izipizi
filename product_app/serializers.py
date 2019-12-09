@@ -72,10 +72,16 @@ class ParentCategorySerializer(serializers.ModelSerializer):
     childs = serializers.SerializerMethodField()
     department = IziDepSerializer()
     languages = serializers.SerializerMethodField()
-
+    is_related = serializers.SerializerMethodField()
     class Meta:
         model = ParentCategory
-        fields = ('id', 'name', 'childs', 'code', 'position', 'is_active', 'languages', 'department')
+        fields = ('id', 'name', 'childs', 'code', 'position', 'is_active', 'languages', 'department', 'is_related')
+
+    def get_is_related(self, obj):
+        count = Category.objects.filter(parent=obj).count()
+        if count > 0:
+            return True
+        return False
 
     def get_childs(self, obj):
         return ChildCategorySerializer(Category.objects.filter(parent=obj), many=True).data

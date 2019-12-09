@@ -138,10 +138,17 @@ class CategorySerializer(serializers.ModelSerializer):
     parent = ParentSerializer()
     languages = serializers.SerializerMethodField()
     categories = VendCategorySerializer(many=True)
+    is_related = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'parent', 'languages', 'categories', 'code', 'position', 'is_active')
+        fields = ('id', 'name', 'parent', 'languages', 'categories', 'code', 'position', 'is_active', 'is_related')
+
+    def get_is_related(self, obj):
+        count = VendCategory.objects.filter(category=obj).count()
+        if count > 0:
+            return True
+        return False
 
     def get_languages(self, obj):
         data = []
@@ -255,10 +262,19 @@ class VendDepartmentSerializer(serializers.ModelSerializer):
 class DepartmentSerializer(serializers.ModelSerializer):
     languages = serializers.SerializerMethodField()
     departments = VendDepartmentSerializer(many=True)
-
+    is_related = serializers.SerializerMethodField()
     class Meta:
         model = Department
-        fields = ('id', 'name', 'languages', 'departments', 'position', 'code', 'is_active')
+        fields = ('id', 'name', 'languages', 'departments', 'position', 'code', 'is_active', 'is_related')
+
+    def get_is_related(self, obj):
+        count = ParentCategory.objects.filter(department=obj)
+        if count > 0:
+            return True
+        count = VendDepartment.objects.filter(department=obj).count()
+        if count > 0:
+            return True
+        return False
 
     def get_languages(self, obj):
         data = []
