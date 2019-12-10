@@ -950,8 +950,10 @@ def operator_documents_process_products_view(request, id):
             colour_id = int(request.GET.get('colour_id', ''))
         except:
             pass
-        if colour_id is not None:
-            products = products.filter(colour_id=colour_id)
+        if colour_id is not None and colour_id != 0:
+            products = products.filter(link__product__colour_id=colour_id)
+        elif colour_id is not None and colour_id == 0:
+            products = products.filter(link__product__colour__isnull=True)
         length = products.count()
         pages = length // 200
         if pages == 0:
@@ -989,16 +991,14 @@ def operator_documents_process_products_view(request, id):
             for i in request.data.get('products'):
                 try:
                     product = OriginalProduct.objects.get(id=int(i))
+                    izi = product.link.product
                     if option == 'department':
-                        izi = product.link.product
                         izi.department_id = id
-                        izi.save()
                     elif option == 'category':
-                        izi = product.link.product
                         izi.category_id = id
-                        izi.save()
                     elif option == 'colour':
-                        product.colour_id = id
+                        izi.colour_id = id
+                    izi.save()
                     product.save()
                 except:
                     pass
@@ -1021,16 +1021,14 @@ def operator_documents_process_products_item_view(request, id, product_id):
             except:
                 pass
             product = OriginalProduct.objects.get(id=product_id, originalproduct__document=document)
+            izi = product.link.product
             if option == 'department':
-                izi = product.link.product
                 izi.department_id = id
-                izi.save()
             elif option == 'category':
-                izi = product.link.product
                 izi.category_id = id
-                izi.save()
             elif option == 'colour':
-                product.colour_id = id
+                izi.colour_id = id
+            izi.save()
             product.save()
             return Response(status=status.HTTP_200_OK, data=ProductSerializer(product).data)
 
