@@ -217,5 +217,10 @@ def post(request, page):
         d = OriginalProduct.objects.all()
         for i in d:
             product = i.link.product
-            product.colour_id = i.colour.izi_colour.id
+            try:
+                product.colour_id = i.colour.izi_colour.id
+                product.save()
+            except:
+                pass
+
     return Response(data='')

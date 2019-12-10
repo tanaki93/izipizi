@@ -21,7 +21,7 @@ from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, T
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer, \
     VendColourSerializer, BrandProcessSerializer, CommentSerializer, ColourSerializer, ColourSerializer, \
-    IziColorSerializer
+    IziColorSerializer, IziColourSerializer
 from user_app.permissions import IsOperator
 
 
@@ -908,7 +908,7 @@ def operator_documents_process_view(request, id):
             data['department_id'] = document.department.id
             data['department_name'] = document.department.name
         data['brand'] = BrandProcessSerializer(document.brand).data
-        data['colours'] = VendColourSerializer(VendColour.objects.all(), many=True).data
+        data['colours'] = IziColourSerializer(IziColour.objects.all(), many=True).data
         data['comments'] = CommentSerializer(DocumentComment.objects.filter(document=document), many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
 
