@@ -124,7 +124,7 @@ def edit_profile_view(request, id):
             user.last_name = last_name
         except:
             pass
-        user.username = request.data.get('username', '')
+        # user.username = request.data.get('username', '')
         user.email = request.data.get('email', 't@m.ru')
         user.user_type = int(request.data.get('user_type', 1))
         user.phone = request.data.get('phone', '+996 700 121212')
