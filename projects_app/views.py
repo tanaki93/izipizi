@@ -605,7 +605,7 @@ def operator_izi_shop_sizes_item_view(request, id):
             tr.save()
     elif request.method == 'DELETE':
         colour.delete()
-    return Response(status=status.HTTP_200_OK, data=IziColorSerializer(colour).data)
+    return Response(status=status.HTTP_200_OK, data=SizeSerializer(colour).data)
 
 
 @api_view(['GET', 'PUT', 'POST', 'DELETE'])
