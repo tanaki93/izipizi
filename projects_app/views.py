@@ -554,7 +554,7 @@ def operator_izishop_colours_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def operator_izishop_colours_item_view(request, id):
     colour = IziColour.objects.get(id=id)
@@ -576,10 +576,12 @@ def operator_izishop_colours_item_view(request, id):
             else:
                 tr.name = i['translation']
             tr.save()
+    elif request.method == 'DELETE':
+        colour.delete()
     return Response(status=status.HTTP_200_OK, data=IziColorSerializer(colour).data)
 
 
-@api_view(['GET', 'PUT', 'POST'])
+@api_view(['GET', 'PUT', 'POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def operator_colours_item_view(request, id):
     colour = VendColour.objects.get(id=id)
