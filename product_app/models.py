@@ -149,7 +149,7 @@ class TranslationColour(models.Model):
     name_lower = models.CharField(max_length=100, default='', null=True)
 
     def save(self, *args, **kwargs):
-        self.name_lower = self.name.lower()
+        # self.name_lower = self.name.lower()
         super(TranslationColour, self).save()
 
     def __str__(self):
