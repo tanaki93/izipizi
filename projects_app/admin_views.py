@@ -19,7 +19,7 @@ from user_app.serializers import UserSerializer
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAdmin])
+@permission_classes([AllowAny])
 def admin_brands_list_view(request):
     if request.method == 'GET':
         brands = Brand.objects.all()

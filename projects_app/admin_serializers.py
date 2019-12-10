@@ -36,15 +36,36 @@ class TrendYolDepartmentDetailedSerializer(serializers.ModelSerializer):
 
 
 class BrandAdminDetailedSerializer(serializers.ModelSerializer):
-    # departments = serializers.SerializerMethodField()
+    total_count = serializers.SerializerMethodField()
+    document_count = serializers.SerializerMethodField()
+    processed_count = serializers.SerializerMethodField()
+    in_process_count = serializers.SerializerMethodField()
+    out_process_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Brand
-        fields = ('id', 'name', 'is_active')
+        fields = ('id', 'name', 'is_active', 'total_count', 'document_count', 'processed_count', 'in_process_count', 'out_process_count')
 
-    # def get_departments(self, obj):
-    #     departments = VendDepartment.objects.filter(brand=obj)
-    #     return TrendYolDepartmentDetailedSerializer(departments, many=True).data
+    def get_total_count(self, obj):
+        count = OriginalProduct.objects.filter(brand=obj).count()
+        return count
+
+    def get_document_count(self, obj):
+        count = Document.objects.filter(brand=obj).count()
+        return count
+
+    def get_processed_count(self, obj):
+        count = DocumentProduct.objects.filter(document__brand=obj, step=4).count()
+        return count
+
+    def get_in_process_count(self, obj):
+        count = DocumentProduct.objects.filter(document__brand=obj, step__in=[1, 2, 3]).count()
+        return count
+
+    def get_out_process_count(self, obj):
+        count = DocumentProduct.objects.filter(document__brand=obj).count()
+        count = OriginalProduct.objects.filter(brand=obj).count() - count
+        return count
 
 
 class CurrencySerializer(serializers.ModelSerializer):

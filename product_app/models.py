@@ -344,7 +344,7 @@ class Document(models.Model):
 
 
 class DocumentProduct(models.Model):
-    product = models.ForeignKey('OriginalProduct', null=True, related_name='originalproduct')
+    product = models.ForeignKey('OriginalProduct', null=True, related_name='document_product')
     document = models.ForeignKey(Document, null=True, blank=True)
     step = models.IntegerField(default=1, null=True, blank=True)
 
