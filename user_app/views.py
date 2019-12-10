@@ -133,10 +133,10 @@ def edit_profile_view(request, id):
     elif request.method == 'DELETE':
         user = User.objects.get(id=id)
         if Document.objects.filter(user=user).count() > 0:
+            return Response(status=status.HTTP_409_CONFLICT)
+        else:
             user.delete()
             return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_409_CONFLICT)
 
 
 @api_view(['POST'])

@@ -395,7 +395,6 @@ def admin_countries_item_view(request, id):
         return Response(status=status.HTTP_200_OK)
 
 
-
 @api_view(['GET', 'PUT', 'POST'])
 @permission_classes([IsAdmin])
 def admin_documents_item_view(request, id):
