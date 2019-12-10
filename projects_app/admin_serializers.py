@@ -63,8 +63,7 @@ class BrandAdminDetailedSerializer(serializers.ModelSerializer):
         return count
 
     def get_out_process_count(self, obj):
-        count = DocumentProduct.objects.filter(document__brand=obj).count()
-        count = OriginalProduct.objects.filter(brand=obj).count() - count
+        count = (OriginalProduct.objects.filter(document_product__document__isnull=True, brand=obj).count())
         return count
 
 

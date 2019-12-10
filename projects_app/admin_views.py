@@ -18,12 +18,35 @@ from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'PUT'])
 @permission_classes([AllowAny])
 def admin_brands_list_view(request):
     if request.method == 'GET':
         brands = Brand.objects.all()
         return Response(data=BrandAdminDetailedSerializer(brands, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'PUT':
+        brand = None
+        try:
+            brand = Brand.objects.get(id=int(request.data.get('brand_id')))
+        except:
+            pass
+        products = OriginalProduct.objects.filter(document_product__document__isnull=True, brand=brand)
+        if products.count() > 0:
+            document = Document.objects.create(brand=brand)
+            document.save()
+            for j in products:
+                document_product = None
+                try:
+                    document_product = DocumentProduct.objects.get(product=j)
+                except:
+                    pass
+                if document_product is not None:
+                    document_product.document = document
+                    document_product.save()
+                else:
+                    document_product = DocumentProduct.objects.create(product=j, document=document)
+                    document_product.save()
+        return Response(status=status.HTTP_200_OK)
     elif request.method == 'POST':
         brand = None
         try:
@@ -104,7 +127,7 @@ def admin_statistics_view(request):
 
 
 @api_view(['GET'])
-@permission_classes([IsAdmin])
+@permission_classes([AllowAny])
 def admin_documents_view(request):
     if request.method == 'GET':
         documents = Document.objects.all()
