@@ -300,7 +300,7 @@ def admin_exchanges_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def admin_exchanges_item_view(request, id):
     exchange = ExchangeRate.objects.get(id=id)
     if request.method == 'GET':
@@ -338,7 +338,7 @@ def admin_exchanges_item_view(request, id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def admin_countries_view(request):
     if request.method == 'GET':
         countries = Country.objects.all()
@@ -364,7 +364,7 @@ def admin_countries_view(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def admin_countries_item_view(request, id):
     country = Country.objects.get(id=id)
     if request.method == 'GET':
@@ -396,7 +396,7 @@ def admin_countries_item_view(request, id):
 
 
 @api_view(['GET', 'PUT', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAdmin])
 def admin_documents_item_view(request, id):
     try:
         document = Document.objects.get(id=id)
