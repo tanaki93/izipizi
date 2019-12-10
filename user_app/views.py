@@ -214,13 +214,13 @@ def profile_resend_code_view(request):
 @permission_classes([AllowAny])
 def post(request, page):
     with transaction.atomic():
-        d = OriginalProduct.objects.all()
+        d = OriginalProduct.objects.all()[(int(page)-1)*2000: int(page)*2000]
         for i in d:
             product = i.link.product
+            print(product.id)
             try:
                 product.colour_id = i.colour.izi_colour.id
                 product.save()
             except:
                 pass
-
     return Response(data='')

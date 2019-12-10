@@ -303,7 +303,8 @@ def admin_countries_view(request):
         name = str(request.data.get('name', ''))
         is_active = request.data.get('is_active', True)
         if language is not None and currency is not None:
-            exchange = Country.objects.create(language_id=language, currency_id=currency, name=name, code=code, is_active=is_active)
+            exchange = Country.objects.create(language_id=language, currency_id=currency, name=name, code=code,
+                                              is_active=is_active)
             exchange.save()
             return Response(status=status.HTTP_200_OK)
         else:
@@ -341,7 +342,8 @@ def admin_countries_item_view(request, id):
         country.delete()
         return Response(status=status.HTTP_200_OK)
 
-@api_view(['GET', 'PUT','POST'])
+
+@api_view(['GET', 'PUT', 'POST'])
 @permission_classes([AllowAny])
 def admin_documents_item_view(request, id):
     try:
