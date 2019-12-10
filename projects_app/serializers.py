@@ -24,7 +24,7 @@ class SizeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Size
-        fields = ('id', 'name', 'languages', 'is_related')
+        fields = ('id', 'name', 'languages', 'code', 'is_related')
 
     def get_is_related(self, obj):
         count = VendSize.objects.filter(izi_size=obj).count()
@@ -59,8 +59,6 @@ class VendSizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendSize
         fields = ('id', 'name', 'izi_size')
-
-
 
 
 class CommentSerializer(serializers.ModelSerializer):
