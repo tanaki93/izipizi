@@ -580,7 +580,7 @@ def operator_izishop_colours_item_view(request, id):
     return Response(status=status.HTTP_200_OK, data=IziColorSerializer(colour).data)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'POST'])
 @permission_classes([IsAuthenticated])
 def operator_colours_item_view(request, id):
     colour = VendColour.objects.get(id=id)
@@ -601,6 +601,9 @@ def operator_colours_item_view(request, id):
             else:
                 tr.name = i['translation']
             tr.save()
+    elif request.method == 'POST':
+        colour.izi_colour_id = request.data.get('colour_id', 1)
+        colour.save()
     return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colour).data)
 
 
