@@ -481,5 +481,6 @@ def admin_documents_process_products_view(request, id):
             pages += 1
         data['count'] = length
         data['pages'] = pages
+        data['step'] = document.step
         data['products'] = ProductSerializer(products[:200], many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
