@@ -589,20 +589,12 @@ def operator_colours_item_view(request, id):
         colour.name = request.data.get('name', '')
         colour.name_en = request.data.get('name_en', '')
         colour.save()
-        for i in request.data.get('languages'):
-            tr = None
-            try:
-                tr = TranslationColour.objects.get(vend_colour=colour, language_id=int(i['lang_id']))
-            except:
-                pass
-            if tr is None:
-                tr = TranslationColour.objects.create(vend_colour=colour, language_id=int(i['lang_id']),
-                                                      name=i['translation'])
-            else:
-                tr.name = i['translation']
-            tr.save()
     elif request.method == 'POST':
-        colour.izi_colour_id = request.data.get('colour_id', 1)
+        colour_id = request.data.get('colour_id', 1)
+        if colour_id>0:
+            colour.izi_colour_id = colour_id
+        else:
+            colour.izi_colour = None
         colour.save()
     return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colour).data)
 
