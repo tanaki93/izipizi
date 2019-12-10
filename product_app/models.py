@@ -440,6 +440,7 @@ class VendSize(models.Model):
         verbose_name = 'Размеры (vend)'
 
     name = models.CharField(max_length=100)
+    izi_size = models.ForeignKey('Size', null=True, on_delete=SET_NULL)
 
     def __str__(self):
         return self.name
@@ -453,11 +454,30 @@ class Size(models.Model):
         verbose_name_plural = 'Размер (izishop)'
         verbose_name = 'Размеры (izishop)'
 
-    vend_size = models.OneToOneField(VendSize, null=True, blank=True, related_name='size', on_delete=SET_NULL)
     name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, null=True, blank=True, default='')
 
     def __str__(self):
         return self.name
+
+
+class TranslationSize(models.Model):
+    class Meta:
+        verbose_name = 'размер (перевод)'
+        verbose_name_plural = 'размер (перевод)'
+
+    size = models.ForeignKey(Size, null=True, blank=True, related_name='translations', on_delete=SET_NULL)
+    name = models.CharField(max_length=100)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+    language = models.ForeignKey(Language, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        self.name_lower = self.name.lower()
+        super(TranslationSize, self).save()
 
 
 class Product(models.Model):

@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
     BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour, VendColour, \
-    DocumentComment, IziColour
+    DocumentComment, IziColour, TranslationSize
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -19,23 +19,48 @@ class TrendYolDepartmentSerializer(serializers.ModelSerializer):
 
 
 class SizeSerializer(serializers.ModelSerializer):
+    languages = serializers.SerializerMethodField()
+    is_related = serializers.SerializerMethodField()
+
     class Meta:
         model = Size
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'languages', 'is_related')
+
+    def get_is_related(self, obj):
+        count = VendSize.objects.filter(izi_size=obj).count()
+        if count > 0:
+            return True
+        return False
+
+    def get_languages(self, obj):
+        data = []
+        for i in Language.objects.all():
+            tr = None
+            try:
+                tr = TranslationSize.objects.get(size=obj.izi_size, language=i)
+            except:
+                pass
+            context = {
+                'lang_id': i.id,
+                'lang_name': i.name,
+                'lang_code': i.code,
+            }
+            if tr is not None:
+                context['translation'] = tr.name
+            else:
+                context['translation'] = None
+            data.append(context)
+        return data
 
 
 class VendSizeSerializer(serializers.ModelSerializer):
-    name_en = serializers.SerializerMethodField()
+    izi_size = SizeSerializer()
 
     class Meta:
         model = VendSize
-        fields = ('id', 'name', 'name_en')
+        fields = ('id', 'name', 'izi_size')
 
-    def get_name_en(self, obj):
-        try:
-            return obj.size.name
-        except:
-            return obj.name
+
 
 
 class CommentSerializer(serializers.ModelSerializer):

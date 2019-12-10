@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from product_app.models import Brand, VendDepartment, VendCategory, Department, Category, VendSize, Size, \
     Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry, Language, TranslationDepartment, \
     TranslationCategory, VendColour, TranslationColour, DocumentProduct, DocumentComment, TranslationParentCategory, \
-    IziColour
+    IziColour, TranslationSize
 from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
 from projects_app.googletrans import Translator
@@ -21,7 +21,7 @@ from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, T
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer, \
     VendColourSerializer, BrandProcessSerializer, CommentSerializer, ColourSerializer, ColourSerializer, \
-    IziColorSerializer, IziColourSerializer
+    IziColorSerializer, IziColourSerializer, SizeSerializer
 from user_app.permissions import IsOperator
 
 
@@ -581,6 +581,33 @@ def operator_izishop_colours_item_view(request, id):
     return Response(status=status.HTTP_200_OK, data=IziColorSerializer(colour).data)
 
 
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def operator_izi_shop_sizes_item_view(request, id):
+    colour = Size.objects.get(id=id)
+    if request.method == 'PUT':
+        colour.code = request.data.get('code', '').upper()
+        colour.name = request.data.get('name', '')
+        is_active = request.data.get('is_active', True)
+        colour.is_active = is_active
+        colour.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationSize.objects.get(size=colour, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationSize.objects.create(size=colour, language_id=int(i['lang_id']),
+                                                    name=i['translation'])
+            else:
+                tr.name = i['translation']
+            tr.save()
+    elif request.method == 'DELETE':
+        colour.delete()
+    return Response(status=status.HTTP_200_OK, data=IziColorSerializer(colour).data)
+
+
 @api_view(['GET', 'PUT', 'POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def operator_colours_item_view(request, id):
@@ -599,6 +626,22 @@ def operator_colours_item_view(request, id):
         colour.save()
     return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colour).data)
 
+
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def operator_vend_size_item_view(request, id):
+    size = VendSize.objects.get(id=id)
+    if request.method == 'PUT':
+        size.name = request.data.get('name', '')
+        size.save()
+    elif request.method == 'POST':
+        size_id = int(request.data.get('size_id', 1))
+        if size_id > 0:
+            size.izi_size_id = size_id
+        else:
+            size.izi_size = None
+        size.save()
+    return Response(status=status.HTTP_200_OK, data=VendSizeSerializer(size).data)
 
 
 @api_view(['GET', 'POST'])
@@ -627,12 +670,40 @@ def operator_category_search_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 @permission_classes([AllowAny])
 def operator_sizes_view(request):
     if request.method == 'GET':
         sizes = VendSize.objects.all()
         return Response(status=status.HTTP_200_OK, data=VendSizeSerializer(sizes, many=True).data)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def operator_izi_shop_sizes_view(request):
+    if request.method == 'GET':
+        sizes = Size.objects.all()
+        return Response(status=status.HTTP_200_OK, data=SizeSerializer(sizes, many=True).data)
+    elif request.method == 'POST':
+        category = Size()
+        category.code = request.data.get('code', '').upper()
+        category.name = request.data.get('name', '')
+        # category.position = request.data.get('position', 1)
+        category.is_active = request.data.get('is_active', True)
+        category.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationSize.objects.get(size=category, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationSize.objects.create(size=category, language_id=int(i['lang_id']),
+                                                              name=i['translation'], is_active=(i['is_active']))
+            else:
+                tr.name = i['translation']
+            tr.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST'])

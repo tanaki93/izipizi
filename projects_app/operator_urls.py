@@ -14,8 +14,12 @@ urlpatterns = [
     url(r'^trendyol/colours/$', views.operator_colours_view),
     url(r'^trendyol/colours/([0-9]+)/$', views.operator_colours_item_view),
 
+
     url(r'^izishop/categories/$', views.operator_category_search_view),
-    url(r'^izishop/sizes/$', views.operator_sizes_view),
+    url(r'^trendyol/sizes/$', views.operator_sizes_view),
+    url(r'^trendyol/sizes/([0-9]+)/$', views.operator_vend_size_item_view),
+    url(r'^izishop/sizes/$', views.operator_izi_shop_sizes_view),
+    url(r'^izishop/sizes/([0-9]+)/$', views.operator_izi_shop_sizes_item_view),
     url(r'^izishop/parent/categories/$', views.operator_parent_category_search_view),
     url(r'^documents/$', views.operator_documents_view),
     url(r'^documents/all/$', views.operator_documents_all_view),
