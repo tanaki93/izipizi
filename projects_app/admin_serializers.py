@@ -58,12 +58,6 @@ class CurrencySerializer(serializers.ModelSerializer):
         count = Country.objects.filter(currency=obj).count()
         if count > 0:
             return True
-        count = ExchangeRate.objects.filter(to_currency=obj).count()
-        if count > 0:
-            return True
-        count = ExchangeRate.objects.filter(from_currency=obj).count()
-        if count > 0:
-            return True
         count = Brand.objects.filter(currency=obj).count()
         if count > 0:
             return True
