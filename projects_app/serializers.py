@@ -443,7 +443,7 @@ class ProductSerializer(serializers.ModelSerializer):
     brand = VendBrandSerializer()
     category = TrendYolCategorySerializer()
     izi_category = serializers.SerializerMethodField()
-    colour = ColourSerializer()
+    colour = serializers.SerializerMethodField()
 
     class Meta:
         model = OriginalProduct
@@ -459,6 +459,9 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_product(self, obj):
         product = Product.objects.get(link=obj.link)
         return IziProductSerializer(product).data
+
+    def get_colour(self, obj):
+        return IziColourSerializer(obj.link.product.colour).data
 
     def get_izi_category(self, obj):
         category = None
