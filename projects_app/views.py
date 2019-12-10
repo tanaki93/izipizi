@@ -591,7 +591,7 @@ def operator_colours_item_view(request, id):
         colour.name_en = request.data.get('name_en', '')
         colour.save()
     elif request.method == 'POST':
-        colour_id = request.data.get('colour_id', 1)
+        colour_id = int(request.data.get('colour_id', 1))
         if colour_id > 0:
             colour.izi_colour_id = colour_id
         else:
