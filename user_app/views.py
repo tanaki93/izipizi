@@ -225,10 +225,8 @@ def post(request, page):
         #     except:
         #         pass
         #     print(count)
-        d = VendColour.objects.all()
+        d = OriginalProduct.objects.all()
         for i in d:
-            izi_colour = IziColour.objects.create(name=i.name_en)
-            izi_colour.save()
-            i.izi_colour = izi_colour
-            i.save()
+            product = i.link.product
+            product.colour_id = i.colour.izi_colour.id
     return Response(data='')

@@ -8,10 +8,11 @@ from rest_framework.response import Response
 
 from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
     PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate, VendDepartment, DocumentProduct, DocumentComment, \
-    VendColour, ExchangeValue
+    VendColour, ExchangeValue, IziColour
 from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer, \
     LanguageSerializer, ExchangeRateSerializer, CountrySerializer, DocumentDetailedSerializer
-from projects_app.serializers import ProductSerializer, BrandProcessSerializer, VendColourSerializer, CommentSerializer
+from projects_app.serializers import ProductSerializer, BrandProcessSerializer, VendColourSerializer, CommentSerializer, \
+    ColourSerializer, IziColorSerializer, IziColourSerializer
 from user_app.models import User
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -364,7 +365,7 @@ def admin_documents_item_view(request, id):
             data['department_id'] = document.department.id
             data['department_name'] = document.department.name
         data['brand'] = BrandProcessSerializer(document.brand).data
-        data['colours'] = VendColourSerializer(VendColour.objects.all(), many=True).data
+        data['colours'] = IziColourSerializer(IziColour.objects.all(), many=True).data
         data['comments'] = CommentSerializer(DocumentComment.objects.filter(document=document), many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
     elif request.method == 'PUT':
