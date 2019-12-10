@@ -468,7 +468,7 @@ class TranslationSize(models.Model):
         verbose_name_plural = 'размер (перевод)'
 
     size = models.ForeignKey(Size, null=True, blank=True, related_name='translations', on_delete=SET_NULL)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=True, blank=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     language = models.ForeignKey(Language, null=True)
     is_active = models.BooleanField(default=True)
