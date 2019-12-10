@@ -131,6 +131,35 @@ def admin_statistics_view(request):
 def admin_documents_view(request):
     if request.method == 'GET':
         documents = Document.objects.all()
+        brand_id = None
+        try:
+            brand_id = int(request.GET.get('brand_id'))
+        except:
+            pass
+        if brand_id is not None:
+            documents = documents.filter(brand_id=brand_id)
+
+        user_id = None
+        try:
+            user_id = int(request.GET.get('user_id'))
+        except:
+            pass
+        if user_id is not None:
+            documents = documents.filter(user_id=user_id)
+        date_from = None
+        try:
+            date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")
+        except:
+            pass
+        if date_from is not None:
+            documents = documents.filter(updated_at__gte=date_from)
+        date_to = None
+        try:
+            date_to = datetime.datetime.strptime(request.GET.get('date_to'), "%Y-%m-%d")
+        except:
+            pass
+        if date_to is not None:
+            documents = documents.filter(updated_at__lte=date_to)
         return Response(status=status.HTTP_200_OK, data=DocumentsSerializer(documents, many=True).data)
 
 
