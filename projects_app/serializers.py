@@ -82,6 +82,7 @@ class VendColourSerializer(serializers.ModelSerializer):
 
 class IziColorSerializer(serializers.ModelSerializer):
     languages = serializers.SerializerMethodField()
+    is_related = serializers.SerializerMethodField()
 
     class Meta:
         model = IziColour
@@ -89,9 +90,10 @@ class IziColorSerializer(serializers.ModelSerializer):
 
     def get_is_related(self, obj):
         count = VendColour.objects.filter(izi_colour=obj)
-        if count>0:
+        if count > 0:
             return True
         return False
+
     def get_languages(self, obj):
         data = []
         for i in Language.objects.all():
