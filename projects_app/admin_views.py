@@ -10,7 +10,7 @@ from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSE
     PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate, VendDepartment, DocumentProduct, DocumentComment, \
     VendColour, ExchangeValue, IziColour
 from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer, \
-    LanguageSerializer, ExchangeRateSerializer, CountrySerializer, DocumentDetailedSerializer
+    LanguageSerializer, ExchangeRateSerializer, CountrySerializer, DocumentDetailedSerializer, DocumentsSerializer
 from projects_app.serializers import ProductSerializer, BrandProcessSerializer, VendColourSerializer, CommentSerializer, \
     ColourSerializer, IziColorSerializer, IziColourSerializer
 from user_app.models import User
@@ -131,7 +131,7 @@ def admin_statistics_view(request):
 def admin_documents_view(request):
     if request.method == 'GET':
         documents = Document.objects.all()
-        return Response(status=status.HTTP_200_OK, data=DocumentSerializer(documents, many=True).data)
+        return Response(status=status.HTTP_200_OK, data=DocumentsSerializer(documents, many=True).data)
 
 
 @api_view(['GET'])
