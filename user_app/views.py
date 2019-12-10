@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from product_app.models import Product, DocumentProduct, OriginalProduct, VendColour, IziColour
+from product_app.models import Product, DocumentProduct, OriginalProduct, VendColour, IziColour, Brand
 from user_app.models import User, ConfirmationCode
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -213,14 +213,11 @@ def profile_resend_code_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def post(request, page):
+    brand = Brand.objects.all().first()
     with transaction.atomic():
         d = OriginalProduct.objects.all()[(int(page)-1)*2000: int(page)*2000]
         for i in d:
-            product = i.link.product
-            print(product.id)
-            try:
-                product.colour_id = i.colour.izi_colour.id
-                product.save()
-            except:
-                pass
+            i.brand = brand
+            i.save()
+
     return Response(data='')
