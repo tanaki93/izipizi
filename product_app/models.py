@@ -260,7 +260,7 @@ class ParentCategory(models.Model):
 
     def save(self, *args, **kwargs):
         try:
-            self.name_lower = self.name.lower()
+            self.name_lower = str(self.name).lower()
         except:
             self.name_lower = ''
             pass
