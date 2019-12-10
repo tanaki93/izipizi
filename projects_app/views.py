@@ -600,6 +600,7 @@ def operator_colours_item_view(request, id):
     return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colour).data)
 
 
+
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def operator_category_search_view(request):
