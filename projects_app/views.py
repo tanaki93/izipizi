@@ -14,7 +14,6 @@ from product_app.models import Brand, VendDepartment, VendCategory, Department, 
     Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry, Language, TranslationDepartment, \
     TranslationCategory, VendColour, TranslationColour, DocumentProduct, DocumentComment, TranslationParentCategory, \
     IziColour
-# from projects_app.googletrans.client import Translator
 from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
 from projects_app.googletrans import Translator
@@ -591,7 +590,7 @@ def operator_colours_item_view(request, id):
         colour.save()
     elif request.method == 'POST':
         colour_id = request.data.get('colour_id', 1)
-        if colour_id>0:
+        if colour_id > 0:
             colour.izi_colour_id = colour_id
         else:
             colour.izi_colour = None

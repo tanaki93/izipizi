@@ -93,10 +93,10 @@ class ExchangeValue(models.Model):
     date = models.DateField(null=True, blank=True)
 
 
-@receiver(post_save, sender=ExchangeRate, dispatch_uid="update_stock_count")
-def update_stock(sender, instance, **kwargs):
-    exchange_value = ExchangeValue.objects.create(value=instance.value, exchange=instance, date=instance.date)
-    exchange_value.save()
+# @receiver(post_save, sender=ExchangeRate, dispatch_uid="update_stock_count")
+# def update_stock(sender, instance, **kwargs):
+#     exchange_value = ExchangeValue.objects.create(value=instance.value, exchange=instance, date=instance.date)
+#     exchange_value.save()
 
 
 class Country(models.Model):

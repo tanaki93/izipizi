@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from product_app.models import Link, Brand, OriginalProduct, Document, NOT_PARSED, OUT_PROCESS, \
     PROCESSED, IN_PROCESS, Country, Currency, Language, ExchangeRate, VendDepartment, DocumentProduct, DocumentComment, \
-    VendColour
+    VendColour, ExchangeValue
 from projects_app.admin_serializers import BrandAdminDetailedSerializer, DocumentSerializer, CurrencySerializer, \
     LanguageSerializer, ExchangeRateSerializer, CountrySerializer, DocumentDetailedSerializer
 from projects_app.serializers import ProductSerializer, BrandProcessSerializer, VendColourSerializer, CommentSerializer
@@ -238,6 +238,9 @@ def admin_exchanges_view(request):
             except:
                 pass
             exchange.save()
+            exchange_value = ExchangeValue.objects.create(value=value, exchange=exchange,
+                                                          date=exchange.date)
+            exchange_value.save()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -269,6 +272,9 @@ def admin_exchanges_item_view(request, id):
             except:
                 pass
             exchange.is_active = is_active
+            exchange_value = ExchangeValue.objects.create(value=value, exchange=exchange,
+                                                          date=exchange.date)
+            exchange_value.save()
             exchange.save()
             return Response(status=status.HTTP_200_OK)
         else:
