@@ -214,17 +214,6 @@ def profile_resend_code_view(request):
 @permission_classes([AllowAny])
 def post(request, page):
     with transaction.atomic():
-        # products = Product.objects.all()[(int(page)-1)*2000: (int(page))*2000]
-        # count = 0
-        # for i in products:
-        #     count+=1
-        #     try:
-        #         i.department_id = i.link.tr_category.department.id
-        #         i.category_id = i.link.tr_category.id
-        #         i.save()
-        #     except:
-        #         pass
-        #     print(count)
         d = OriginalProduct.objects.all()
         for i in d:
             product = i.link.product
