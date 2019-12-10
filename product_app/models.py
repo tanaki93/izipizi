@@ -456,6 +456,7 @@ class Size(models.Model):
 
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100, null=True, blank=True, default='')
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -476,7 +477,7 @@ class TranslationSize(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        self.name_lower = self.name.lower()
+        # self.name_lower = self.name.lower()
         super(TranslationSize, self).save()
 
 
