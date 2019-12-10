@@ -1,9 +1,12 @@
 from django.conf.urls import url
 from projects_app import admin_views as views
+from user_app import views as user_views
+
 
 urlpatterns = [
     url(r'^document/brands/$', views.admin_brands_list_view),
     url(r'^document/users/$', views.admin_users_list_view),
+    url(r'^document/users/([0-9]+)/$', user_views.edit_profile_view),
     url(r'^document/statistics/$', views.admin_statistics_view),
     url(r'^document/list/$', views.admin_documents_view),
     url(r'^documents/([0-9]+)/process/$', views.admin_documents_item_view),

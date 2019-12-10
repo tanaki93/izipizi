@@ -44,7 +44,8 @@ class BrandAdminDetailedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Brand
-        fields = ('id', 'name', 'is_active', 'total_count', 'document_count', 'processed_count', 'in_process_count', 'out_process_count')
+        fields = ('id', 'name', 'is_active', 'total_count', 'document_count', 'processed_count', 'in_process_count',
+                  'out_process_count')
 
     def get_total_count(self, obj):
         count = OriginalProduct.objects.filter(brand=obj).count()
@@ -162,6 +163,24 @@ class DocumentSerializer(serializers.ModelSerializer):
             return obj.department.brand.name
         except:
             return 'Нет бренда'
+
+    def get_products(self, obj):
+        return DocumentProduct.objects.filter(document=obj).count()
+
+    def get_status(self, obj):
+        return obj.status
+
+
+class DocumentsSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    department = DepartmentSerializer()
+    brand = BrandAdminDetailedSerializer()
+    products = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Document
+        fields = ('id', 'updated_at', 'user', 'step', 'status', 'department', 'brand', 'products')
 
     def get_products(self, obj):
         return DocumentProduct.objects.filter(document=obj).count()
