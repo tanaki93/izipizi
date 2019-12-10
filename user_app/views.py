@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from product_app.models import Product, DocumentProduct, OriginalProduct, VendColour, IziColour, Brand
+from product_app.models import Product, DocumentProduct, OriginalProduct, VendColour, IziColour, Brand, Document
 from user_app.models import User, ConfirmationCode
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -112,7 +112,7 @@ def add_profile_view(request):
         return Response(status=status.HTTP_201_CREATED)
 
 
-@api_view(['PUT'])
+@api_view(['PUT', 'DELETE'])
 @permission_classes([IsAdmin])
 def edit_profile_view(request, id):
     if request.method == 'PUT':
@@ -126,10 +126,17 @@ def edit_profile_view(request, id):
             pass
         user.username = request.data.get('username', '')
         user.email = request.data.get('email', 't@m.ru')
-        user.user_type = int(request.data.get('role', 1))
+        user.user_type = int(request.data.get('user_type', 1))
         user.phone = request.data.get('phone', '+996 700 121212')
         user.save()
         return Response(status=status.HTTP_201_CREATED)
+    elif request.method == 'DELETE':
+        user = User.objects.get(id=id)
+        if Document.objects.filter(user=user).count() > 0:
+            user.delete()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_409_CONFLICT)
 
 
 @api_view(['POST'])
@@ -215,7 +222,7 @@ def profile_resend_code_view(request):
 def post(request, page):
     brand = Brand.objects.all().first()
     with transaction.atomic():
-        d = OriginalProduct.objects.all()[(int(page)-1)*2000: int(page)*2000]
+        d = OriginalProduct.objects.all()[(int(page) - 1) * 2000: int(page) * 2000]
         for i in d:
             i.brand = brand
             i.save()
