@@ -195,6 +195,37 @@ def links_trendyol_list_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
+def colour_original_product(link, param):
+    original_product = link.originalproduct
+    colour = str(param['color']).split('/')[0]
+    vend = VendColour.objects.filter(name=colour)
+    if len(vend) > 0:
+        original_product.colour = vend.first()
+        original_product.save()
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def links_colour_list_view(request):
+    if request.method == 'GET':
+        links = Link.objects.filter(originalproduct__colour__isnull=True, originalproduct__isnull=False)
+        # print(links)
+        return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
+
+    elif request.method == 'POST':
+        with transaction.atomic():
+            for i in request.data:
+                link = None
+                try:
+                    link = Link.objects.get(id=int(i['id']))
+                except:
+                    pass
+                if link is None:
+                    continue
+                colour_original_product(link, i['product'])
+        return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def brands_list_view(request):

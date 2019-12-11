@@ -221,7 +221,7 @@ def profile_resend_code_view(request):
 @permission_classes([AllowAny])
 def post(request, page):
     with transaction.atomic():
-        d = OriginalProduct.objects.all()[(int(page) - 1) * 2000: int(page) * 2000]
+        d = OriginalProduct.objects.filter(colour__isnull=True)[(int(page) - 1) * 2000: int(page) * 2000]
         for i in d:
             try:
                 product = i.link.product
