@@ -221,7 +221,7 @@ def colour_original_product(link, param):
 @permission_classes([AllowAny])
 def links_colour_list_view(request):
     if request.method == 'GET':
-        links = Link.objects.filter(originalproduct__isnull=False)
+        links = Link.objects.filter(originalproduct__isnull=False, originalproduct__colour__isnull=True)
         # print(links)
         return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
 
