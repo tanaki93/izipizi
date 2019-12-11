@@ -202,6 +202,12 @@ def colour_original_product(link, param):
     if len(vend) > 0:
         original_product.colour = vend.first()
         original_product.save()
+        try:
+            product = link.product
+            product.colour = original_product.colour.izi_colour
+            product.save()
+        except:
+            pass
 
 
 @api_view(['GET', 'POST'])
