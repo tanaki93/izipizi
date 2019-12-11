@@ -132,6 +132,10 @@ class CountrySerializer(serializers.ModelSerializer):
         count = BrandCountry.objects.filter(country=obj).count()
         if count > 0:
             return True
+        if obj.currency is None:
+            return True
+        if obj.language is None:
+            return True
         return False
 
 

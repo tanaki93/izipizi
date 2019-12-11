@@ -354,14 +354,17 @@ def admin_countries_view(request):
         code = str(request.data.get('code', '')).upper()
         name = str(request.data.get('name', ''))
         is_active = request.data.get('is_active', True)
-        if language is not None and currency is not None:
-            exchange = Country.objects.create(language_id=language, currency_id=currency, name=name, code=code,
-                                              is_active=is_active)
-            exchange.save()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        country = Country()
+        country.name = name
+        country.code = code
+        country.is_active = is_active
+        if currency is not None and currency > 0:
+            country.currency_id = currency
 
+        if language is not None and language > 0:
+            country.language_id = language
+        country.save()
+        return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
@@ -380,18 +383,22 @@ def admin_countries_item_view(request, id):
         code = str(request.data.get('code', '')).upper()
         name = str(request.data.get('name', ''))
         is_active = request.data.get('is_active', True)
-        if language is not None and currency is not None:
-            country.language_id = language
+        if currency is not None and currency > 0:
             country.currency_id = currency
-            country.code = code
-            country.name = name
-            country.is_active = is_active
-            country.save()
-            return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        elif currency is not None and currency == 0:
+            country.currency = None
+        if language is not None and language > 0:
+            country.language_id = language
+        elif language is not None and language == 0:
+            country.language = None
+        country.code = code
+        country.name = name
+        country.is_active = is_active
+        country.save()
+        country.save()
+        return Response(status=status.HTTP_200_OK)
     elif request.method == 'DELETE':
-        # country.delete()
+        country.delete()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -449,7 +456,8 @@ def admin_documents_process_products_view(request, id):
     if request.method == 'GET':
         query = request.GET.get('query', '')
         data = {}
-        products = OriginalProduct.objects.filter(document_product__document=document, document_product__document__step=document.step)
+        products = OriginalProduct.objects.filter(document_product__document=document,
+                                                  document_product__document__step=document.step)
         if query != "":
             products = products.filter(title_lower__contains=query)
         department_id = None
