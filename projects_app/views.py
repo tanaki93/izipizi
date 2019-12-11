@@ -1059,7 +1059,7 @@ def operator_documents_process_products_view(request, id):
 
         data = {}
         products = OriginalProduct.objects.filter(document_product__document=document,
-                                                  document_product__document__step=document.step)
+                                                  document_product__step=document.step)
         if query != "":
             products = products.filter(title_lower__contains=query)
         department_id = None
