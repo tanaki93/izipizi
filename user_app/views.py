@@ -223,7 +223,10 @@ def post(request, page):
     with transaction.atomic():
         d = OriginalProduct.objects.filter(link__product__colour__isnull=True)[(int(page) - 1) * 2000: int(page) * 2000]
         for i in d:
-            product = i.link.product
-            product.colour = i.colour.izi_colour
-            product.save()
+            try:
+                product = i.link.product
+                product.colour = i.colour.izi_colour
+                product.save()
+            except:
+                pass
     return Response(data='')
