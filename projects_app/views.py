@@ -210,6 +210,11 @@ def colour_original_product(link, param):
             product.save()
         except:
             pass
+    else:
+        vend = VendColour.objects.create(name=original_product.colour_code)
+        vend.save()
+        original_product.colour = vend
+        original_product.save()
 
 
 @api_view(['GET', 'POST'])
