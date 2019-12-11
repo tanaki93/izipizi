@@ -473,7 +473,6 @@ class TranslationSize(models.Model):
     language = models.ForeignKey(Language, null=True)
     is_active = models.BooleanField(default=True)
 
-
     def save(self, *args, **kwargs):
         # self.name_lower = self.name.lower()
         super(TranslationSize, self).save()

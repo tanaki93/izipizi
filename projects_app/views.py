@@ -627,7 +627,7 @@ def operator_colours_item_view(request, id):
     return Response(status=status.HTTP_200_OK, data=VendColourSerializer(colour).data)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def operator_vend_size_item_view(request, id):
     size = VendSize.objects.get(id=id)

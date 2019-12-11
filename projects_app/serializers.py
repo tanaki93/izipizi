@@ -37,7 +37,7 @@ class SizeSerializer(serializers.ModelSerializer):
         for i in Language.objects.all():
             tr = None
             try:
-                tr = TranslationSize.objects.get(size=obj.izi_size, language=i)
+                tr = TranslationSize.objects.get(size=obj, language=i)
             except:
                 pass
             context = {
