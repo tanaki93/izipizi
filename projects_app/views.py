@@ -874,7 +874,11 @@ def operator_department_parents_categories_view(request, parent_id):
         return Response(status=status.HTTP_200_OK, data=CategorySerializer(categories, many=True).data)
     elif request.method == 'POST':
         category = Category()
-        category.code = request.data.get('code', '').upper()
+        code = request.data.get('code', '').upper()
+        count = Category.objects.filter(code=code).count()
+        if count > 0:
+            return Response(status=status.HTTP_409_CONFLICT)
+        category.code = code
         category.name = request.data.get('name', '')
         category.parent_id = parent_id
         category.position = request.data.get('position', 1)
