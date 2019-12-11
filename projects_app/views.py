@@ -124,7 +124,7 @@ def create_original_product(link, param):
         if tr_size is None:
             tr_size = VendSize.objects.create(name=variant['attributeValue'].upper())
             tr_size.save()
-        save_size(tr_size)
+        # save_size(tr_size)
         variant_item.tr_size = tr_size
         variant_item.original_product = original_product
         if variant['stock'] != 0:
