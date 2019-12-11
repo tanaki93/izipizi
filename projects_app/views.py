@@ -197,6 +197,8 @@ def links_trendyol_list_view(request):
 
 def colour_original_product(link, param):
     original_product = link.originalproduct
+    original_product.colour_code = param['color']
+    original_product.save()
     colour = str(param['color']).split('/')[0]
     vend = VendColour.objects.filter(name=colour)
     if len(vend) > 0:
