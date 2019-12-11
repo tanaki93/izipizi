@@ -220,11 +220,10 @@ def profile_resend_code_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def post(request, page):
-    brand = Brand.objects.all().first()
     with transaction.atomic():
         d = OriginalProduct.objects.all()[(int(page) - 1) * 2000: int(page) * 2000]
         for i in d:
-            i.brand = brand
-            i.save()
-
+            product = i.link.product
+            product.delete()
+            i.delete()
     return Response(data='')
