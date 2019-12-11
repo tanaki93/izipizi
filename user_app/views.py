@@ -225,9 +225,10 @@ def post(request, page):
         for i in d:
             product = None
             try:
-                product = DocumentProduct.objects.get(product=d)
+                product = DocumentProduct.objects.get(product=i)
             except:
                 pass
-            if product is not None:
-                product.product = i
+            if product is None:
+                doc = DocumentProduct.objects.create(product=i)
+                doc.save()
     return Response(data='')
