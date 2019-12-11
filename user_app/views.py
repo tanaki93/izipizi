@@ -223,7 +223,11 @@ def post(request, page):
     with transaction.atomic():
         d = OriginalProduct.objects.all()[(int(page) - 1) * 2000: int(page) * 2000]
         for i in d:
-            product = i.link.product
-            product.delete()
-            i.delete()
+            product = None
+            try:
+                product = DocumentProduct.objects.get(product=d)
+            except:
+                pass
+            if product is not None:
+                product.product = i
     return Response(data='')

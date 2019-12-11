@@ -156,8 +156,8 @@ def create_original_product(link, param):
     except:
         pass
     product.save()
-    # product_document = DocumentProduct.objects.create(product=original_product)
-    # product_document.save()
+    product_document = DocumentProduct.objects.create(product=original_product)
+    product_document.save()
 
 
 @api_view(['GET', 'POST'])
