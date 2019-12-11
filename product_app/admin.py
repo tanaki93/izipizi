@@ -20,7 +20,8 @@ class ProductAdmin(admin.ModelAdmin):
     model = Product
     # exclude = 'link'.split()
     readonly_fields = 'link'.split()
-    list_display = 'id title link'.split()
+    list_display = 'id title colour department category brand'.split()
+    list_filter = 'colour department category'.split()
 
 
 class LinkAdmin(admin.ModelAdmin):
