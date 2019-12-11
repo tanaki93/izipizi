@@ -155,6 +155,10 @@ def create_original_product(link, param):
         product.category_id = original_product.link.tr_category.category_id
     except:
         pass
+    try:
+        product.colour_id = original_product.colour.izi_colour.id
+    except:
+        pass
     product.save()
     product_document = DocumentProduct.objects.create(product=original_product)
     product_document.save()

@@ -221,14 +221,9 @@ def profile_resend_code_view(request):
 @permission_classes([AllowAny])
 def post(request, page):
     with transaction.atomic():
-        d = OriginalProduct.objects.all()[(int(page) - 1) * 2000: int(page) * 2000]
+        d = OriginalProduct.objects.filter(link__product__colour__isnull=True)[(int(page) - 1) * 2000: int(page) * 2000]
         for i in d:
-            product = None
-            try:
-                product = DocumentProduct.objects.get(product=i)
-            except:
-                pass
-            if product is None:
-                doc = DocumentProduct.objects.create(product=i)
-                doc.save()
+            product = i.link.product
+            product.colour = i.colour.izi_colour
+            product.save()
     return Response(data='')
