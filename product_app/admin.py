@@ -10,7 +10,7 @@ from product_app.models import Category, Product, OriginalProduct, Tag, VendSize
 class OriginalProductAdmin(admin.ModelAdmin):
     model = OriginalProduct
     # exclude = 'link'.split()
-    list_display = 'title colour department category brand'.split()
+    list_display = 'title colour colour_code department category brand'.split()
     list_filter = 'colour department category'.split()
     search_fields = 'colour'.split()
     readonly_fields = 'link'.split()
