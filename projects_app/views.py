@@ -1107,7 +1107,7 @@ def operator_documents_process_products_item_view(request, id, product_id):
                 id = int(request.data.get('id', ''))
             except:
                 pass
-            product = OriginalProduct.objects.get(id=product_id, originalproduct__document=document)
+            product = OriginalProduct.objects.get(id=product_id, document_product__document=document)
             izi = product.link.product
             if option == 'department':
                 izi.department_id = id
@@ -1128,8 +1128,7 @@ def operator_documents_products_view(request, id):
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        department = document.department
-        products = OriginalProduct.objects.filter(originalproduct__document=document)
+        products = OriginalProduct.objects.filter(document_product__document=document)
         query = request.GET.get('query', '')
         products = products.filter(title__contains=query)
         category_id = None
