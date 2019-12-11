@@ -4,7 +4,7 @@ from django.contrib import admin
 from product_app.models import Category, Product, OriginalProduct, Tag, VendSize, Currency, Department, Brand, \
     VendDepartment, VendCategory, Size, Link, Variant, Document, ParentCategory, Slider, ImageSlider, Project, Language, \
     ExchangeRate, ExchangeValue, Country, TranslationCategory, TranslationDepartment, TranslationColour, VendColour, \
-    BrandCountry, DocumentProduct, DocumentComment, IziColour
+    BrandCountry, DocumentProduct, DocumentComment, IziColour, TranslationSize
 
 
 class OriginalProductAdmin(admin.ModelAdmin):
@@ -43,6 +43,7 @@ admin.site.register(DocumentProduct)
 admin.site.register(IziColour)
 admin.site.register(TranslationCategory)
 admin.site.register(TranslationDepartment)
+admin.site.register(TranslationSize)
 admin.site.register(TranslationColour)
 admin.site.register(VendColour)
 admin.site.register(ParentCategory)
