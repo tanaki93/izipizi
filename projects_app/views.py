@@ -1048,7 +1048,7 @@ def operator_documents_process_view(request, id):
 
 
 @api_view(['GET', 'POST', 'PUT'])
-@permission_classes([IsOperator])
+@permission_classes([AllowAny])
 def operator_documents_process_products_view(request, id):
     try:
         document = Document.objects.get(id=id)
