@@ -392,7 +392,7 @@ class OriginalProduct(models.Model):
     selling_price = models.FloatField(null=True, blank=True)
     original_price = models.FloatField(null=True, blank=True)
     currency = models.CharField(max_length=100, default='TL')
-    colour = models.ForeignKey('VendColour', blank=True, null=True)
+    colour = models.ForeignKey('VendColour', blank=True, null=True, on_delete=SET_NULL)
     colour_code = models.CharField(max_length=100, blank=True, null=True)
     # status = models.IntegerField(default=1)
     link = models.OneToOneField(Link, null=True, related_name='originalproduct', on_delete=SET_NULL)
