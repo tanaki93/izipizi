@@ -391,7 +391,7 @@ def admin_countries_item_view(request, id):
         else:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
     elif request.method == 'DELETE':
-        country.delete()
+        # country.delete()
         return Response(status=status.HTTP_200_OK)
 
 

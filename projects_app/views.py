@@ -656,7 +656,11 @@ def operator_category_search_view(request):
         category = Category()
         category.name = name
         category.position = request.data.get('position', 1)
-        category.code = request.data.get('code', '').upper()
+        code = request.data.get('code', '').upper()
+        count = Category.objects.filter(code=code).count()
+        if count > 0:
+            return Response(status=status.HTTP_409_CONFLICT)
+        category.code = code
         category.is_active = request.data.get('is_active', True)
         category.save()
         for i in request.data.get('languages'):
@@ -699,7 +703,7 @@ def operator_izi_shop_sizes_view(request):
                 pass
             if tr is None:
                 tr = TranslationSize.objects.create(size=category, language_id=int(i['lang_id']),
-                                                              name=i['translation'], is_active=(i['is_active']))
+                                                    name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
             tr.save()
@@ -740,7 +744,11 @@ def operator_parent_category_search_view(request):
 def operator_category_item_view(request, id):
     category = Category.objects.get(id=id)
     if request.method == 'PUT':
-        category.code = request.data.get('code', '').upper()
+        code = request.data.get('code', '').upper()
+        count = Category.objects.exclude(id__in=[category.id]).filter(code=code).count()
+        if count > 0:
+            return Response(status=status.HTTP_409_CONFLICT)
+        category.code = code
         category.name = request.data.get('name', '')
         category.position = request.data.get('position', 1)
         category.is_active = request.data.get('is_active', True)
@@ -998,7 +1006,8 @@ def operator_documents_process_products_view(request, id):
         query = request.GET.get('query', '')
 
         data = {}
-        products = OriginalProduct.objects.filter(document_product__document=document, document_product__document__step=document.step)
+        products = OriginalProduct.objects.filter(document_product__document=document,
+                                                  document_product__document__step=document.step)
         if query != "":
             products = products.filter(title_lower__contains=query)
         department_id = None
