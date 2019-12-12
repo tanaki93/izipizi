@@ -487,7 +487,10 @@ def admin_documents_process_products_view(request, id):
         products = OriginalProduct.objects.filter(document_product__document=document,
                                                   document_product__document__step=document.step)
         if query != "":
-            products = products.filter(title_lower__contains=query)
+            if query[0] == '-':
+                products = products.exclude(title_lower__contains=query[1:])
+            else:
+                products = products.filter(title_lower__contains=query)
         department_id = None
         try:
             department_id = int(request.GET.get('department_id', ''))
@@ -518,5 +521,5 @@ def admin_documents_process_products_view(request, id):
         data['count'] = length
         data['pages'] = pages
         data['step'] = document.step
-        data['products'] = ProductSerializer(products[(page-1)*200:page*200], many=True).data
+        data['products'] = ProductSerializer(products[(page - 1) * 200:page * 200], many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
