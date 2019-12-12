@@ -1055,8 +1055,10 @@ def operator_documents_process_view(request, id):
                     document_product.save()
                 except:
                     pass
-        document.step = document.step + 1
-        document.save()
+        size = OriginalProduct.objects.filter(document_product__document=document, document_product__step=document.step).count()
+        if size == 0:
+            document.step = document.step + 1
+            document.save()
         return Response(status=status.HTTP_200_OK)
 
 
