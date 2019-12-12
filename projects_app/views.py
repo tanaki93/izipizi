@@ -1051,9 +1051,12 @@ def operator_documents_process_view(request, id):
         document.save()
         with transaction.atomic():
             for i in products:
-                document_product = i.document_product
-                document_product.step = document.step
-                document_product.save()
+                try:
+                    document_product = DocumentProduct.objects.get(product=i)
+                    document_product.step = document.step
+                    document_product.save()
+                except:
+                    pass
         return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST', 'PUT'])
