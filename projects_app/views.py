@@ -1062,7 +1062,10 @@ def operator_documents_process_products_view(request, id):
         products = OriginalProduct.objects.filter(document_product__document=document,
                                                   document_product__step=document.step)
         if query != "":
-            products = products.filter(title_lower__contains=query)
+            if query[0]=='-':
+                products = products.exclude(title_lower__contains=query[1:])
+            else:
+                products = products.filter(title_lower__contains=query)
         department_id = None
         try:
             department_id = int(request.GET.get('department_id', ''))
