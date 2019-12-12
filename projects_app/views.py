@@ -1018,8 +1018,8 @@ def operator_documents_item_view(request, id):
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
 def operator_documents_process_view(request, id):
     try:
         document = Document.objects.get(id=id)
@@ -1045,10 +1045,19 @@ def operator_documents_process_view(request, id):
         data['colours'] = IziColourSerializer(IziColour.objects.all(), many=True).data
         data['comments'] = CommentSerializer(DocumentComment.objects.filter(document=document), many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
-
+    else:
+        products = OriginalProduct.objects.filter(document_product__document=document)
+        document.step = document.step+1
+        document.save()
+        with transaction.atomic():
+            for i in products:
+                document_product = i.document_product
+                document_product.step = document.step
+                document_product.save()
+        return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST', 'PUT'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_documents_process_products_view(request, id):
     try:
         document = Document.objects.get(id=id)
