@@ -1050,7 +1050,6 @@ def operator_documents_process_view(request, id):
         document.save()
         return Response(status=status.HTTP_200_OK)
 
-
 @api_view(['GET', 'POST', 'PUT'])
 @permission_classes([IsAuthenticated])
 def operator_documents_process_products_view(request, id):
