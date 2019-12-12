@@ -1046,19 +1046,8 @@ def operator_documents_process_view(request, id):
         data['comments'] = CommentSerializer(DocumentComment.objects.filter(document=document), many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
     else:
-        products = OriginalProduct.objects.filter(document_product__document=document)
-        with transaction.atomic():
-            for i in products:
-                try:
-                    document_product = DocumentProduct.objects.get(product=i)
-                    document_product.step = document.step + 1
-                    document_product.save()
-                except:
-                    pass
-        size = OriginalProduct.objects.filter(document_product__document=document, document_product__step=document.step).count()
-        if size == 0:
-            document.step = document.step + 1
-            document.save()
+        document.step = document.step + 1
+        document.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -1074,8 +1063,7 @@ def operator_documents_process_products_view(request, id):
         page = int(request.GET.get('page', 1))
 
         data = {}
-        products = OriginalProduct.objects.filter(document_product__document=document,
-                                                  document_product__step=document.step)
+        products = OriginalProduct.objects.filter(document_product__document=document)
         if query != "":
             if query[0] == '-':
                 products = products.exclude(title_lower__contains=query[1:])
@@ -1118,22 +1106,22 @@ def operator_documents_process_products_view(request, id):
         data['pages'] = pages
         data['products'] = ProductSerializer(products[(page - 1) * 200:page * 200], many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
-    elif request.method == 'POST':
-        with transaction.atomic():
-            for i in request.data.get('products'):
-                try:
-                    product = OriginalProduct.objects.get(id=int(i))
-                except:
-                    pass
-                if product is not None:
-                    document_product = DocumentProduct.objects.get(document=document, product=product)
-                    document_product.step = document.step + 1
-                    document_product.save()
-            size = DocumentProduct.objects.filter(document=document, step=document.step).count()
-            if size == 0:
-                document.step = document.step + 1
-                document.save()
-            return Response(status=status.HTTP_200_OK)
+    # elif request.method == 'POST':
+    #     with transaction.atomic():
+    #         for i in request.data.get('products'):
+    #             try:
+    #                 product = OriginalProduct.objects.get(id=int(i))
+    #             except:
+    #                 pass
+    #             if product is not None:
+    #                 document_product = DocumentProduct.objects.get(document=document, product=product)
+    #                 document_product.step = document.step + 1
+    #                 document_product.save()
+    #         size = DocumentProduct.objects.filter(document=document, step=document.step).count()
+    #         if size == 0:
+    #             document.step = document.step + 1
+    #             document.save()
+    #         return Response(status=status.HTTP_200_OK)
     elif request.method == 'PUT':
         with transaction.atomic():
             option = request.data.get('option', '')

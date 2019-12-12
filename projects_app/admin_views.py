@@ -462,10 +462,6 @@ def admin_documents_item_view(request, id):
         document_comment.save()
         document.step = 1
         document.save()
-        with transaction.atomic():
-            for i in DocumentProduct.objects.filter(document=document):
-                i.step = 1
-                i.save()
         return Response(status=status.HTTP_200_OK)
     elif request.method == 'POST':
         document.step = 5
@@ -488,8 +484,7 @@ def admin_documents_process_products_view(request, id):
         except:
             pass
         data = {}
-        products = OriginalProduct.objects.filter(document_product__document=document,
-                                                  document_product__document__step=document.step)
+        products = OriginalProduct.objects.filter(document_product__document=document)
         if query != "":
             if query[0] == '-':
                 products = products.exclude(title_lower__contains=query[1:])
