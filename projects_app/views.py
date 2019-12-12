@@ -1045,7 +1045,7 @@ def operator_documents_process_view(request, id):
         data['colours'] = IziColourSerializer(IziColour.objects.all(), many=True).data
         data['comments'] = CommentSerializer(DocumentComment.objects.filter(document=document), many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
-    else:
+    elif request.method == 'POST':
         document.step = document.step + 1
         document.save()
         return Response(status=status.HTTP_200_OK)
