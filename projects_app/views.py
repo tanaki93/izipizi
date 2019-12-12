@@ -1047,17 +1047,18 @@ def operator_documents_process_view(request, id):
         return Response(status=status.HTTP_200_OK, data=data)
     else:
         products = OriginalProduct.objects.filter(document_product__document=document)
-        document.step = document.step+1
-        document.save()
         with transaction.atomic():
             for i in products:
                 try:
                     document_product = DocumentProduct.objects.get(product=i)
-                    document_product.step = document.step
+                    document_product.step = document.step + 1
                     document_product.save()
                 except:
                     pass
+        document.step = document.step + 1
+        document.save()
         return Response(status=status.HTTP_200_OK)
+
 
 @api_view(['GET', 'POST', 'PUT'])
 @permission_classes([IsAuthenticated])
@@ -1074,7 +1075,7 @@ def operator_documents_process_products_view(request, id):
         products = OriginalProduct.objects.filter(document_product__document=document,
                                                   document_product__step=document.step)
         if query != "":
-            if query[0]=='-':
+            if query[0] == '-':
                 products = products.exclude(title_lower__contains=query[1:])
             else:
                 products = products.filter(title_lower__contains=query)
@@ -1113,7 +1114,7 @@ def operator_documents_process_products_view(request, id):
             pages += 1
         data['count'] = length
         data['pages'] = pages
-        data['products'] = ProductSerializer(products[(page-1)*200:page*200], many=True).data
+        data['products'] = ProductSerializer(products[(page - 1) * 200:page * 200], many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
     elif request.method == 'POST':
         with transaction.atomic():
