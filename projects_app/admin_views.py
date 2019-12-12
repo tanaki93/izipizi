@@ -482,7 +482,11 @@ def admin_documents_process_products_view(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
         query = request.GET.get('query', '')
-        page = int(request.GET.get('page', 1))
+        page = 1
+        try:
+            page = int(request.GET.get('page', 1))
+        except:
+            pass
         data = {}
         products = OriginalProduct.objects.filter(document_product__document=document,
                                                   document_product__document__step=document.step)
