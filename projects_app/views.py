@@ -1056,6 +1056,7 @@ def operator_documents_process_products_view(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
         query = request.GET.get('query', '')
+        page = int(request.GET.get('page', 1))
 
         data = {}
         products = OriginalProduct.objects.filter(document_product__document=document,
@@ -1097,7 +1098,7 @@ def operator_documents_process_products_view(request, id):
             pages += 1
         data['count'] = length
         data['pages'] = pages
-        data['products'] = ProductSerializer(products[:200], many=True).data
+        data['products'] = ProductSerializer(products[(page-1)*200:page*200], many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
     elif request.method == 'POST':
         with transaction.atomic():
