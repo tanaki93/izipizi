@@ -512,6 +512,15 @@ def admin_documents_process_products_view(request, id):
             pass
         if colour_id is not None:
             products = products.filter(link__product__colour_id=colour_id)
+        content_id = None
+        try:
+            content_id = int(request.GET.get('content_id', ''))
+        except:
+            pass
+        if content_id is not None and content_id != 0:
+            products = products.filter(link__product__content_id=content_id)
+        elif content_id is not None and content_id == 0:
+            products = products.filter(link__product__content__isnull=True)
         length = products.count()
         pages = length // 200
         if pages == 0:
