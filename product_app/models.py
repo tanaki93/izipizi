@@ -524,6 +524,7 @@ class Product(models.Model):
     department = models.ForeignKey('Department', null=True, blank=True, on_delete=SET_NULL)
     category = models.ForeignKey('Category', null=True, blank=True, on_delete=SET_NULL)
     colour = models.ForeignKey('IziColour', null=True, blank=True, on_delete=SET_NULL)
+    content = models.ForeignKey('Content', null=True, blank=True, on_delete=SET_NULL)
 
     def save(self, *args, **kwargs):
         self.title_lower = self.title.lower()
