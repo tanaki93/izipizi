@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from product_app.models import Brand, VendDepartment, VendCategory, Department, Category, VendSize, Size, \
     Link, OriginalProduct, Variant, Product, Document, ParentCategory, BrandCountry, Language, TranslationDepartment, \
     TranslationCategory, VendColour, TranslationColour, DocumentProduct, DocumentComment, TranslationParentCategory, \
-    IziColour, TranslationSize
+    IziColour, TranslationSize, Content, TranslationContent
 from product_app.serializers import ParentCategorySerializer
 from projects_app.admin_serializers import DocumentSerializer, DocumentDetailedSerializer
 from projects_app.googletrans import Translator
@@ -21,7 +21,7 @@ from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, T
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer, \
     VendColourSerializer, BrandProcessSerializer, CommentSerializer, ColourSerializer, ColourSerializer, \
-    IziColorSerializer, IziColourSerializer, SizeSerializer
+    IziColorSerializer, IziColourSerializer, SizeSerializer, ContentSerializer
 from user_app.permissions import IsOperator
 
 
@@ -543,7 +543,7 @@ def operator_categories_item_view(request, id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_departments_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -569,7 +569,7 @@ def operator_departments_search_view(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_colours_view(request):
     if request.method == 'GET':
         colours = VendColour.objects.all()
@@ -577,7 +577,7 @@ def operator_colours_view(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_izishop_colours_view(request):
     if request.method == 'GET':
         colours = IziColour.objects.all()
@@ -693,7 +693,7 @@ def operator_vend_size_item_view(request, id):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_category_search_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -723,7 +723,7 @@ def operator_category_search_view(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_sizes_view(request):
     if request.method == 'GET':
         sizes = VendSize.objects.all()
@@ -731,7 +731,7 @@ def operator_sizes_view(request):
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_izi_shop_sizes_view(request):
     if request.method == 'GET':
         sizes = Size.objects.all()
@@ -757,7 +757,59 @@ def operator_izi_shop_sizes_view(request):
             tr.save()
         return Response(status=status.HTTP_200_OK)
 
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def operator_izi_shop_content_view(request):
+    if request.method == 'GET':
+        contents = Content.objects.all()
+        return Response(status=status.HTTP_200_OK, data=ContentSerializer(contents, many=True).data)
+    elif request.method == 'POST':
+        content = Content()
+        content.code = request.data.get('code', '').upper()
+        content.name = request.data.get('name', '')
+        # category.position = request.data.get('position', 1)
+        content.is_active = request.data.get('is_active', True)
+        content.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationContent.objects.get(content=content, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationContent.objects.create(content=content, language_id=int(i['lang_id']),
+                                                    name=i['translation'], is_active=(i['is_active']))
+            else:
+                tr.name = i['translation']
+            tr.save()
+        return Response(status=status.HTTP_200_OK)
 
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def operator_izi_shop_content_item_view(request, id):
+    content = Content.objects.get(id=id)
+    if request.method == 'PUT':
+        content.code = request.data.get('code', '').upper()
+        content.name = request.data.get('name', '')
+        is_active = request.data.get('is_active', True)
+        content.is_active = is_active
+        content.save()
+        for i in request.data.get('languages'):
+            tr = None
+            try:
+                tr = TranslationContent.objects.get(content=content, language_id=int(i['lang_id']))
+            except:
+                pass
+            if tr is None:
+                tr = TranslationContent.objects.create(content=content, language_id=int(i['lang_id']),
+                                                    name=i['translation'])
+            else:
+                tr.name = i['translation']
+            tr.save()
+    elif request.method == 'DELETE':
+        content.delete()
+    return Response(status=status.HTTP_200_OK, data=ContentSerializer(content).data)
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def operator_parent_category_search_view(request):

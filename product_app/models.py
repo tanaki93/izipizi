@@ -400,6 +400,7 @@ class OriginalProduct(models.Model):
     department = models.ForeignKey('VendDepartment', null=True, blank=True, on_delete=SET_NULL)
     category = models.ForeignKey('VendCategory', null=True, blank=True, on_delete=SET_NULL)
     is_rush_delivery = models.BooleanField(default=False)
+    stock = models.BooleanField(default=True)
     is_free_argo = models.BooleanField(default=False)
     delivery_date = models.TextField(null=True, blank=True)
     images = models.TextField(null=True, blank=True)
@@ -477,6 +478,34 @@ class TranslationSize(models.Model):
     def save(self, *args, **kwargs):
         # self.name_lower = self.name.lower()
         super(TranslationSize, self).save()
+
+class Content(models.Model):
+    class Meta:
+        verbose_name_plural = 'Состав (izishop)'
+        verbose_name = 'Состав (izishop)'
+
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, null=True, blank=True, default='')
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class TranslationContent(models.Model):
+    class Meta:
+        verbose_name = 'Состав (перевод)'
+        verbose_name_plural = 'Состав (перевод)'
+
+    content = models.ForeignKey(Content, null=True, blank=True, related_name='translations', on_delete=SET_NULL)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    name_lower = models.CharField(max_length=100, null=True, blank=True)
+    language = models.ForeignKey(Language, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        # self.name_lower = self.name.lower()
+        super(TranslationContent, self).save()
 
 
 class Product(models.Model):

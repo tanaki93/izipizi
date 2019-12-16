@@ -20,6 +20,8 @@ urlpatterns = [
     url(r'^trendyol/sizes/([0-9]+)/$', views.operator_vend_size_item_view),
     url(r'^izishop/sizes/$', views.operator_izi_shop_sizes_view),
     url(r'^izishop/sizes/([0-9]+)/$', views.operator_izi_shop_sizes_item_view),
+    url(r'^izishop/content/$', views.operator_izi_shop_content_view),
+    url(r'^izishop/content/([0-9]+)/$', views.operator_izi_shop_content_item_view),
     url(r'^izishop/parent/categories/$', views.operator_parent_category_search_view),
     url(r'^documents/$', views.operator_documents_view),
     url(r'^documents/all/$', views.operator_documents_all_view),

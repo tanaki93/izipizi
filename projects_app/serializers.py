@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
     BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour, VendColour, \
-    DocumentComment, IziColour, TranslationSize
+    DocumentComment, IziColour, TranslationSize, TranslationContent, Content
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -38,6 +38,37 @@ class SizeSerializer(serializers.ModelSerializer):
             tr = None
             try:
                 tr = TranslationSize.objects.get(size=obj, language=i)
+            except:
+                pass
+            context = {
+                'lang_id': i.id,
+                'lang_name': i.name,
+                'lang_code': i.code,
+            }
+            if tr is not None:
+                context['translation'] = tr.name
+            else:
+                context['translation'] = None
+            data.append(context)
+        return data
+
+class ContentSerializer(serializers.ModelSerializer):
+    languages = serializers.SerializerMethodField()
+    is_related = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Content
+        fields = ('id', 'name', 'languages', 'code', 'is_related')
+
+    def get_is_related(self, obj):
+        return False
+
+    def get_languages(self, obj):
+        data = []
+        for i in Language.objects.all():
+            tr = None
+            try:
+                tr = TranslationContent.objects.get(content=obj, language=i)
             except:
                 pass
             context = {
