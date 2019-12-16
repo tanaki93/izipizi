@@ -21,7 +21,7 @@ from projects_app.serializers import BrandSerializer, BrandDetailedSerializer, T
     TrendYolDepartmentDetailedSerializer, DepartmentSerializer, TrendYolCategorySerializer, \
     TrendYolCategoryDetailedSerializer, CategorySerializer, LinkSerializer, ProductSerializer, VendSizeSerializer, \
     VendColourSerializer, BrandProcessSerializer, CommentSerializer, ColourSerializer, ColourSerializer, \
-    IziColorSerializer, IziColourSerializer, SizeSerializer, ContentSerializer
+    IziColorSerializer, IziColourSerializer, SizeSerializer, ContentSerializer, IziShopProductSerializer
 from user_app.permissions import IsOperator
 
 
@@ -1379,7 +1379,7 @@ def operator_vendor_products_view(request):
         if category_id is not None and category_id != 0:
             products = products.filter(category_id=category_id)
         elif category_id is not None and category_id == 0:
-            products = products.filter(ategory__isnull=True)
+            products = products.filter(category__isnull=True)
         colour_id = None
         try:
             colour_id = int(request.GET.get('colour_id', ''))
@@ -1399,3 +1399,90 @@ def operator_vendor_products_view(request):
         data['pages'] = pages
         data['products'] = ProductSerializer(products[(page - 1) * 200:page * 200], many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def operator_izi_shop_products_view(request):
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        page = int(request.GET.get('page', 1))
+
+        data = {}
+        products = Product.objects.filter(link__originalproduct__document_product__document__step=5)
+        if query != "":
+            if query[0] == '-':
+                products = products.exclude(link__originalproduct__title_lower__contains=query[1:])
+            else:
+                products = products.filter(Q(link__originalproduct__title_lower__contains=query) | Q(link__originalproduct__description__contains=query) |
+                                           Q(link__originalproduct__product_code__contains=query) | Q(link__originalproduct__product_id__contains=query))
+        department_id = None
+        try:
+            department_id = int(request.GET.get('department_id', ''))
+        except:
+            pass
+        if department_id is not None and department_id != 0:
+            products = products.filter(department_id=department_id)
+        elif department_id is not None and department_id == 0:
+            products = products.filter(department__isnull=True)
+        category_id = None
+        try:
+            category_id = int(request.GET.get('category_id', ''))
+        except:
+            pass
+        if category_id is not None and category_id != 0:
+            products = products.filter(category_id=category_id)
+        elif category_id is not None and category_id == 0:
+            products = products.filter(category__isnull=True)
+        colour_id = None
+        try:
+            colour_id = int(request.GET.get('colour_id', ''))
+        except:
+            pass
+        if colour_id is not None and colour_id != 0:
+            products = products.filter(colour_id=colour_id)
+        elif colour_id is not None and colour_id == 0:
+            products = products.filter(colour__isnull=True)
+
+        content_id = None
+        try:
+            content_id = int(request.GET.get('content_id', ''))
+        except:
+            pass
+        if content_id is not None and content_id != 0:
+            products = products.filter(content_id=content_id)
+        elif content_id is not None and content_id == 0:
+            products = products.filter(content__isnull=True)
+        length = products.count()
+        pages = length // 200
+        if pages == 0:
+            pages = 1
+        elif length % 200 != 0:
+            pages += 1
+        data['count'] = length
+        data['pages'] = pages
+        data['products'] = IziShopProductSerializer(products[(page - 1) * 200:page * 200], many=True).data
+        return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['PUT'])
+@permission_classes([IsOperator])
+def operator_izi_shop_products_item_view(request, product_id):
+    if request.method == 'PUT':
+        with transaction.atomic():
+            option = request.data.get('option', '')
+            id = None
+            try:
+                id = int(request.data.get('id', ''))
+            except:
+                pass
+            izi = Product.objects.get(id=product_id)
+            if option == 'department':
+                izi.department_id = id
+            elif option == 'category':
+                izi.category_id = id
+            elif option == 'colour':
+                izi.colour_id = id
+            elif option == 'content':
+                izi.content_id = id
+            izi.save()
+            return Response(status=status.HTTP_200_OK, data=IziShopProductSerializer(izi).data)

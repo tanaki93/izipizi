@@ -52,6 +52,7 @@ class SizeSerializer(serializers.ModelSerializer):
             data.append(context)
         return data
 
+
 class ContentSerializer(serializers.ModelSerializer):
     languages = serializers.SerializerMethodField()
     is_related = serializers.SerializerMethodField()
@@ -549,3 +550,41 @@ class ProductSerializer(serializers.ModelSerializer):
         except:
             pass
         return ParentDepartmentSerializer(department).data
+
+
+class VendProductSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+    department = TrendYolDepartmentSerializer()
+    brand = VendBrandSerializer()
+    vend_colour = serializers.SerializerMethodField()
+    category = TrendYolCategorySerializer()
+
+    class Meta:
+        model = OriginalProduct
+        fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
+                  'colour', 'promotions', 'created_at', 'active', 'brand', 'product_id', 'is_rush_delivery',
+                  'title',
+                  'original_price', 'updated_at', 'description', 'department', 'category', 'vend_colour']
+
+    def get_images(self, obj):
+        return obj.images.split()
+
+    def get_vend_colour(self, obj):
+        return ColourSerializer(obj.colour).data
+
+
+class IziShopProductSerializer(serializers.ModelSerializer):
+    link = LinkSerializer()
+    department = ParentDepartmentSerializer()
+    category = CategoryItemSerializer()
+    colour = IziColourSerializer()
+    content = ContentSerializer()
+    vend_product = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = ['id', 'created_at', 'active', 'link', 'updated_at', 'department', 'category', 'colour',
+                  'content', 'vend_product']
+
+    def get_vend_product(self, obj):
+        return VendProductSerializer(obj.link.originalproduct).data
