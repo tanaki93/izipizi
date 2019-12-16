@@ -1,6 +1,7 @@
 import datetime
 
 from django.db import transaction
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -489,7 +490,7 @@ def admin_documents_process_products_view(request, id):
             if query[0] == '-':
                 products = products.exclude(title_lower__contains=query[1:])
             else:
-                products = products.filter(title_lower__contains=query)
+                products = products.filter(Q(title_lower__contains=query) | Q(description__contains=query))
         department_id = None
         try:
             department_id = int(request.GET.get('department_id', ''))
