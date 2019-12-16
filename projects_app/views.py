@@ -757,6 +757,7 @@ def operator_izi_shop_sizes_view(request):
             tr.save()
         return Response(status=status.HTTP_200_OK)
 
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def operator_izi_shop_content_view(request):
@@ -778,7 +779,7 @@ def operator_izi_shop_content_view(request):
                 pass
             if tr is None:
                 tr = TranslationContent.objects.create(content=content, language_id=int(i['lang_id']),
-                                                    name=i['translation'], is_active=(i['is_active']))
+                                                       name=i['translation'], is_active=(i['is_active']))
             else:
                 tr.name = i['translation']
             tr.save()
@@ -803,13 +804,15 @@ def operator_izi_shop_content_item_view(request, id):
                 pass
             if tr is None:
                 tr = TranslationContent.objects.create(content=content, language_id=int(i['lang_id']),
-                                                    name=i['translation'])
+                                                       name=i['translation'])
             else:
                 tr.name = i['translation']
             tr.save()
     elif request.method == 'DELETE':
         content.delete()
     return Response(status=status.HTTP_200_OK, data=ContentSerializer(content).data)
+
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def operator_parent_category_search_view(request):
@@ -1103,6 +1106,7 @@ def operator_documents_process_view(request, id):
         document.save()
         return Response(status=status.HTTP_200_OK)
 
+
 @api_view(['GET', 'POST', 'PUT'])
 @permission_classes([IsAuthenticated])
 def operator_documents_process_products_view(request, id):
@@ -1332,3 +1336,66 @@ def operator_documents_products_item_view(request, document_id, id):
         product.link.status = status_data
         product.link.save()
         return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def operator_vendor_products_view(request):
+    if request.method == 'GET':
+        query = request.GET.get('query', '')
+        page = int(request.GET.get('page', 1))
+
+        data = {}
+        products = OriginalProduct.objects.all()
+        if query != "":
+            if query[0] == '-':
+                products = products.exclude(title_lower__contains=query[1:])
+            else:
+                products = products.filter(Q(title_lower__contains=query) | Q(description__contains=query) |
+                                           Q(product_code__contains=query) | Q(product_id__contains=query))
+        brand_id = None
+        try:
+            brand_id = int(request.GET.get('brand_id', ''))
+        except:
+            pass
+        if brand_id is not None and brand_id != 0:
+            products = products.filter(brand_id=brand_id)
+        elif brand_id is not None and brand_id == 0:
+            products = products.filter(brand__isnull=True)
+        department_id = None
+        try:
+            department_id = int(request.GET.get('department_id', ''))
+        except:
+            pass
+        if department_id is not None and department_id != 0:
+            products = products.filter(department_id=department_id)
+        elif department_id is not None and department_id == 0:
+            products = products.filter(department__isnull=True)
+        category_id = None
+        try:
+            category_id = int(request.GET.get('category_id', ''))
+        except:
+            pass
+        if category_id is not None and category_id != 0:
+            products = products.filter(category_id=category_id)
+        elif category_id is not None and category_id == 0:
+            products = products.filter(ategory__isnull=True)
+        colour_id = None
+        try:
+            colour_id = int(request.GET.get('colour_id', ''))
+        except:
+            pass
+        if colour_id is not None and colour_id != 0:
+            products = products.filter(colour_id=colour_id)
+        elif colour_id is not None and colour_id == 0:
+            products = products.filter(colour__isnull=True)
+        length = products.count()
+        pages = length // 200
+        if pages == 0:
+            pages = 1
+        elif length % 200 != 0:
+            pages += 1
+        data['count'] = length
+        data['pages'] = pages
+        data['products'] = ProductSerializer(products[(page - 1) * 200:page * 200], many=True).data
+        return Response(status=status.HTTP_200_OK, data=data)

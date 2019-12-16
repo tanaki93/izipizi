@@ -502,6 +502,7 @@ class ProductSerializer(serializers.ModelSerializer):
     department = TrendYolDepartmentSerializer()
     izi_department = serializers.SerializerMethodField()
     brand = VendBrandSerializer()
+    vend_colour = serializers.SerializerMethodField()
     category = TrendYolCategorySerializer()
     izi_category = serializers.SerializerMethodField()
     colour = serializers.SerializerMethodField()
@@ -513,7 +514,7 @@ class ProductSerializer(serializers.ModelSerializer):
                   'colour', 'promotions', 'created_at', 'active', 'brand', 'product_id', 'link', 'is_rush_delivery',
                   'title',
                   'original_price', 'updated_at', 'description', 'product', 'department', 'category', 'izi_category',
-                  'izi_department', 'colour', 'content']
+                  'izi_department', 'colour', 'content', 'vend_colour']
 
     def get_images(self, obj):
         return obj.images.split()
@@ -521,6 +522,9 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_product(self, obj):
         product = Product.objects.get(link=obj.link)
         return IziProductSerializer(product).data
+
+    def get_vend_colour(self, obj):
+        return ColourSerializer(obj.colour).data
 
     def get_colour(self, obj):
         return IziColourSerializer(obj.link.product.colour).data
