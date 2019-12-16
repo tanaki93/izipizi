@@ -1115,7 +1115,7 @@ def operator_documents_process_products_view(request, id):
         page = int(request.GET.get('page', 1))
 
         data = {}
-        products = OriginalProduct.objects.filter(document_product__document=document)
+        products = OriginalProduct.objects.filter(document_product__document=document, stock=True, original_price__gt=0)
         if query != "":
             if query[0] == '-':
                 products = products.exclude(title_lower__contains=query[1:])

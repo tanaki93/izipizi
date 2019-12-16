@@ -485,7 +485,7 @@ def admin_documents_process_products_view(request, id):
         except:
             pass
         data = {}
-        products = OriginalProduct.objects.filter(document_product__document=document)
+        products = OriginalProduct.objects.filter(document_product__document=document, stock=True, original_price__gt=0)
         if query != "":
             if query[0] == '-':
                 products = products.exclude(title_lower__contains=query[1:])
