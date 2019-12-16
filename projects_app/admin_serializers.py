@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 
 from product_app.models import Brand, VendDepartment, VendCategory, Link, Document, OriginalProduct, Currency, Language, \
@@ -41,14 +42,19 @@ class BrandAdminDetailedSerializer(serializers.ModelSerializer):
     processed_count = serializers.SerializerMethodField()
     in_process_count = serializers.SerializerMethodField()
     out_process_count = serializers.SerializerMethodField()
+    no_price_or_stock = serializers.SerializerMethodField()
 
     class Meta:
         model = Brand
         fields = ('id', 'name', 'is_active', 'total_count', 'document_count', 'processed_count', 'in_process_count',
-                  'out_process_count')
+                  'out_process_count', 'no_price_or_stock')
 
     def get_total_count(self, obj):
         count = OriginalProduct.objects.filter(brand=obj).count()
+        return count
+
+    def get_no_price_or_stock(self, obj):
+        count = OriginalProduct.objects.filter(Q(original_price=0) | Q(stock=False), brand=obj).count()
         return count
 
     def get_document_count(self, obj):
