@@ -362,7 +362,7 @@ def brands_list_view(request):
 def operator_brands_list_view(request):
     if request.method == 'GET':
         brands = Brand.objects.all()
-        return Response(data=BrandSerializer(brands, many=True).data, status=status.HTTP_200_OK)
+        return Response(data=BrandDetailedSerializer(brands, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         is_active = request.data.get('is_active', True)
         # is_trend_yol = request.data.get('is_trend_yol', True)
@@ -799,7 +799,8 @@ def operator_izi_shop_content_item_view(request, id):
         for i in request.data.get('languages'):
             tr = None
             try:
-                tr = TranslationContent.objects.get(content=content, language_id=int(i['lang_id']))
+                tr = TranslationContent.objects.get(content=cont
+                ent, language_id=int(i['lang_id']))
             except:
                 pass
             if tr is None:
