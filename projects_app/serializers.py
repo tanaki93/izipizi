@@ -356,10 +356,11 @@ class DepartmentSerializer(serializers.ModelSerializer):
     languages = serializers.SerializerMethodField()
     departments = VendDepartmentSerializer(many=True)
     is_related = serializers.SerializerMethodField()
+    categories = serializers.SerializerMethodField()
 
     class Meta:
         model = Department
-        fields = ('id', 'name', 'languages', 'departments', 'position', 'code', 'is_active', 'is_related')
+        fields = ('id', 'name', 'languages', 'departments', 'position', 'code', 'is_active', 'is_related', 'categories')
 
     def get_is_related(self, obj):
         count = ParentCategory.objects.filter(department=obj).count()
@@ -369,6 +370,10 @@ class DepartmentSerializer(serializers.ModelSerializer):
         if count > 0:
             return True
         return False
+
+    def get_categories(self, obj):
+        categories = Category.objects.filter(parent__department=obj)
+        return CategorySerializer(categories, many=True).data
 
     def get_languages(self, obj):
         data = []
