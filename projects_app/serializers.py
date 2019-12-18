@@ -292,12 +292,17 @@ class BrandSerializer(serializers.ModelSerializer):
     # departments_count = serializers.SerializerMethodField()
     project = ProjectSerializer()
     countries = serializers.SerializerMethodField()
+    departments = serializers.SerializerMethodField()
     currency = CurrencySerializer()
 
     class Meta:
         model = Brand
         fields = (
-            'id', 'name', 'is_active', 'link', 'code', 'created_at', 'updated_at', 'project', 'countries', 'currency')
+            'id', 'name', 'is_active', 'link', 'code', 'created_at', 'updated_at', 'project', 'countries', 'currency', 'departments')
+
+    def get_departments(self, obj):
+        departments = VendDepartment.objects.filter(brand=obj)
+        return TrendYolDepartmentDetailedSerializer(departments, many=True).data
 
     # def get_departments_count(self, obj):
     #     departments = VendDepartment.objects.filter(brand=obj).count()

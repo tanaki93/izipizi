@@ -362,7 +362,7 @@ def brands_list_view(request):
 def operator_brands_list_view(request):
     if request.method == 'GET':
         brands = Brand.objects.all()
-        return Response(data=BrandDetailedSerializer(brands, many=True).data, status=status.HTTP_200_OK)
+        return Response(data=BrandSerializer(brands, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         is_active = request.data.get('is_active', True)
         # is_trend_yol = request.data.get('is_trend_yol', True)
