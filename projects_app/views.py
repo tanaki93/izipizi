@@ -799,8 +799,7 @@ def operator_izi_shop_content_item_view(request, id):
         for i in request.data.get('languages'):
             tr = None
             try:
-                tr = TranslationContent.objects.get(content=cont
-                ent, language_id=int(i['lang_id']))
+                tr = TranslationContent.objects.get(content=content, language_id=int(i['lang_id']))
             except:
                 pass
             if tr is None:
