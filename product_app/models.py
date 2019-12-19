@@ -406,7 +406,7 @@ class OriginalProduct(models.Model):
     images = models.TextField(null=True, blank=True)
     promotions = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -518,7 +518,7 @@ class Product(models.Model):
     link = models.OneToOneField(Link, null=True, on_delete=SET_NULL)
     description = models.TextField()
     description_lower = models.TextField(null=True, blank=True)
-    active = models.BooleanField(default=False)
+    is_sellable = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     department = models.ForeignKey('Department', null=True, blank=True, on_delete=SET_NULL)

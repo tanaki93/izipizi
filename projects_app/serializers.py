@@ -522,7 +522,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = OriginalProduct
         fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
-                  'colour', 'promotions', 'created_at', 'active', 'brand', 'product_id', 'link', 'is_rush_delivery',
+                  'colour', 'promotions', 'created_at', 'is_active', 'brand', 'product_id', 'link', 'is_rush_delivery',
                   'title',
                   'original_price', 'updated_at', 'description', 'product', 'department', 'category', 'izi_category',
                   'izi_department', 'colour', 'content', 'vend_colour']
@@ -572,7 +572,7 @@ class VendProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = OriginalProduct
         fields = ['selling_price', 'discount_price', 'is_free_argo', 'images', 'delivery_date', 'product_code', 'id',
-                  'colour', 'promotions', 'created_at', 'active', 'brand', 'product_id', 'is_rush_delivery',
+                  'colour', 'promotions', 'created_at', 'is_active', 'brand', 'product_id', 'is_rush_delivery',
                   'title',
                   'original_price', 'updated_at', 'description', 'department', 'category', 'vend_colour']
 
@@ -594,7 +594,7 @@ class IziShopProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'created_at', 'active', 'link', 'updated_at', 'department', 'category', 'colour',
-                  'content', 'vend_product']
+                  'content', 'vend_product', 'is_sellable']
 
     def get_vend_product(self, obj):
         return VendProductSerializer(obj.link.originalproduct).data

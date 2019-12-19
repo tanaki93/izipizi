@@ -1337,9 +1337,17 @@ def operator_documents_products_item_view(request, document_id, id):
         product.link.save()
         return Response(status=status.HTTP_200_OK)
 
+@api_view(['GET', 'PUT'])
+@permission_classes([IsAuthenticated])
+def operator_vendor_products_item_view(request, id):
+    if request.method == 'PUT':
+        product = OriginalProduct.objects.get(id=id)
+        product.is_active = request.data.get('is_active', True)
+        product.save()
+        return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_vendor_products_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -1476,13 +1484,15 @@ def operator_izi_shop_products_item_view(request, product_id):
             except:
                 pass
             izi = Product.objects.get(id=product_id)
-            if option == 'department':
-                izi.department_id = id
-            elif option == 'category':
-                izi.category_id = id
-            elif option == 'colour':
-                izi.colour_id = id
-            elif option == 'content':
-                izi.content_id = id
+            if id is not None:
+                if option == 'department':
+                    izi.department_id = id
+                elif option == 'category':
+                    izi.category_id = id
+                elif option == 'colour':
+                    izi.colour_id = id
+                elif option == 'content':
+                    izi.content_id = id
+            izi.is_sellable = request.data.get('is_sellable', True)
             izi.save()
             return Response(status=status.HTTP_200_OK, data=IziShopProductSerializer(izi).data)

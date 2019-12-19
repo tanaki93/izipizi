@@ -42,4 +42,5 @@ urlpatterns = [
     url(r'^vendor/products/$', views.operator_vendor_products_view),
     url(r'^izishop/products/$', views.operator_izi_shop_products_view),
     url(r'^izishop/products/([0-9]+)/$', views.operator_izi_shop_products_item_view),
+    url(r'^vendor/products/([0-9]+)/$', views.operator_vendor_products_item_view),
 ]

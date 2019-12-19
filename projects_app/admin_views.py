@@ -154,7 +154,7 @@ def admin_statistics_view(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def admin_documents_view(request):
     if request.method == 'GET':
         documents = Document.objects.all()
