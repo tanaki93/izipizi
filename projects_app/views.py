@@ -1057,7 +1057,7 @@ def operator_documents_all_view(request):
 
 
 @api_view(['GET', 'PUT'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_documents_item_view(request, id):
     try:
         document = Document.objects.get(id=id)
@@ -1344,7 +1344,7 @@ def operator_vendor_products_item_view(request, id):
         product = OriginalProduct.objects.get(id=id)
         product.is_active = request.data.get('is_active', True)
         product.save()
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK, data=ProductSerializer(product).data)
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -1409,7 +1409,7 @@ def operator_vendor_products_view(request):
         return Response(status=status.HTTP_200_OK, data=data)
 
 @api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_izi_shop_products_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
