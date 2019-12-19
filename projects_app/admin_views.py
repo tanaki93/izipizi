@@ -466,7 +466,7 @@ def admin_documents_item_view(request, id):
         document.save()
         return Response(status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        document.step = 5
+        document.step = 100
         document.save()
         return Response(status=status.HTTP_200_OK)
 
