@@ -1472,7 +1472,7 @@ def operator_izi_shop_products_view(request):
         return Response(status=status.HTTP_200_OK, data=data)
 
 
-@api_view(['PUT'])
+@api_view(['PUT', 'POST'])
 @permission_classes([IsOperator])
 def operator_izi_shop_products_item_view(request, product_id):
     if request.method == 'PUT':
@@ -1493,6 +1493,11 @@ def operator_izi_shop_products_item_view(request, product_id):
                     izi.colour_id = id
                 elif option == 'content':
                     izi.content_id = id
-            izi.is_sellable = request.data.get('is_sellable', True)
+
             izi.save()
             return Response(status=status.HTTP_200_OK, data=IziShopProductSerializer(izi).data)
+    elif request.method =='POST':
+        izi = Product.objects.get(id=product_id)
+        izi.is_sellable = request.data.get('is_sellable', True)
+        izi.save()
+        return Response(status=status.HTTP_200_OK, data=IziShopProductSerializer(izi).data)
