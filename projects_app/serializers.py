@@ -593,7 +593,7 @@ class IziShopProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'created_at', 'active', 'link', 'updated_at', 'department', 'category', 'colour',
+        fields = ['id', 'created_at', 'link', 'updated_at', 'department', 'category', 'colour',
                   'content', 'vend_product', 'is_sellable']
 
     def get_vend_product(self, obj):
