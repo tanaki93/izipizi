@@ -152,16 +152,22 @@ class DocumentSerializer(serializers.ModelSerializer):
     brand = serializers.SerializerMethodField()
     products = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    no_stock_or_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'user', 'step', 'status', 'department', 'brand', 'products')
+        fields = ('id', 'updated_at', 'user', 'step', 'status', 'department', 'brand', 'products', 'no_stock_or_price')
 
     def get_department(self, obj):
         try:
             return obj.department.name
         except:
             return 'Нет отделения'
+
+    def get_no_stock_or_price(self, obj):
+        count = OriginalProduct.objects.filter(Q(original_price=0) | Q(stock=False),
+                                               document_product__document=obj).count()
+        return count
 
     def get_brand(self, obj):
         try:
@@ -182,10 +188,16 @@ class DocumentsSerializer(serializers.ModelSerializer):
     brand = BrandAdminDetailedSerializer()
     products = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    no_stock_or_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
-        fields = ('id', 'updated_at', 'user', 'step', 'status', 'department', 'brand', 'products')
+        fields = ('id', 'updated_at', 'user', 'step', 'status', 'department', 'brand', 'products', 'no_stock_or_price')
+
+    def get_no_stock_or_price(self, obj):
+        count = OriginalProduct.objects.filter(Q(original_price=0) | Q(stock=False),
+                                               document_product__document=obj).count()
+        return count
 
     def get_products(self, obj):
         return DocumentProduct.objects.filter(document=obj).count()
