@@ -610,8 +610,7 @@ class IziShopProductSerializer(serializers.ModelSerializer):
             price = None
             try:
                 exchange = ExchangeRate.objects.get(from_currency=i.brand.currency, to_currency=i.country.currency)
-                x = round(obj.link.originalproduct.selling_price * i.mark_up, i.round_digit)
-                price = round(x * exchange.value)
+                price = round(round(obj.link.originalproduct.selling_price)*exchange.value * i.mark_up, i.round_digit)
             except:
                 pass
             if price is not None:
