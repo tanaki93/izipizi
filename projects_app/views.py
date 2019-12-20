@@ -1416,7 +1416,7 @@ def operator_izi_shop_products_view(request):
         page = int(request.GET.get('page', 1))
 
         data = {}
-        products = Product.objects.filter(link__originalproduct__document_product__document__step=100)
+        products = Product.objects.filter(link__originalproduct__document_product__document__step=100, link__originalproduct__selling_price__gt=0)
         if query != "":
             if query[0] == '-':
                 products = products.exclude(link__originalproduct__title_lower__contains=query[1:])
