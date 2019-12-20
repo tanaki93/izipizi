@@ -1246,7 +1246,7 @@ def operator_documents_process_products_item_view(request, id, product_id):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def operator_documents_products_view(request, id):
     try:
         document = Document.objects.get(id=id)
@@ -1409,7 +1409,7 @@ def operator_vendor_products_view(request):
         return Response(status=status.HTTP_200_OK, data=data)
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def operator_izi_shop_products_view(request):
     if request.method == 'GET':
         query = request.GET.get('query', '')
@@ -1473,7 +1473,7 @@ def operator_izi_shop_products_view(request):
 
 
 @api_view(['PUT', 'POST'])
-@permission_classes([IsOperator])
+@permission_classes([IsAuthenticated])
 def operator_izi_shop_products_item_view(request, product_id):
     if request.method == 'PUT':
         with transaction.atomic():

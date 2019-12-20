@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from product_app.models import Category, Department, Link, OriginalProduct, Product, ParentCategory, Country, \
     BrandCountry, Language, TranslationCategory, TranslationDepartment, VendSize, Size, TranslationColour, VendColour, \
-    DocumentComment, IziColour, TranslationSize, TranslationContent, Content
+    DocumentComment, IziColour, TranslationSize, TranslationContent, Content, ExchangeRate
 
 # class RecursiveSerializer(serializers.Serializer):
 #     def to_representation(self, value):
@@ -590,11 +590,33 @@ class IziShopProductSerializer(serializers.ModelSerializer):
     colour = IziColourSerializer()
     content = ContentSerializer()
     vend_product = serializers.SerializerMethodField()
+    prices = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = ['id', 'created_at', 'link', 'updated_at', 'department', 'category', 'colour',
-                  'content', 'vend_product', 'is_sellable']
+                  'content', 'vend_product', 'is_sellable', 'prices']
 
     def get_vend_product(self, obj):
         return VendProductSerializer(obj.link.originalproduct).data
+
+    def get_prices(self, obj):
+        brand_country = BrandCountry.objects.filter(brand=obj.link.originalproduct.brand)
+        data = []
+        for i in brand_country:
+            new_obj = {
+                'country': i.country.code
+            }
+            price = None
+            try:
+                exchange = ExchangeRate.objects.get(from_currency=i.brand.currency, to_currency=i.country.currency)
+                x = round(obj.link.originalproduct.selling_price * i.mark_up, i.round_digit)
+                price = round(x * exchange.value)
+            except:
+                pass
+            if price is not None:
+                new_obj['selling_price'] = price
+            else:
+                new_obj['selling_price'] = 0
+            data.append(new_obj)
+        return data
