@@ -582,7 +582,6 @@ class VendProductSerializer(serializers.ModelSerializer):
     def get_vend_colour(self, obj):
         return ColourSerializer(obj.colour).data
 
-
 class IziShopProductSerializer(serializers.ModelSerializer):
     link = LinkSerializer()
     department = ParentDepartmentSerializer()
