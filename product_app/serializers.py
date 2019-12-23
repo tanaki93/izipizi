@@ -222,7 +222,7 @@ class MainProductSerializer(serializers.ModelSerializer):
     brand = VendBrandSerializer()
     department = DepartmentsSerializer()
     category = CategorySerializer()
-    colour = MainColourSerializer()
+    colour = serializers.SerializerMethodField()
     variants = VariantsSerializer(many=True)
 
     class Meta:
@@ -235,6 +235,12 @@ class MainProductSerializer(serializers.ModelSerializer):
     def get_images(self, original):
         return original.images.split()
 
+    def get_colour(self, obj):
+        try:
+            return MainColourSerializer(obj.link.product.colour).data
+        except:
+            pass
+        return None
     def get_parent_category(self, obj):
         data = None
         try:
