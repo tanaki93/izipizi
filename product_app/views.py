@@ -7,10 +7,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from product_app.models import Category, Department, ParentCategory, Brand, Slider, Product, OriginalProduct, \
-    VendColour, BrandCountry, ExchangeRate, VendSize
+    VendColour, BrandCountry, ExchangeRate, VendSize, IziColour, Size
 from product_app.serializers import CategorySerializer, ParentCategorySerializer, BrandSerializer, DepartmentSerializer, \
     SliderSerializer, MainProductSerializer
-from projects_app.serializers import MainColourSerializer, VendSizeSerializer
+from projects_app.serializers import MainColourSerializer, VendSizeSerializer, IziSizeSerializer
 from user_app.permissions import IsAdmin
 
 
@@ -76,7 +76,7 @@ def get_price(price):
 @permission_classes([AllowAny])
 def client_products_view(request):
     if request.method == 'GET':
-        products = OriginalProduct.objects.all()
+        products = OriginalProduct.objects.filter(document_product__step=100)
         brand_id = None
         try:
             brand_id = int(request.GET.get('brand_id'))
@@ -128,7 +128,7 @@ def client_products_view(request):
         except:
             pass
         if department_id is not None:
-            products = products.filter(department__department_id=department_id)
+            products = products.filter(link__product__department_id=department_id)
 
         colour_id = None
         try:
@@ -136,21 +136,21 @@ def client_products_view(request):
         except:
             pass
         if colour_id is not None:
-            products = products.filter(colour_id=colour_id)
+            products = products.filter(link__product__colour_id=colour_id)
         parent_category_id = None
         try:
             parent_category_id = int(request.GET.get('parent_category_id'))
         except:
             pass
         if parent_category_id is not None:
-            products = products.filter(category__category__parent_id=parent_category_id)
+            products = products.filter(link__product__category__in=Category.objects.filter(parent_id=parent_category_id))
         category_id = None
         try:
             category_id = int(request.GET.get('category_id'))
         except:
             pass
         if category_id is not None:
-            products = products.filter(category__category_id=category_id)
+            products = products.filter(link__product__category_id=category_id)
         order_by = ''
         try:
             order_by = str(request.GET.get('order_by', ''))
@@ -192,7 +192,7 @@ def client_products_item_view(request, id):
 @permission_classes([AllowAny])
 def client_colours_view(request):
     if request.method == 'GET':
-        return Response(data=MainColourSerializer(VendColour.objects.all(), many=True).data, status=status.HTTP_200_OK)
+        return Response(data=MainColourSerializer(IziColour.objects.all(), many=True).data, status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -200,5 +200,5 @@ def client_colours_view(request):
 @permission_classes([AllowAny])
 def client_sizes_view(request):
     if request.method == 'GET':
-        return Response(data=VendSizeSerializer(VendSize.objects.all(), many=True).data, status=status.HTTP_200_OK)
+        return Response(data=IziSizeSerializer(Size.objects.all(), many=True).data, status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)

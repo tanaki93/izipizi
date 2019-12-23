@@ -23,7 +23,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def get_name_ru(self, obj):
         try:
-            language = Language.objects.get(code='ru')
+            language = Language.objects.all().first()
             translation = TranslationCategory.objects.get(category=obj.category, language=language)
             return translation.name.capitalize()
         except:
@@ -54,7 +54,7 @@ class ChildCategorySerializer(serializers.ModelSerializer):
 
     def get_name_ru(self, obj):
         try:
-            language = Language.objects.get(code='ru')
+            language = Language.objects.all().first()
             translation = TranslationCategory.objects.get(category=obj, language=language)
             return translation.name.capitalize()
         except:
@@ -132,7 +132,7 @@ class DepartmentsSerializer(serializers.ModelSerializer):
 
     def get_name_ru(self, obj):
         try:
-            language = Language.objects.get(code='ru')
+            language = Language.objects.all().first()
             translation = TranslationDepartment.objects.get(department=obj.department, language=language)
             return translation.name.capitalize()
         except:
@@ -163,17 +163,12 @@ class DepartmentSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'name_ru', 'parent_categories')
 
     def get_parent_categories(self, obj):
-        categories = Category.objects.filter(categories__department__department=obj)
-        parents = []
-        l = ParentCategory.objects.filter(childs__in=categories)
-        for i in l:
-            if i not in parents:
-                parents.append(i)
+        parents = ParentCategory.objects.filter(department=obj)
         return ParentCategorySerializer(parents, many=True).data
 
     def get_name_ru(self, obj):
         try:
-            language = Language.objects.get(code='ru')
+            language = Language.objects.all().first()
             translation = TranslationDepartment.objects.get(department=obj, language=language)
             return translation.name.capitalize()
         except:
@@ -245,8 +240,8 @@ class MainProductSerializer(serializers.ModelSerializer):
         data = None
         try:
             data = {
-                'id': obj.category.category.parent_id,
-                'name': obj.category.category.parent.name,
+                'id': obj.link.product.category.parent_id,
+                'name': obj.link.product.category.parent.name,
             }
         except:
             pass

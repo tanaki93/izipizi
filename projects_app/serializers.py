@@ -17,6 +17,11 @@ class TrendYolDepartmentSerializer(serializers.ModelSerializer):
         model = VendDepartment
         fields = ('id', 'name')
 
+class IziSizeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Size
+        fields = ('id', 'name', 'code')
 
 class SizeSerializer(serializers.ModelSerializer):
     languages = serializers.SerializerMethodField()
@@ -174,13 +179,13 @@ class MainColourSerializer(serializers.ModelSerializer):
     name_ru = serializers.SerializerMethodField()
 
     class Meta:
-        model = VendColour
-        fields = ('id', 'name', 'name_ru', 'name_en')
+        model = IziColour
+        fields = ('id', 'name', 'name_ru')
 
     def get_name_ru(self, obj):
         try:
-            language = Language.objects.get(code='ru')
-            translation = TranslationColour.objects.get(vend_colour=obj, language=language)
+            language = Language.objects.all().first()
+            translation = TranslationColour.objects.get(colour=obj, language=language)
             return translation.name.capitalize()
         except:
             pass
