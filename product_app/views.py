@@ -76,7 +76,7 @@ def get_price(price):
 @permission_classes([AllowAny])
 def client_products_view(request):
     if request.method == 'GET':
-        products = OriginalProduct.objects.filter(document_product__step=100)
+        products = OriginalProduct.objects.filter(document_product__document__step=100)
         brand_id = None
         try:
             brand_id = int(request.GET.get('brand_id'))
@@ -102,10 +102,8 @@ def client_products_view(request):
                 js = [i.strip().upper() for i in sizes_arr]
         except:
             pass
-
         if len(js) > 0:
-            products = products.filter(variants__tr_size__name__in=js)
-        print(len(products))
+            products = products.filter(variants__tr_size__izi_size__name__in=js)
         price_from = None
         try:
             price_from = int(request.GET.get('price_from'))

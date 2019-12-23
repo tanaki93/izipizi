@@ -9,7 +9,7 @@ from product_app.models import Category, ParentCategory, Brand, Department, Slid
 #         serializer = self.parent.parent.__class__(value, context=self.context)
 #         return serializer.data
 from projects_app.serializers import VendColourSerializer, VendBrandSerializer, MainColourSerializer, SizeSerializer, \
-    VendSizeSerializer, DepartmentSerializer
+    VendSizeSerializer, DepartmentSerializer, IziSizeSerializer
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -209,8 +209,7 @@ class VariantsSerializer(serializers.ModelSerializer):
 
     def get_size(self, obj):
         try:
-            size = Size.objects.get(id=obj.tr_size.id)
-            return VendSizeSerializer(size).data
+            return IziSizeSerializer(obj.tr_size.izi_size).data
         except:
             return None
 
