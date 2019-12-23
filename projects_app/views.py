@@ -1040,6 +1040,47 @@ def categories_zara_list_view(request):
     return None
 
 
+@api_view(['GET', 'POST'])
+def zara_item_view(request):
+    zara = None
+    if request.method == 'GET':
+        try:
+            zara = Brand.objects.get(link='https://www.zara.com/tr/')
+        except:
+            pass
+        return Response(data=BrandSerializer(zara).data, status=status.HTTP_200_OK)
+    else:
+        try:
+            zara = Brand.objects.get(link='https://www.zara.com/tr/')
+        except:
+            pass
+        if zara is not None:
+            for i in request.data:
+                department_name = i['department']
+                department = None
+                try:
+                    department = VendDepartment.objects.get(brand=zara, name=department_name)
+                except:
+                    pass
+                if department is None:
+                    department = VendDepartment.objects.create(brand=zara, name=department_name)
+                    department.save()
+                    for j in i['categories']:
+                        category_name = j['category']
+                        category_link = j['link']
+                        category = None
+                        try:
+                            category = VendCategory.objects.get(department=department, name=category_name,
+                                                                link=category_link)
+                        except:
+                            pass
+                        if category is None:
+                            category = VendCategory.objects.create(department=department, name=category_name,
+                                                                   link=category_link)
+                            category.save()
+        return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([IsOperator])
 def operator_documents_view(request):
@@ -1337,6 +1378,7 @@ def operator_documents_products_item_view(request, document_id, id):
         product.link.save()
         return Response(status=status.HTTP_200_OK)
 
+
 @api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def operator_vendor_products_item_view(request, id):
@@ -1345,6 +1387,7 @@ def operator_vendor_products_item_view(request, id):
         product.is_active = request.data.get('is_active', True)
         product.save()
         return Response(status=status.HTTP_200_OK, data=ProductSerializer(product).data)
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -1408,6 +1451,7 @@ def operator_vendor_products_view(request):
         data['products'] = ProductSerializer(products[(page - 1) * 200:page * 200], many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
 
+
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def operator_izi_shop_products_view(request):
@@ -1416,13 +1460,16 @@ def operator_izi_shop_products_view(request):
         page = int(request.GET.get('page', 1))
 
         data = {}
-        products = Product.objects.filter(link__originalproduct__document_product__document__step=100, link__originalproduct__selling_price__gt=0)
+        products = Product.objects.filter(link__originalproduct__document_product__document__step=100,
+                                          link__originalproduct__selling_price__gt=0)
         if query != "":
             if query[0] == '-':
                 products = products.exclude(link__originalproduct__title_lower__contains=query[1:])
             else:
-                products = products.filter(Q(link__originalproduct__title_lower__contains=query) | Q(link__originalproduct__description__contains=query) |
-                                           Q(link__originalproduct__product_code__contains=query) | Q(link__originalproduct__product_id__contains=query))
+                products = products.filter(Q(link__originalproduct__title_lower__contains=query) | Q(
+                    link__originalproduct__description__contains=query) |
+                                           Q(link__originalproduct__product_code__contains=query) | Q(
+                    link__originalproduct__product_id__contains=query))
         department_id = None
         try:
             department_id = int(request.GET.get('department_id', ''))
@@ -1496,7 +1543,7 @@ def operator_izi_shop_products_item_view(request, product_id):
 
             izi.save()
             return Response(status=status.HTTP_200_OK, data=IziShopProductSerializer(izi).data)
-    elif request.method =='POST':
+    elif request.method == 'POST':
         izi = Product.objects.get(id=product_id)
         izi.is_sellable = request.data.get('is_sellable', True)
         izi.save()
