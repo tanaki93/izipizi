@@ -67,7 +67,7 @@ class ChildCategorySerializer(serializers.ModelSerializer):
         for i in Language.objects.all():
             tr = None
             try:
-                tr = TranslationCategory.objects.get(colour=obj, language=i)
+                tr = TranslationCategory.objects.get(category=obj, language=i)
             except:
                 pass
             context = {
