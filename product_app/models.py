@@ -1,10 +1,12 @@
+from random import randint
+
 from django.db import models
 
 # Create your models here.
 from django.db.models import SET_NULL
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils.text import slugify
+from pytils.translit import slugify
 
 from unidecode import unidecode
 
@@ -211,6 +213,7 @@ class Department(models.Model):
         verbose_name_plural = 'отделения (izishop)'
 
     name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=100, null=True, blank=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     position = models.IntegerField(null=True, blank=True)
     code = models.CharField(max_length=100, null=True, blank=True)
@@ -221,6 +224,7 @@ class Department(models.Model):
 
     def save(self, *args, **kwargs):
         self.name_lower = self.name.lower()
+        self.slug = slugify('%s' % self.name)
         super(Department, self).save()
 
 
@@ -230,6 +234,7 @@ class TranslationDepartment(models.Model):
         verbose_name_plural = 'отделения (перевод)'
 
     department = models.ForeignKey(Department, null=True)
+    slug = models.CharField(max_length=100, null=True, blank=True)
     name = models.CharField(max_length=100, null=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     language = models.ForeignKey(Language, null=True, blank=True)
@@ -240,6 +245,7 @@ class TranslationDepartment(models.Model):
 
     def save(self, *args, **kwargs):
         self.name_lower = self.name.lower()
+        self.slug = slugify('%s' % self.name)
         super(TranslationDepartment, self).save()
 
 
@@ -250,6 +256,7 @@ class ParentCategory(models.Model):
         verbose_name_plural = 'род. категории (izishop)'
 
     name = models.CharField(max_length=100, default='')
+    slug = models.CharField(max_length=100, null=True, blank=True)
     department = models.ForeignKey(Department, null=True, blank=True, on_delete=SET_NULL)
     code = models.CharField(max_length=100, null=True, blank=True)
     position = models.IntegerField(null=True, blank=True)
@@ -265,6 +272,7 @@ class ParentCategory(models.Model):
         except:
             self.name_lower = ''
             pass
+        self.slug = slugify('%s' % self.name)
         super(ParentCategory, self).save()
 
 
@@ -276,6 +284,7 @@ class TranslationParentCategory(models.Model):
     parent_category = models.ForeignKey(ParentCategory, on_delete=SET_NULL, null=True)
     language = models.ForeignKey(Language, null=True)
     name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=100, null=True, blank=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
@@ -284,6 +293,7 @@ class TranslationParentCategory(models.Model):
 
     def save(self, *args, **kwargs):
         self.name_lower = self.name.lower()
+        self.slug = slugify('%s' % self.name)
         super(TranslationParentCategory, self).save()
 
 
@@ -294,6 +304,7 @@ class Category(models.Model):
 
     parent = models.ForeignKey(ParentCategory, null=True, blank=True, related_name='childs', on_delete=SET_NULL)
     name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=100, null=True, blank=True)
     position = models.IntegerField(null=True, blank=True)
     code = models.CharField(max_length=100, null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -305,6 +316,7 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         self.name_lower = self.name.lower()
+        self.slug = slugify('%s' % self.name)
         super(Category, self).save()
 
 
@@ -315,6 +327,7 @@ class TranslationCategory(models.Model):
 
     category = models.ForeignKey(Category, null=True, blank=True, related_name='translations', on_delete=SET_NULL)
     name = models.CharField(max_length=100)
+    slug = models.CharField(max_length=100, null=True, blank=True)
     name_lower = models.CharField(max_length=100, null=True, blank=True)
     language = models.ForeignKey(Language, null=True)
     is_active = models.BooleanField(default=True)
@@ -324,6 +337,7 @@ class TranslationCategory(models.Model):
 
     def save(self, *args, **kwargs):
         self.name_lower = self.name.lower()
+        self.slug = slugify('%s' % self.name)
         super(TranslationCategory, self).save()
 
 
@@ -479,6 +493,7 @@ class TranslationSize(models.Model):
     def save(self, *args, **kwargs):
         # self.name_lower = self.name.lower()
         super(TranslationSize, self).save()
+
 
 class Content(models.Model):
     class Meta:

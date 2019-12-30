@@ -177,10 +177,10 @@ class IziColorSerializer(serializers.ModelSerializer):
 
 class MainColourSerializer(serializers.ModelSerializer):
     name_ru = serializers.SerializerMethodField()
-
+    languages = serializers.SerializerMethodField()
     class Meta:
         model = IziColour
-        fields = ('id', 'name', 'name_ru')
+        fields = ('id', 'name', 'name_ru', 'languages')
 
     def get_name_ru(self, obj):
         try:
@@ -190,6 +190,26 @@ class MainColourSerializer(serializers.ModelSerializer):
         except:
             pass
         return ''
+
+    def get_languages(self, obj):
+        data = []
+        for i in Language.objects.all():
+            tr = None
+            try:
+                tr = TranslationColour.objects.get(colour=obj, language=i)
+            except:
+                pass
+            context = {
+                'lang_id': i.id,
+                'lang_name': i.name,
+                'lang_code': i.code,
+            }
+            if tr is not None:
+                context['translation'] = tr.name
+            else:
+                context['translation'] = None
+            data.append(context)
+        return data
 
 
 class LinkSerializer(serializers.ModelSerializer):
