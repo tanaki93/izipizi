@@ -164,6 +164,7 @@ class Brand(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100, null=True, blank=True)
     link = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_trend_yol = models.BooleanField(default=True)
     project = models.ForeignKey(Project, null=True, blank=True)
