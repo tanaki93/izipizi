@@ -74,6 +74,35 @@ def get_price(price):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
+def client_search_view(request):
+    if request.method == 'GET':
+        query = None
+        try:
+            query = (request.GET.get('query', ''))
+        except:
+            pass
+        brands = Brand.objects.filter(name__icontains=query)
+        categories = Category.objects.filter(name__icontains=query)
+        data = []
+        for brand in brands:
+            context = {
+                'option': 'brand',
+                'id': brand.id,
+                'name': brand.name
+            }
+            data.append(context)
+        for category in categories:
+            context = {
+                'option': 'category',
+                'id': category.id,
+                'name': category.name
+            }
+            data.append(context)
+        return Response(data=data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def client_products_view(request):
     if request.method == 'GET':
         products = OriginalProduct.objects.filter(document_product__document__step=100)
@@ -141,7 +170,8 @@ def client_products_view(request):
         except:
             pass
         if parent_category_id is not None:
-            products = products.filter(link__product__category__in=Category.objects.filter(parent_id=parent_category_id))
+            products = products.filter(
+                link__product__category__in=Category.objects.filter(parent_id=parent_category_id))
         category_id = None
         try:
             category_id = int(request.GET.get('category_id'))

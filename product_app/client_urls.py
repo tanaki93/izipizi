@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^products/$', views.client_products_view),
     url(r'^sizes/$', views.client_sizes_view),
     url(r'^colours/$', views.client_colours_view),
+    url(r'^search/$', views.client_search_view),
     url(r'^products/([0-9]+)/$', views.client_products_item_view),
 ]
