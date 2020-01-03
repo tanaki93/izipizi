@@ -166,6 +166,16 @@ def create_original_product(link, param):
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
+def links_zara_list_view(request):
+    if request.method == 'GET':
+        links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+                                    tr_category__department__is_active=True,
+                                    originalproduct__isnull=True, tr_category__department__brand__link='https://www.zara.com/tr/')
+        # print(links)
+        return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def links_trendyol_list_view(request):
     if request.method == 'GET':
         links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
