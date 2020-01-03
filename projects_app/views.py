@@ -1036,8 +1036,27 @@ def operator_department_parents_item_view(request, id):
         return Response(status=status.HTTP_200_OK)
 
 
+@api_view(['GET', 'POST'])
 def categories_zara_list_view(request):
-    return None
+    if request.method == 'GET':
+        categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
+                                                 department__is_active=True,
+                                                 department__brand__link='https://www.zara.com/tr/')
+        return Response(data=TrendYolCategoryDetailedSerializer(categories, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        with transaction.atomic():
+            for i in request.data:
+                category = VendCategory.objects.get(id=int(i['category_id']))
+                for j in i['links']:
+                    link = None
+                    try:
+                        link = Link.objects.get(url=j, tr_category_id=category.id)
+                    except:
+                        pass
+                    if link is None:
+                        link = Link.objects.create(url=j, tr_category=category)
+                        link.save()
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST'])
