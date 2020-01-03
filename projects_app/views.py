@@ -79,6 +79,80 @@ def translate_text(text, dest='ru'):
     return data
 
 
+def create_zara_product(link, param):
+    original_product = OriginalProduct()
+    original_product.link = link
+    original_product.product_code = None
+    original_product.title = param['name']
+    original_product.product_id = link.url
+    original_product.discount_price = param['selling_price']
+    original_product.selling_price = param['selling_price']
+    original_product.original_price = param['selling_price']
+    colour = param['colour']
+    original_product.colour_code = colour
+    images = ''
+    for image in param['images']:
+        images += (image + ' ')
+    original_product.images = images.strip()
+    original_product.description = param['description']
+
+    vend_colour = None
+    try:
+        vend_colour = VendColour.objects.get(name=colour)
+    except:
+        pass
+    if vend_colour is None:
+        vend_colour = VendColour.objects.create(name=colour)
+        vend_colour.save()
+    original_product.colour = vend_colour
+    original_product.save()
+    for variant in param['sizes']:
+        variant_item = Variant()
+        tr_size = None
+        try:
+            tr_size = VendSize.objects.get(name=variant['value'].upper())
+        except:
+            pass
+        if tr_size is None:
+            tr_size = VendSize.objects.create(name=variant['value'].upper())
+            tr_size.save()
+        # save_size(tr_size)
+        variant_item.tr_size = tr_size
+        variant_item.original_product = original_product
+        variant_item.stock = variant['stock']
+        variant_item.save()
+    try:
+        original_product.brand_id = original_product.link.tr_category.department.brand_id
+    except:
+        pass
+    try:
+        original_product.department_id = original_product.link.tr_category.department_id
+    except:
+        pass
+    try:
+        original_product.category_id = original_product.link.tr_category_id
+    except:
+        pass
+    original_product.save()
+    product = Product()
+    product.link = link
+    try:
+        product.department_id = original_product.link.tr_category.department.department_id
+    except:
+        pass
+    try:
+        product.category_id = original_product.link.tr_category.category_id
+    except:
+        pass
+    try:
+        product.colour_id = original_product.colour.izi_colour.id
+    except:
+        pass
+    product.save()
+    product_document = DocumentProduct.objects.create(product=original_product)
+    product_document.save()
+
+
 def create_original_product(link, param):
     original_product = OriginalProduct()
     original_product.link = link
@@ -170,9 +244,29 @@ def links_zara_list_view(request):
     if request.method == 'GET':
         links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
                                     tr_category__department__is_active=True,
-                                    originalproduct__isnull=True, tr_category__department__brand__link='https://www.zara.com/tr/')
+                                    originalproduct__isnull=True,
+                                    tr_category__department__brand__link='https://www.zara.com/tr/')
         # print(links)
         return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        with transaction.atomic():
+            for i in request.data:
+                link = None
+                try:
+                    link = Link.objects.get(id=int(i['id']))
+                except:
+                    pass
+                if link is None:
+                    continue
+                original_product = None
+                try:
+                    original_product = link.originalproduct
+                except:
+                    pass
+                if original_product is None:
+                    create_zara_product(link, i['product'])
+        return Response(status=status.HTTP_200_OK)
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
