@@ -11,7 +11,7 @@ class OrderListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = 'id date name payment_status process_status email phone address price'.split()
+        fields = 'id date name payment_status process_status email phone address price statuses'.split()
 
     def get_price(self, obj):
         items = OrderItem.objects.filter(order=obj)
@@ -22,10 +22,10 @@ class OrderListSerializer(serializers.ModelSerializer):
 
     def get_statuses(self, obj):
         data = {
-            'waiting': OrderItem.objects.filter(order=obj, product_status=1),
-            'in process': OrderItem.objects.filter(order=obj, product_status=2),
-            'done': OrderItem.objects.filter(order=obj, product_status=3),
-            'canceled': OrderItem.objects.filter(order=obj, product_status=4),
+            'waiting': OrderItem.objects.filter(order=obj, product_status=1).count(),
+            'in process': OrderItem.objects.filter(order=obj, product_status=2).count(),
+            'done': OrderItem.objects.filter(order=obj, product_status=3).count(),
+            'canceled': OrderItem.objects.filter(order=obj, product_status=4).count(),
         }
         return data
 
@@ -36,16 +36,27 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = 'id size product price amount'.split()
+        fields = 'id size product price amount product_status receiving_status checking_status delivery_status ' \
+                 'shipping_status'.split()
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     products = serializers.SerializerMethodField()
+    statuses = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = 'id date name payment_status process_status email phone address price products'.split()
+        fields = 'id date name payment_status process_status email phone address price products statuses'.split()
+
+    def get_statuses(self, obj):
+        data = {
+            'waiting': OrderItem.objects.filter(order=obj, product_status=1).count(),
+            'in process': OrderItem.objects.filter(order=obj, product_status=2).count(),
+            'done': OrderItem.objects.filter(order=obj, product_status=3).count(),
+            'canceled': OrderItem.objects.filter(order=obj, product_status=4).count(),
+        }
+        return data
 
     def get_price(self, obj):
         items = OrderItem.objects.filter(order=obj)
