@@ -1671,3 +1671,6 @@ def operator_izi_shop_products_item_view(request, product_id):
         izi.is_sellable = request.data.get('is_sellable', True)
         izi.save()
         return Response(status=status.HTTP_200_OK, data=IziShopProductSerializer(izi).data)
+
+
+
