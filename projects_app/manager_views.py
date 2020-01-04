@@ -17,6 +17,19 @@ def manager_orders_view(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
+def manager_clients_view(request):
+    if request.method == 'GET':
+        name = request.GET.get('name', '')
+        orders = Order.objects.filter(name__icontains=name)
+        data = []
+        for i in orders:
+            if i.name not in data:
+                data.append(i.name)
+        return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def manager_orders_item_view(request, id):
     if request.method == 'GET':
         data = OrderItemSerializer(Order.objects.get(id=id)).data
