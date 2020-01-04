@@ -1,5 +1,3 @@
-from importlib.resources import Package
-
 from rest_framework import serializers
 
 from product_app.models import VendSize
