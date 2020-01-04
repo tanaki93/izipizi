@@ -7,11 +7,12 @@ from projects_app.serializers import VendSizeSerializer, ProductSerializer
 
 class OrderListSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
     statuses = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = 'id date name payment_status process_status email phone address price statuses'.split()
+        fields = 'id date name payment_status process_status email phone address price statuses count'.split()
 
     def get_price(self, obj):
         items = OrderItem.objects.filter(order=obj)
@@ -19,6 +20,9 @@ class OrderListSerializer(serializers.ModelSerializer):
         for i in items:
             price += i.price
         return price
+
+    def get_count(self, obj):
+        return OrderItem.objects.filter(order=obj).count()
 
     def get_statuses(self, obj):
         data = {
@@ -44,10 +48,15 @@ class OrderItemSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     products = serializers.SerializerMethodField()
     statuses = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Order
-        fields = 'id date name payment_status process_status email phone address price products statuses'.split()
+        fields = 'id date name payment_status process_status email phone address price products statuses count'.split()
+
+    def get_count(self, obj):
+        return OrderItem.objects.filter(order=obj).count()
 
     def get_statuses(self, obj):
         data = {
