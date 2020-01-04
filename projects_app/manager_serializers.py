@@ -41,7 +41,7 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = 'id size product price amount product_status receiving_status checking_status delivery_status ' \
-                 'shipping_status'.split()
+                 'shipping_status stage'.split()
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -49,7 +49,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
     statuses = serializers.SerializerMethodField()
     count = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Order

@@ -5,4 +5,5 @@ urlpatterns = [
     url(r'^orders/$', views.manager_orders_view),
     url(r'^clients/$', views.manager_clients_view),
     url(r'^orders/([0-9]+)/$', views.manager_orders_item_view),
+    url(r'^orders/product/([0-9]+)/$', views.manager_orders_product_item_view),
 ]

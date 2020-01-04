@@ -58,6 +58,7 @@ class OrderItem(models.Model):
     size = models.ForeignKey(VendSize)
     product = models.ForeignKey(OriginalProduct)
     price = models.IntegerField(null=True)
+    stage = models.CharField(null=True, max_length=100)
     amount = models.IntegerField(default=1)
     product_status = models.IntegerField(default=1, choices=PROCESS_STATUSES)
     receiving_status = models.IntegerField(default=1, choices=RECEIVING_STATUSES)
