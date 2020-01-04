@@ -1,12 +1,14 @@
 import datetime
 
+from django.core.files.storage import FileSystemStorage
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from projects_app.manager_serializers import OrderListSerializer, OrderItemSerializer
-from projects_app.models import Order, OrderItem
+from projects_app.manager_serializers import OrderListSerializer, OrderItemSerializer, PackageListSerializer, \
+    OrderProductItemSerializer
+from projects_app.models import Order, OrderItem, OrderPackage, OrderItemComment, CommentImage
 
 
 @api_view(['GET', 'POST'])
@@ -100,6 +102,117 @@ def manager_orders_product_item_view(request, id):
             order_item.checking_status = value
         order_item.save()
     elif request.method == 'POST':
-        order_item.stage = request.data.get('stage', '')
+        stage = request.data.get('stage', '')
+        order_item.stage = stage
+        if stage != '':
+            package = None
+            try:
+                package = OrderPackage.objects.filter(number=stage)[0]
+            except:
+                pass
+            if package is None:
+                package = OrderPackage.objects.create(number=stage)
+            order_item.package = package
+        else:
+            order_item.package = None
         order_item.save()
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def manager_packages_view(request):
+    if request.method == 'GET':
+        packages = OrderPackage.objects.all()
+        date_from = None
+        try:
+            date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")
+        except:
+            pass
+        if date_from is not None:
+            packages = packages.filter(created__gte=date_from)
+        date_to = None
+        try:
+            date_to = datetime.datetime.strptime(request.GET.get('date_to'), "%Y-%m-%d")
+        except:
+            pass
+        if date_to is not None:
+            packages = packages.filter(created__lte=date_to)
+        number = ''
+        try:
+            number = str(request.GET.get('number', ''))
+        except:
+            pass
+        if number != '':
+            packages = packages.filter(number=number)
+        return Response(PackageListSerializer(packages, many=True).data, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT', 'GET'])
+@permission_classes([AllowAny])
+def manager_packages_item_view(request, id):
+    package = OrderPackage.objects.get(id=id)
+    if request.method == 'PUT':
+        statuses = int(request.data.get('status', 1))
+        package.status = statuses
+        package.save()
+        return Response(status=status.HTTP_200_OK)
+    elif request.method == 'GET':
+        return Response(PackageListSerializer(package).data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def manager_checking_product_view(request):
+    if request.method == 'GET':
+        orders = OrderItem.objects.filter(package__status=2, package__isnull=False)
+        date_from = None
+        try:
+            date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")
+        except:
+            pass
+        if date_from is not None:
+            orders = orders.filter(updated__gte = date_from)
+        date_to = None
+        try:
+            date_to = datetime.datetime.strptime(request.GET.get('date_to'), "%Y-%m-%d")
+        except:
+            pass
+        if date_to is not None:
+            orders = orders.filter(updated__lte = date_to)
+        number = ''
+        try:
+            number = (request.GET.get('number',''))
+        except:
+            pass
+        if number != '':
+            orders = orders.filter(package__number=number)
+        data = OrderProductItemSerializer(orders, many=True).data
+        return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['PUT', 'GET', 'POST'])
+@permission_classes([AllowAny])
+def manager_checking_item_product_view(request, id):
+    item = OrderItem.objects.get(id=id)
+    if request.method == 'PUT':
+        statuses = int(request.data.get('status', 1))
+        item.checking_status = statuses
+        item.save()
+        return Response(status=status.HTTP_200_OK)
+    elif request.method == 'GET':
+        return Response(OrderProductItemSerializer(item).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        comment = request.data.get('comment', '')
+        new_comment = OrderItemComment.objects.create(order_item=item, comment=comment)
+        new_comment.save()
+        try:
+            images = request.FILES['images']
+            fs = FileSystemStorage()
+            for image in images:
+                filename = fs.save(image.name, image)
+                comment_image = CommentImage.objects.create(comment=new_comment, image=filename)
+                comment_image.save()
+        except:
+            pass
+        return Response(status=status.HTTP_200_OK)
