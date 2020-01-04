@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -11,7 +13,37 @@ from projects_app.models import Order
 @permission_classes([AllowAny])
 def manager_orders_view(request):
     if request.method == 'GET':
-        data = OrderListSerializer(Order.objects.all(), many=True).data
+        orders = Order.objects.all()
+        date_from = None
+        try:
+            date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")
+        except:
+            pass
+        if date_from is not None:
+            orders = orders.filter(date__gte=date_from)
+        date_to = None
+        try:
+            date_to = datetime.datetime.strptime(request.GET.get('date_to'), "%Y-%m-%d")
+        except:
+            pass
+        if date_to is not None:
+            orders = orders.filter(date__lte=date_to)
+        id = None
+        try:
+            id = int(request.GET.get('id'))
+        except:
+            pass
+        if id is not None:
+            orders = orders.filter(id=id)
+
+        name = None
+        try:
+            name = (request.GET.get('name'))
+        except:
+            pass
+        if name is not None:
+            orders = orders.filter(name__icontains=name)
+        data = OrderListSerializer(orders, many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
 
 
