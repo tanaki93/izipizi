@@ -7,6 +7,7 @@ from projects_app.serializers import VendSizeSerializer, ProductSerializer
 
 class OrderListSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
+    statuses = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -18,6 +19,15 @@ class OrderListSerializer(serializers.ModelSerializer):
         for i in items:
             price += i.price
         return price
+
+    def get_statuses(self, obj):
+        data = {
+            'waiting': OrderItem.objects.filter(order=obj, product_status=1),
+            'in process': OrderItem.objects.filter(order=obj, product_status=2),
+            'done': OrderItem.objects.filter(order=obj, product_status=3),
+            'canceled': OrderItem.objects.filter(order=obj, product_status=4),
+        }
+        return data
 
 
 class OrderProductItemSerializer(serializers.ModelSerializer):

@@ -7,10 +7,14 @@ from django.db import models
 Admin = 1
 Operator = 2
 Client = 3
+Manager = 4
+Q_Controller = 3
 USER_TYPE = (
     (Admin, 'Admin'),
     (Operator, 'Operator'),
     (Client, 'Client'),
+    (Manager, 'Manager'),
+    (Q_Controller, 'Quality Controller'),
 )
 
 
