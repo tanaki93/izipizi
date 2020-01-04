@@ -27,9 +27,9 @@ class OrderListSerializer(serializers.ModelSerializer):
     def get_statuses(self, obj):
         data = {
             'waiting': OrderItem.objects.filter(order=obj, product_status=1).count(),
-            'in process': OrderItem.objects.filter(order=obj, product_status=2).count(),
+            'in_process': OrderItem.objects.filter(order=obj, product_status=2).count(),
             'done': OrderItem.objects.filter(order=obj, product_status=3).count(),
-            'canceled': OrderItem.objects.filter(order=obj, product_status=4).count(),
+            'cancelled': OrderItem.objects.filter(order=obj, product_status=4).count(),
         }
         return data
 
@@ -61,9 +61,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
     def get_statuses(self, obj):
         data = {
             'waiting': OrderItem.objects.filter(order=obj, product_status=1).count(),
-            'in process': OrderItem.objects.filter(order=obj, product_status=2).count(),
+            'in_process': OrderItem.objects.filter(order=obj, product_status=2).count(),
             'done': OrderItem.objects.filter(order=obj, product_status=3).count(),
-            'canceled': OrderItem.objects.filter(order=obj, product_status=4).count(),
+            'cancelled': OrderItem.objects.filter(order=obj, product_status=4).count(),
         }
         return data
 
