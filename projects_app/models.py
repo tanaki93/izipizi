@@ -44,7 +44,12 @@ SHIPPING_STATUSES = (
 
 PACKAGE_STATUSES = (
     (1, 'ORDERED'),
-    (2, 'GOT'),
+    (2, 'RECEIVED'),
+)
+
+PACKET_STATUSES = (
+    (1, 'WAITING'),
+    (2, 'RECEIVED'),
 )
 
 
@@ -97,8 +102,14 @@ class CommentImage(models.Model):
     comment = models.ForeignKey(OrderItemComment, null=True, on_delete=SET_NULL)
 
 
+class Flight(models.Model):
+    number = models.CharField(max_length=100)
+
+
 class OrderPacket(models.Model):
     weight = models.IntegerField(null=True)
+    flight = models.ForeignKey(Flight, null=True, on_delete=SET_NULL)
+    status = models.IntegerField(null=True, choices=PACKET_STATUSES, default=1)
     updated = models.DateTimeField(auto_now=True, null=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
 

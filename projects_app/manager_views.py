@@ -7,9 +7,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from projects_app.manager_serializers import OrderListSerializer, OrderItemSerializer, PackageListSerializer, \
-    OrderProductItemSerializer
+    OrderProductItemSerializer, PacketListSerializer
 from projects_app.models import Order, OrderItem, OrderPackage, OrderItemComment, CommentImage, OrderPacket, \
-    PacketProduct
+    PacketProduct, Flight
 
 
 @api_view(['GET', 'POST'])
@@ -239,3 +239,56 @@ def manager_checking_item_product_view(request, id):
         except:
             pass
         return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def manager_packets_view(request):
+    if request.method == 'GET':
+        packages = OrderPacket.objects.all()
+        date_from = None
+        try:
+            date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")
+        except:
+            pass
+        if date_from is not None:
+            packages = packages.filter(created__gte=date_from)
+        date_to = None
+        try:
+            date_to = datetime.datetime.strptime(request.GET.get('date_to'), "%Y-%m-%d")
+        except:
+            pass
+        if date_to is not None:
+            packages = packages.filter(created__lte=date_to)
+        number = ''
+        try:
+            number = str(request.GET.get('number', ''))
+        except:
+            pass
+        if number != '':
+            packages = packages.filter(packetproduct__order_item__package__number__icontains=number)
+        return Response(PacketListSerializer(packages, many=True).data, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT', 'POST'])
+@permission_classes([AllowAny])
+def manager_packet_item_view(request, id):
+    order_packet = OrderPacket.objects.get(id=id)
+    if request.method == 'PUT':
+        order_packet.status = int(request.data.get('status', 1))
+        order_packet.save()
+    elif request.method == 'POST':
+        flight_number = request.data.get('flight_number', '')
+        if flight_number != '':
+            flight = None
+            try:
+                flight = Flight.objects.filter(number=flight_number)[0]
+            except:
+                pass
+            if flight is None:
+                flight = Flight.objects.create(number=flight_number)
+            order_packet.flight = flight
+        else:
+            order_packet.package = None
+        order_packet.save()
+    return Response(status=status.HTTP_200_OK)
