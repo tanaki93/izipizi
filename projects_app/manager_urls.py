@@ -14,4 +14,6 @@ urlpatterns = [
     url(r'^packages/([0-9]+)/$', views.manager_packages_item_view),
     url(r'^packets/$', views.manager_packets_view),
     url(r'^packets/([0-9]+)/$', views.manager_packet_item_view),
+    url(r'^logistic/orders/$', views.manager_logistics_orders_view),
+    url(r'^logistic/orders/([0-9]+)/$', views.manager_logistic_product_item_view),
 ]

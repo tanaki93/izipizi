@@ -292,3 +292,64 @@ def manager_packet_item_view(request, id):
             order_packet.package = None
         order_packet.save()
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def manager_logistics_orders_view(request):
+    if request.method == 'GET':
+        orders = Order.objects.all()
+        date_from = None
+        try:
+            date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")
+        except:
+            pass
+        if date_from is not None:
+            orders = orders.filter(date__gte=date_from)
+        date_to = None
+        try:
+            date_to = datetime.datetime.strptime(request.GET.get('date_to'), "%Y-%m-%d")
+        except:
+            pass
+        if date_to is not None:
+            orders = orders.filter(date__lte=date_to)
+        number = None
+        try:
+            number = (request.GET.get('number'))
+        except:
+            pass
+        if number is not None:
+            orders = orders.filter(orderitem__package__number__icontains=number)
+        data = OrderListSerializer(orders, many=True).data
+        return Response(status=status.HTTP_200_OK, data=data)
+
+
+@api_view(['PUT', 'POST'])
+@permission_classes([AllowAny])
+def manager_logistic_product_item_view(request, id):
+    order_item = OrderItem.objects.get(id=id)
+    if request.method == 'PUT':
+        option = request.data.get('option')
+        value = request.data.get('value')
+        if option == 'delivery_status':
+            order_item.delivery_status = value
+            order_item.save()
+            if value == 2:
+                order_item.delivery_date = order_item.updated
+                order_item.save()
+        if option == 'shipping_status':
+            order_item.shipping_status = value
+            order_item.save()
+            if value == 3:
+                order_item.delivery_date = order_item.updated
+                order_item.save()
+            elif value == 2:
+                order_item.sending_date = order_item.updated
+                order_item.save()
+        order_item.save()
+    elif request.method == 'POST':
+        shipping_service = request.data.get('shipping_service', '')
+        order_item.shipping_service = shipping_service
+        order_item.shipping_status = 2
+        order_item.save()
+    return Response(status=status.HTTP_200_OK)

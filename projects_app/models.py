@@ -32,14 +32,15 @@ CHECKING_STATUSES = (
 )
 
 DELIVERY_STATUSES = (
-    (1, 'WAIT'),
-    (2, 'SENT'),
+    (1, 'WAITING'),
+    (2, 'RECEIVED'),
     (-1, 'SENT BACK'),
 )
 
 SHIPPING_STATUSES = (
-    (1, 'WAIT'),
+    (1, 'WAITING'),
     (2, 'SENT'),
+    (3, 'RECEIVED'),
 )
 
 PACKAGE_STATUSES = (
@@ -83,7 +84,11 @@ class OrderItem(models.Model):
     receiving_status = models.IntegerField(default=1, choices=RECEIVING_STATUSES)
     checking_status = models.IntegerField(default=1, choices=CHECKING_STATUSES)
     delivery_status = models.IntegerField(default=1, choices=DELIVERY_STATUSES)
+    delivery_date = models.DateTimeField(null=True, blank=True)
+    sending_date = models.DateTimeField(null=True, blank=True)
     shipping_status = models.IntegerField(default=1, choices=SHIPPING_STATUSES)
+    shipping_date = models.DateTimeField(null=True, blank=True)
+    shipping_service = models.TextField(null=True)
     updated = models.DateTimeField(auto_now=True, null=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
 

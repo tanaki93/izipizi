@@ -10,10 +10,11 @@ class OrderListSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     count = serializers.SerializerMethodField()
     statuses = serializers.SerializerMethodField()
+    logistic_statuses = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = 'id date name payment_status process_status email phone address price statuses count'.split()
+        fields = 'id date name payment_status process_status email phone address price logistic_statuses statuses count'.split()
 
     def get_price(self, obj):
         items = OrderItem.objects.filter(order=obj)
@@ -31,6 +32,13 @@ class OrderListSerializer(serializers.ModelSerializer):
             'in_process': OrderItem.objects.filter(order=obj, product_status=2).count(),
             'done': OrderItem.objects.filter(order=obj, product_status=3).count(),
             'cancelled': OrderItem.objects.filter(order=obj, product_status=4).count(),
+        }
+        return data
+
+    def get_logistic_statuses(self, obj):
+        data = {
+            'delivery_status': OrderItem.objects.filter(order=obj, delivery_status=1).count(),
+            'shipping_status': OrderItem.objects.filter(order=obj, shipping_status=1).count(),
         }
         return data
 
@@ -68,7 +76,7 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = 'id size product price amount product_status receiving_status checking_status delivery_status ' \
-                 'shipping_status package_status stage package package_status comments'.split()
+                 'shipping_status package_status stage shipping_service package package_status comments'.split()
 
     def get_package_status(self, obj):
         package = obj.package
@@ -86,11 +94,20 @@ class OrderItemSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
     products = serializers.SerializerMethodField()
     statuses = serializers.SerializerMethodField()
+    logistic_statuses = serializers.SerializerMethodField()
     count = serializers.SerializerMethodField()
+
+    def get_logistic_statuses(self, obj):
+        data = {
+            'delivery_status': OrderItem.objects.filter(order=obj, delivery_status=1).count(),
+            'shipping_status': OrderItem.objects.filter(order=obj, shipping_status=1).count(),
+        }
+        return data
 
     class Meta:
         model = Order
-        fields = 'id date name payment_status process_status email phone address price products statuses count'.split()
+        fields = 'id date name payment_status process_status email phone address logistic_statuses price products ' \
+                 'statuses count'.split()
 
     def get_count(self, obj):
         return OrderItem.objects.filter(order=obj).count()
