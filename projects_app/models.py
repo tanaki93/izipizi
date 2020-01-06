@@ -95,3 +95,14 @@ def file_upload_to(instance, filename):
 class CommentImage(models.Model):
     image = models.ImageField(upload_to=file_upload_to, null=True)
     comment = models.ForeignKey(OrderItemComment, null=True, on_delete=SET_NULL)
+
+
+class OrderPacket(models.Model):
+    weight = models.IntegerField(null=True)
+    updated = models.DateTimeField(auto_now=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+
+
+class PacketProduct(models.Model):
+    order_item = models.ForeignKey(OrderItem, null=True, on_delete=SET_NULL)
+    order_packet = models.ForeignKey(OrderPacket, null=True, on_delete=SET_NULL)

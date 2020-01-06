@@ -8,7 +8,8 @@ from rest_framework.response import Response
 
 from projects_app.manager_serializers import OrderListSerializer, OrderItemSerializer, PackageListSerializer, \
     OrderProductItemSerializer
-from projects_app.models import Order, OrderItem, OrderPackage, OrderItemComment, CommentImage
+from projects_app.models import Order, OrderItem, OrderPackage, OrderItemComment, CommentImage, OrderPacket, \
+    PacketProduct
 
 
 @api_view(['GET', 'POST'])
@@ -62,7 +63,7 @@ def manager_clients_view(request):
         return Response(status=status.HTTP_200_OK, data=data)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'PUT'])
 @permission_classes([AllowAny])
 def manager_orders_item_view(request, id):
     order = Order.objects.get(id=id)
@@ -161,7 +162,7 @@ def manager_packages_item_view(request, id):
         return Response(PackageListSerializer(package).data, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def manager_checking_product_view(request):
     if request.method == 'GET':
@@ -172,23 +173,45 @@ def manager_checking_product_view(request):
         except:
             pass
         if date_from is not None:
-            orders = orders.filter(updated__gte = date_from)
+            orders = orders.filter(updated__gte=date_from)
         date_to = None
         try:
             date_to = datetime.datetime.strptime(request.GET.get('date_to'), "%Y-%m-%d")
         except:
             pass
         if date_to is not None:
-            orders = orders.filter(updated__lte = date_to)
+            orders = orders.filter(updated__lte=date_to)
         number = ''
         try:
-            number = (request.GET.get('number',''))
+            number = (request.GET.get('number', ''))
         except:
             pass
         if number != '':
             orders = orders.filter(package__number=number)
         data = OrderProductItemSerializer(orders, many=True).data
         return Response(status=status.HTTP_200_OK, data=data)
+    elif request.method == 'POST':
+        products = request.data.get('order_products')
+        weight = None
+        try:
+            weight = int(request.data.get('weight'))
+        except:
+            pass
+        if weight is not None:
+            order_packet = OrderPacket.objects.create(weight=weight)
+            order_packet.save()
+        else:
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        if products is not None:
+            for i in products:
+                try:
+                    order_item = OrderItem.objects.get(id=int(i))
+                    packet_product = PacketProduct.objects.create(order_item=order_item, order_packet=order_packet)
+                    packet_product.save()
+                except:
+                    pass
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 @api_view(['PUT', 'GET', 'POST'])
