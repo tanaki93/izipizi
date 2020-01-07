@@ -1164,6 +1164,28 @@ def categories_zara_list_view(request):
 
 
 @api_view(['GET', 'POST'])
+def categories_handm_list_view(request):
+    if request.method == 'GET':
+        categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
+                                                 department__is_active=True,
+                                                 department__brand__link='https://www2.hm.com/tr_tr/')
+        return Response(data=TrendYolCategoryDetailedSerializer(categories, many=True).data, status=status.HTTP_200_OK)
+    else:
+        for i in request.data:
+            category = VendCategory.objects.get(id=int(i['id']))
+            for j in i['categories']:
+                c = None
+                try:
+                    c = VendCategory.objects.get(name=j['category'])
+                except:
+                    pass
+                if c is None:
+                    c = VendCategory.objects.create(name=j['category'], link=j['link'], department=category.department)
+                    c.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
 def handm_item_view(request):
     zara = None
     if request.method == 'GET':
