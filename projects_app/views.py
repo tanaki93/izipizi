@@ -1182,6 +1182,8 @@ def categories_handm_list_view(request):
                 if c is None:
                     c = VendCategory.objects.create(name=j['category'], link=j['link'], department=category.department)
                     c.save()
+            if len(i['categories'])>0:
+                category.delete()
         return Response(status=status.HTTP_200_OK)
 
 
