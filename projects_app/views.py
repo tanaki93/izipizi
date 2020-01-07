@@ -1164,6 +1164,47 @@ def categories_zara_list_view(request):
 
 
 @api_view(['GET', 'POST'])
+def handm_item_view(request):
+    zara = None
+    if request.method == 'GET':
+        try:
+            zara = Brand.objects.get(link='https://www2.hm.com/tr_tr/')
+        except:
+            pass
+        return Response(data=BrandSerializer(zara).data, status=status.HTTP_200_OK)
+    else:
+        try:
+            zara = Brand.objects.get(link='https://www2.hm.com/tr_tr/')
+        except:
+            pass
+        if zara is not None:
+            for i in request.data:
+                department_name = i['department']
+                department = None
+                try:
+                    department = VendDepartment.objects.get(brand=zara, name=department_name)
+                except:
+                    pass
+                if department is None:
+                    department = VendDepartment.objects.create(brand=zara, name=department_name)
+                    department.save()
+                    for j in i['categories']:
+                        category_name = j['name']
+                        category_link = j['link']
+                        category = None
+                        try:
+                            category = VendCategory.objects.get(department=department, name=category_name,
+                                                                link=category_link)
+                        except:
+                            pass
+                        if category is None:
+                            category = VendCategory.objects.create(department=department, name=category_name,
+                                                                   link=category_link)
+                            category.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
 def zara_item_view(request):
     zara = None
     if request.method == 'GET':
@@ -1671,6 +1712,3 @@ def operator_izi_shop_products_item_view(request, product_id):
         izi.is_sellable = request.data.get('is_sellable', True)
         izi.save()
         return Response(status=status.HTTP_200_OK, data=IziShopProductSerializer(izi).data)
-
-
-
