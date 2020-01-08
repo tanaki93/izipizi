@@ -343,12 +343,17 @@ def links_colour_list_view(request):
         return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'PUT'])
 @permission_classes([AllowAny])
 def brands_list_view(request):
     if request.method == 'GET':
-        brands = Brand.objects.filter(is_active=True)
-        return Response(data=BrandSerializer(brands, many=True).data, status=status.HTTP_200_OK)
+        brand = request.GET.get('brand', '')
+        if brand == '':
+            brands = Brand.objects.filter(is_active=True)
+            return Response(data=BrandSerializer(brands, many=True).data, status=status.HTTP_200_OK)
+        elif brand == 'Collins':
+            brands = Brand.objects.get(link='https://www.colins.com.tr/')
+            return Response(data=BrandSerializer(brands).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         for i in request.data:
             brand = Brand.objects.get(id=i['id'])
@@ -458,6 +463,39 @@ def brands_list_view(request):
                             #             translation_dep.save()
                             #     category.category = new_dep
                             #     category.save()
+        return Response(status=status.HTTP_200_OK)
+    if request.method == 'PUT':
+        brand = request.GET.get('brand', '')
+        if brand == 'Collins':
+            new_brand = None
+            try:
+                new_brand = Brand.objects.get(name='Collins')
+            except:
+                pass
+            if new_brand is not None:
+                for i in request.data:
+                    department_name = i['department']
+                    department = None
+                    try:
+                        department = VendDepartment.objects.get(brand=new_brand, name=department_name)
+                    except:
+                        pass
+                    if department is None:
+                        department = VendDepartment.objects.create(brand=new_brand, name=department_name)
+                        department.save()
+                        for j in i['categories']:
+                            category_name = j['category']
+                            category_link = j['link']
+                            category = None
+                            try:
+                                category = VendCategory.objects.get(department=department, name=category_name,
+                                                                    link=category_link)
+                            except:
+                                pass
+                            if category is None:
+                                category = VendCategory.objects.create(department=department, name=category_name,
+                                                                       link=category_link)
+                                category.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -1182,7 +1220,7 @@ def categories_handm_list_view(request):
                 if c is None:
                     c = VendCategory.objects.create(name=j['category'], link=j['link'], department=category.department)
                     c.save()
-            if len(i['categories'])>0:
+            if len(i['categories']) > 0:
                 category.delete()
         return Response(status=status.HTTP_200_OK)
 
