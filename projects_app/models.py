@@ -21,7 +21,7 @@ PROCESS_STATUSES = (
 )
 
 RECEIVING_STATUSES = (
-    (0, 'NOT RECEIVED'),
+    (-1, 'NOT RECEIVED'),
     (1, 'RECEIVED'),
 )
 
@@ -114,6 +114,7 @@ class OrderPacket(models.Model):
     weight = models.IntegerField(null=True)
     flight = models.ForeignKey(Flight, null=True, on_delete=SET_NULL)
     status = models.IntegerField(null=True, choices=PACKET_STATUSES, default=1)
+    received_status = models.IntegerField(null=True, choices=RECEIVING_STATUSES, default=-1)
     updated = models.DateTimeField(auto_now=True, null=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
 

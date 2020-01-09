@@ -166,7 +166,7 @@ class PacketListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderPacket
-        fields = 'id updated weight created status products'.split()
+        fields = 'id updated weight created received_status status products'.split()
 
     def get_products(self, obj):
         data = [i.order_item for i in PacketProduct.objects.filter(order_packet=obj)]

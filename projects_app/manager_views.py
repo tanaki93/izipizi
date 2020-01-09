@@ -277,7 +277,7 @@ def manager_packets_view(request):
 def manager_packet_item_view(request, id):
     order_packet = OrderPacket.objects.get(id=id)
     if request.method == 'PUT':
-        order_packet.status = int(request.data.get('status', 1))
+        order_packet.received_status = int(request.data.get('received_status', 1))
         order_packet.save()
     elif request.method == 'POST':
         flight_number = request.data.get('flight_number', '')
