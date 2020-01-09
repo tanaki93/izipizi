@@ -237,7 +237,7 @@ class OrderProductLogisticItemSerializer(serializers.ModelSerializer):
 
     def get_flight(self, obj):
         try:
-            flight = Flight.objects.get(orderpacket__packetproduct=obj)
+            flight = Flight.objects.get(orderpacket__packetproduct__order_item=obj)
             return FlightListSerializer(flight).data
         except:
             pass
