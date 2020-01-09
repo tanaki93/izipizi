@@ -81,7 +81,8 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
     def get_package_status(self, obj):
         package = None
         try:
-            package = obj.package.status
+            status = obj.package.status
+            package = obj.package
         except:
             pass
         if package is None:
