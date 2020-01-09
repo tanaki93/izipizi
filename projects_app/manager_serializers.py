@@ -87,7 +87,7 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
         if package is None:
             return 0
         else:
-            return status
+            return package.status
 
     def get_comments(self, obj):
         data = OrderItemComment.objects.filter(order_item=obj)
