@@ -99,8 +99,12 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
             pass
         if packet is None:
             return obj.delivery_status
-        else:
+        elif packet.order_packet.status == 1:
             return packet.order_packet.status + 2
+        elif packet.order_packet.received_status == -1:
+            return 4
+        else:
+            return 5
 
     def get_comments(self, obj):
         data = OrderItemComment.objects.filter(order_item=obj)
