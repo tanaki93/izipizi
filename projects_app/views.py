@@ -50,8 +50,19 @@ def save_size(tr_size):
 @permission_classes([AllowAny])
 def categories_list_view(request):
     if request.method == 'GET':
-        categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
-                                                 department__is_active=True)
+        brand = request.GET.get('brand', '')
+        categories = []
+        if brand == '':
+            categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
+                                                     department__is_active=True)
+        elif brand == 'zara':
+            categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
+                                                     department__is_active=True,
+                                                     department__brand__link='https://www.zara.com/tr/')
+        elif brand == 'handm':
+            categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
+                                                 department__is_active=True,
+                                                 department__brand__link='https://www2.hm.com/tr_tr/')
         return Response(data=TrendYolCategoryDetailedSerializer(categories, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         with transaction.atomic():

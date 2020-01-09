@@ -81,7 +81,6 @@ class OrderItem(models.Model):
     package = models.ForeignKey(OrderPackage, null=True, blank=True)
     amount = models.IntegerField(default=1)
     product_status = models.IntegerField(default=2, choices=PROCESS_STATUSES)
-    receiving_status = models.IntegerField(default=1, choices=RECEIVING_STATUSES)
     checking_status = models.IntegerField(default=1, choices=CHECKING_STATUSES)
     delivery_status = models.IntegerField(default=1, choices=DELIVERY_STATUSES)
     delivery_date = models.DateTimeField(null=True, blank=True)

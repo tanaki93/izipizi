@@ -75,8 +75,8 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = 'id size product price amount product_status receiving_status checking_status delivery_status ' \
-                 'shipping_status package_status stage shipping_service package package_status comments'.split()
+        fields = 'id size product price amount product_status checking_status delivery_status ' \
+                 'shipping_status package_status updated stage shipping_service package package_status comments'.split()
 
     def get_package_status(self, obj):
         package = None
