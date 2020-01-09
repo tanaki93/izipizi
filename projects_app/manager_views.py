@@ -352,8 +352,9 @@ def manager_logistic_product_item_view(request, id):
                 order_item.delivery_date = order_item.updated
             elif value == 2:
                 order_item.send_date = order_item.updated
+                order_item.delivery_date = None
             elif value == 1:
-                order_item.receive_date = None
+                order_item.send_date = None
         order_item.save()
     elif request.method == 'POST':
         shipping_service = request.data.get('shipping_service', '')
