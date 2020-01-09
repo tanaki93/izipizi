@@ -117,14 +117,14 @@ def manager_orders_product_item_view(request, id):
         else:
             order_item.package = None
         order_item.save()
-    return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_200_OK, data=OrderItemSerializer(order_item).data)
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def manager_packages_view(request):
     if request.method == 'GET':
-        packages = OrderPackage.objects.all()
+        packages = OrderPackage.objects.filter(orderitem__isnull=False)
         date_from = None
         try:
             date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")

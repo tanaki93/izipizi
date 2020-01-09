@@ -80,7 +80,7 @@ class OrderItem(models.Model):
     stage = models.CharField(null=True, max_length=100)
     package = models.ForeignKey(OrderPackage, null=True, blank=True)
     amount = models.IntegerField(default=1)
-    product_status = models.IntegerField(default=1, choices=PROCESS_STATUSES)
+    product_status = models.IntegerField(default=2, choices=PROCESS_STATUSES)
     receiving_status = models.IntegerField(default=1, choices=RECEIVING_STATUSES)
     checking_status = models.IntegerField(default=1, choices=CHECKING_STATUSES)
     delivery_status = models.IntegerField(default=1, choices=DELIVERY_STATUSES)
