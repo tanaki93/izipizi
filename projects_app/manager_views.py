@@ -166,7 +166,7 @@ def manager_packages_item_view(request, id):
 @permission_classes([AllowAny])
 def manager_checking_product_view(request):
     if request.method == 'GET':
-        orders = OrderItem.objects.filter(delivery_status=2, package__isnull=False)
+        orders = OrderItem.objects.filter(delivery_status=2, package__isnull=False, packetproduct__order_packet__isnull=True)
         date_from = None
         try:
             date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")
