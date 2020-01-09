@@ -34,7 +34,6 @@ CHECKING_STATUSES = (
 DELIVERY_STATUSES = (
     (1, 'WAITING'),
     (2, 'SEND'),
-    (3, 'SENT'),
     (-1, 'SENT BACK'),
 )
 

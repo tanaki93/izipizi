@@ -71,6 +71,7 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
     package = PackageItemSerializer(read_only=True)
     package_status = serializers.SerializerMethodField()
+    delivery_status = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
 
     class Meta:
@@ -89,6 +90,17 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
             return 0
         else:
             return package.status
+
+    def get_delivery_status(self, obj):
+        packet = None
+        try:
+            packet = PacketProduct.objects.get(order_item=obj)
+        except:
+            pass
+        if packet is None:
+            return obj.delivery_status
+        else:
+            return packet.order_packet.status + 2
 
     def get_comments(self, obj):
         data = OrderItemComment.objects.filter(order_item=obj)

@@ -206,7 +206,7 @@ def manager_checking_product_view(request):
             for i in products:
                 try:
                     order_item = OrderItem.objects.get(id=int(i))
-                    order_item.delivery_status = 3  # отправлен
+                    # order_item.delivery_status = 3  # отправлен
                     packet_product = PacketProduct.objects.create(order_item=order_item, order_packet=order_packet)
                     packet_product.save()
                 except:
