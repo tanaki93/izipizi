@@ -79,11 +79,15 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
                  'shipping_status package_status stage shipping_service package package_status comments'.split()
 
     def get_package_status(self, obj):
-        package = obj.package
+        package = None
+        try:
+            status = obj.package.status
+        except:
+            pass
         if package is None:
             return 0
         else:
-            return package.status
+            return status
 
     def get_comments(self, obj):
         data = OrderItemComment.objects.filter(order_item=obj)
