@@ -43,6 +43,43 @@ class OrderListSerializer(serializers.ModelSerializer):
         return data
 
 
+class OrderLogisticSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
+    statuses = serializers.SerializerMethodField()
+    logistic_statuses = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = 'id date name payment_status process_status email phone address price logistic_statuses statuses count'.split()
+
+    def get_price(self, obj):
+        items = OrderItem.objects.filter(order=obj)
+        price = 0
+        for i in items:
+            price += i.price
+        return price
+
+    def get_count(self, obj):
+        return OrderItem.objects.filter(order=obj).count()
+
+    def get_statuses(self, obj):
+        data = {
+            'waiting': OrderItem.objects.filter(order=obj, product_status=1).count(),
+            'in_process': OrderItem.objects.filter(order=obj, product_status=2).count(),
+            'done': OrderItem.objects.filter(order=obj, product_status=3).count(),
+            'cancelled': OrderItem.objects.filter(order=obj, product_status=4).count(),
+        }
+        return data
+
+    def get_logistic_statuses(self, obj):
+        data = {
+            'logistic_receive_status': OrderItem.objects.filter(order=obj, logistic_receive_status=2).count(),
+            'logistic_deliver_status': OrderItem.objects.filter(order=obj, logistic_deliver_status=3).count(),
+        }
+        return data
+
+
 class PackageItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderPackage
@@ -77,7 +114,7 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = 'id size product logistic_deliver_status receive_date send_date delivery_date logistic_receive_status price amount product_status checking_status delivery_status ' \
-                 'shipping_status package_status updated stage shipping_service package package_status comments'.split()
+                 ' package_status updated stage shipping_service package package_status comments'.split()
 
     def get_package_status(self, obj):
         package = None
@@ -120,8 +157,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     def get_logistic_statuses(self, obj):
         data = {
-            'delivery_status': OrderItem.objects.filter(order=obj, delivery_status=1).count(),
-            'shipping_status': OrderItem.objects.filter(order=obj, shipping_status=1).count(),
+            'logistic_receive_status': OrderItem.objects.filter(order=obj, logistic_receive_status=2).count(),
+            'logistic_deliver_status': OrderItem.objects.filter(order=obj, logistic_deliver_status=3).count(),
         }
         return data
 
@@ -182,3 +219,91 @@ class PacketListSerializer(serializers.ModelSerializer):
     def get_products(self, obj):
         data = [i.order_item for i in PacketProduct.objects.filter(order_packet=obj)]
         return OrderProductItemSerializer(data, many=True).data
+
+
+class OrderProductLogisticItemSerializer(serializers.ModelSerializer):
+    size = VendSizeSerializer(read_only=True)
+    product = ProductSerializer(read_only=True)
+    package = PackageItemSerializer(read_only=True)
+    package_status = serializers.SerializerMethodField()
+    delivery_status = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrderItem
+        fields = 'id size product logistic_deliver_status receive_date send_date delivery_date logistic_receive_status price amount product_status checking_status delivery_status ' \
+                 ' package_status updated stage shipping_service package package_status comments'.split()
+
+    def get_package_status(self, obj):
+        package = None
+        try:
+            status = obj.package.status
+            package = obj.package
+        except:
+            pass
+        if package is None:
+            return 0
+        else:
+            return package.status
+
+    def get_delivery_status(self, obj):
+        packet = None
+        try:
+            packet = PacketProduct.objects.get(order_item=obj)
+        except:
+            pass
+        if packet is None:
+            return obj.delivery_status
+        elif packet.order_packet.flight is not None:
+            return 5
+        elif packet.order_packet.received_status == 1:
+            return 4
+        else:
+            return 3
+
+    def get_comments(self, obj):
+        data = OrderItemComment.objects.filter(order_item=obj)
+        return CommentItemSerializer(data, many=True).data
+
+
+class OrderItemLogisticSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
+    products = serializers.SerializerMethodField()
+    statuses = serializers.SerializerMethodField()
+    logistic_statuses = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
+
+    def get_logistic_statuses(self, obj):
+        data = {
+            'logistic_deliver_status': OrderItem.objects.filter(order=obj, logistic_deliver_status=3).count(),
+            'logistic_receive_status': OrderItem.objects.filter(order=obj, logistic_receive_status=2).count(),
+        }
+        return data
+
+    class Meta:
+        model = Order
+        fields = 'id date name payment_status process_status email phone address logistic_statuses price products ' \
+                 'statuses count'.split()
+
+    def get_count(self, obj):
+        return OrderItem.objects.filter(order=obj).count()
+
+    def get_statuses(self, obj):
+        data = {
+            'waiting': OrderItem.objects.filter(order=obj, product_status=1).count(),
+            'in_process': OrderItem.objects.filter(order=obj, product_status=2).count(),
+            'done': OrderItem.objects.filter(order=obj, product_status=3).count(),
+            'cancelled': OrderItem.objects.filter(order=obj, product_status=4).count(),
+        }
+        return data
+
+    def get_price(self, obj):
+        items = OrderItem.objects.filter(order=obj)
+        price = 0
+        for i in items:
+            price += i.price
+        return price
+
+    def get_products(self, obj):
+        data = OrderProductLogisticItemSerializer(OrderItem.objects.filter(order=obj), many=True).data
+        return data
