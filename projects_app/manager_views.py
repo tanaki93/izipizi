@@ -117,7 +117,7 @@ def manager_orders_product_item_view(request, id):
         else:
             order_item.package = None
         order_item.save()
-    return Response(status=status.HTTP_200_OK, data=OrderItemSerializer(order_item).data)
+    return Response(status=status.HTTP_200_OK, data=OrderProductItemSerializer(order_item).data)
 
 
 @api_view(['GET'])
