@@ -107,7 +107,7 @@ class CommentImage(models.Model):
 
 
 class Flight(models.Model):
-    number = models.CharField(max_length=100)
+    number = models.CharField(max_length=100, null=True)
 
 
 class OrderPacket(models.Model):
