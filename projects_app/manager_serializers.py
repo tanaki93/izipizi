@@ -228,11 +228,20 @@ class OrderProductLogisticItemSerializer(serializers.ModelSerializer):
     package_status = serializers.SerializerMethodField()
     delivery_status = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
+    flight = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
         fields = 'id size product logistic_deliver_status receive_date send_date delivery_date logistic_receive_status price amount product_status checking_status delivery_status ' \
-                 ' package_status updated stage shipping_service package package_status comments'.split()
+                 ' package_status updated stage shipping_service package package_status comments flight'.split()
+
+    def get_flight(self, obj):
+        try:
+            flight = Flight.objects.get(orderpacket__packetproduct=obj)
+            return FlightListSerializer(flight).data
+        except:
+            pass
+        return None
 
     def get_package_status(self, obj):
         package = None
