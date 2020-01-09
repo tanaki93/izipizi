@@ -172,6 +172,7 @@ def manager_checking_product_view(request):
             date_from = datetime.datetime.strptime(request.GET.get('date_from'), "%Y-%m-%d")
         except:
             pass
+
         if date_from is not None:
             orders = orders.filter(updated__gte=date_from)
         date_to = None
