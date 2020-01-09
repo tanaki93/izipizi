@@ -337,21 +337,23 @@ def manager_logistic_product_item_view(request, id):
     if request.method == 'PUT':
         option = request.data.get('option')
         value = request.data.get('value')
-        if option == 'delivery_status':
-            order_item.delivery_status = value
+        if option == 'logistic_receive_status':
+            order_item.logistic_receive_status = value
             order_item.save()
             if value == 2:
-                order_item.delivery_date = order_item.updated
-                order_item.save()
-        if option == 'shipping_status':
-            order_item.shipping_status = value
+                order_item.receive_date = order_item.updated
+            elif value == 1:
+                order_item.receive_date = None
+            order_item.save()
+        if option == 'logistic_deliver_status':
+            order_item.logistic_deliver_status = value
             order_item.save()
             if value == 3:
                 order_item.delivery_date = order_item.updated
-                order_item.save()
             elif value == 2:
-                order_item.sending_date = order_item.updated
-                order_item.save()
+                order_item.send_date = order_item.updated
+            elif value == 1:
+                order_item.receive_date = None
         order_item.save()
     elif request.method == 'POST':
         shipping_service = request.data.get('shipping_service', '')
