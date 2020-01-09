@@ -292,7 +292,7 @@ def manager_packet_item_view(request, id):
                 flight.save()
             order_packet.flight = flight
         else:
-            order_packet.package = None
+            order_packet.flight = None
         order_packet.save()
     return Response(status=status.HTTP_200_OK)
 
