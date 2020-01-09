@@ -101,6 +101,8 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
             return obj.delivery_status
         elif packet.order_packet.received_status == 1:
             return 4
+        elif packet.order_packet.flight is not None:
+            return 5
         else:
             return 3
 
