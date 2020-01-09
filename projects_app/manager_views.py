@@ -289,6 +289,7 @@ def manager_packet_item_view(request, id):
                 pass
             if flight is None:
                 flight = Flight.objects.create(number=flight_number)
+                flight.save()
             order_packet.flight = flight
         else:
             order_packet.package = None
