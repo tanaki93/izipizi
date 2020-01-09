@@ -358,7 +358,6 @@ def manager_logistic_product_item_view(request, id):
     elif request.method == 'POST':
         shipping_service = request.data.get('shipping_service', '')
         order_item.shipping_service = shipping_service
-        order_item.shipping_status = 2
         order_item.save()
     return Response(status=status.HTTP_200_OK)
 
