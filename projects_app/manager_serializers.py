@@ -37,8 +37,8 @@ class OrderListSerializer(serializers.ModelSerializer):
 
     def get_logistic_statuses(self, obj):
         data = {
-            'delivery_status': OrderItem.objects.filter(order=obj, delivery_status=1).count(),
-            'shipping_status': OrderItem.objects.filter(order=obj, shipping_status=1).count(),
+            'logistic_receive_status': OrderItem.objects.filter(order=obj, logistic_receive_status=1).count(),
+            'logistic_deliver_status': OrderItem.objects.filter(order=obj, logistic_deliver_status=3).count(),
         }
         return data
 
@@ -76,7 +76,7 @@ class OrderProductItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = 'id size product price amount product_status checking_status delivery_status ' \
+        fields = 'id size product logistic_deliver_status receive_date send_date delivery_date logistic_receive_status price amount product_status checking_status delivery_status ' \
                  'shipping_status package_status updated stage shipping_service package package_status comments'.split()
 
     def get_package_status(self, obj):
