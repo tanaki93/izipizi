@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from product_app.models import VendSize
 from projects_app.models import Order, OrderItem, OrderPackage, OrderItemComment, CommentImage, OrderPacket, \
-    PacketProduct
+    PacketProduct, Flight
 from projects_app.serializers import VendSizeSerializer, ProductSerializer
 
 
@@ -152,6 +152,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
         return data
 
 
+class FlightListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = 'id number'.split()
+
+
 class PackageListSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
 
@@ -165,10 +171,11 @@ class PackageListSerializer(serializers.ModelSerializer):
 
 class PacketListSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
+    flight = FlightListSerializer(read_only=True)
 
     class Meta:
         model = OrderPacket
-        fields = 'id updated weight created received_status status products'.split()
+        fields = 'id updated weight created received_status flight status products'.split()
 
     def get_products(self, obj):
         data = [i.order_item for i in PacketProduct.objects.filter(order_packet=obj)]
