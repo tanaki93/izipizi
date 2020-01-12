@@ -1489,6 +1489,7 @@ def operator_documents_process_products_view(request, id):
                     izi = product.link.product
                     if option == 'department':
                         izi.department_id = id
+                        izi.category = None
                     elif option == 'category':
                         izi.category_id = id
                     elif option == 'colour':
@@ -1521,6 +1522,7 @@ def operator_documents_process_products_item_view(request, id, product_id):
             izi = product.link.product
             if option == 'department':
                 izi.department_id = id
+                izi.category = None
             elif option == 'category':
                 izi.category_id = id
             elif option == 'colour':
