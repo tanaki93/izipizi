@@ -224,7 +224,7 @@ class Department(models.Model):
 
     def save(self, *args, **kwargs):
         self.name_lower = self.name.lower()
-        self.slug = slugify('%s' % self.name)
+        self.slug = slugify('%s-%s' % (self.name, self.code))
         super(Department, self).save()
 
 
@@ -272,7 +272,7 @@ class ParentCategory(models.Model):
         except:
             self.name_lower = ''
             pass
-        self.slug = slugify('%s' % self.name)
+        self.slug = slugify('%s-%s' % (self.name, self.code))
         super(ParentCategory, self).save()
 
 
@@ -316,7 +316,7 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         self.name_lower = self.name.lower()
-        self.slug = slugify('%s' % self.name)
+        self.slug = slugify('%s-%s' % (self.name, self.code))
         super(Category, self).save()
 
 
