@@ -400,11 +400,3 @@ class MainProductSerializer(serializers.ModelSerializer):
             return ParentCategoriesSerializer(obj.link.product.category.parent).data
         except:
             return None
-
-    def get_original_price(self, obj):
-        # print(obj.link.url)
-        return get_price(obj.original_price)
-
-    def get_discount_price(self, obj):
-        # print(obj.link.url)
-        return get_price(obj.discount_price)
