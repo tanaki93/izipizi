@@ -222,13 +222,13 @@ def profile_resend_code_view(request):
 @permission_classes([AllowAny])
 def post(request, page):
     with transaction.atomic():
-        d = TranslationDepartment.objects.all()
+        d = Department.objects.all()
         for i in d:
             i.save()
-        d = TranslationParentCategory.objects.all()
+        d = ParentCategory.objects.all()
         for i in d:
             i.save()
-        d = TranslationCategory.objects.all()
+        d = Category.objects.all()
         for i in d:
             i.save()
     return Response(data='')
