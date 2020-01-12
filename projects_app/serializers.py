@@ -17,11 +17,12 @@ class TrendYolDepartmentSerializer(serializers.ModelSerializer):
         model = VendDepartment
         fields = ('id', 'name')
 
-class IziSizeSerializer(serializers.ModelSerializer):
 
+class IziSizeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Size
         fields = ('id', 'name', 'code')
+
 
 class SizeSerializer(serializers.ModelSerializer):
     languages = serializers.SerializerMethodField()
@@ -178,6 +179,7 @@ class IziColorSerializer(serializers.ModelSerializer):
 class MainColourSerializer(serializers.ModelSerializer):
     name_ru = serializers.SerializerMethodField()
     languages = serializers.SerializerMethodField()
+
     class Meta:
         model = IziColour
         fields = ('id', 'name', 'name_ru', 'languages')
@@ -323,7 +325,8 @@ class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
         fields = (
-            'id', 'name', 'is_active', 'link', 'code', 'created_at', 'updated_at', 'project', 'countries', 'currency', 'departments')
+            'id', 'name', 'is_active', 'link', 'code', 'created_at', 'updated_at', 'project', 'countries', 'currency',
+            'departments')
 
     def get_departments(self, obj):
         departments = VendDepartment.objects.filter(brand=obj)
@@ -607,6 +610,7 @@ class VendProductSerializer(serializers.ModelSerializer):
     def get_vend_colour(self, obj):
         return ColourSerializer(obj.colour).data
 
+
 class IziShopProductSerializer(serializers.ModelSerializer):
     link = LinkSerializer()
     department = ParentDepartmentSerializer()
@@ -634,7 +638,8 @@ class IziShopProductSerializer(serializers.ModelSerializer):
             price = None
             try:
                 exchange = ExchangeRate.objects.get(from_currency=i.brand.currency, to_currency=i.country.currency)
-                price = round((round(obj.link.originalproduct.selling_price)*exchange.value * i.mark_up)/100, i.round_digit) * 100
+                price = round((round(obj.link.originalproduct.selling_price) * exchange.value * i.mark_up) / 100,
+                              i.round_digit) * 100
             except:
                 pass
             if price is not None:

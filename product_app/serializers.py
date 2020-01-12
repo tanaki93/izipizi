@@ -339,6 +339,38 @@ class MainProductSerializer(serializers.ModelSerializer):
                   'original_price', 'updated_at', 'description',
                   'brand', 'department', 'category', 'colour', 'variants']
 
+    def get_original_price(self, obj):
+        brand_country = None
+        try:
+            brand_country = BrandCountry.objects.filter(brand=obj.brand)[0]
+        except:
+            pass
+        price = 0
+        if brand_country is not None:
+            try:
+                exchange = ExchangeRate.objects.get(from_currency=brand_country.brand.currency, to_currency=brand_country.country.currency)
+                price = round((round(obj.original_price) * exchange.value * brand_country.mark_up) / 100,
+                              brand_country.round_digit) * 100
+            except:
+                pass
+        return price
+
+    def get_discount_price(self, obj):
+        brand_country = None
+        try:
+            brand_country = BrandCountry.objects.filter(brand=obj.brand)[0]
+        except:
+            pass
+        price = 0
+        if brand_country is not None:
+            try:
+                exchange = ExchangeRate.objects.get(from_currency=brand_country.brand.currency, to_currency=brand_country.country.currency)
+                price = round((round(obj.selling_price) * exchange.value * brand_country.mark_up) / 100,
+                              brand_country.round_digit) * 100
+            except:
+                pass
+        return price
+
     def get_images(self, original):
         return original.images.split()
 
