@@ -82,7 +82,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=SET_NULL, null=True)
     size = models.ForeignKey(VendSize, null=True)
     product = models.ForeignKey(OriginalProduct, null=True)
-    price = models.IntegerField(null=True)
+    price = models.FloatField(null=True)
     stage = models.CharField(null=True, max_length=100)
     package = models.ForeignKey(OrderPackage, null=True, blank=True)
     amount = models.IntegerField(default=1)

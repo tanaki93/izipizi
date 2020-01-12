@@ -96,10 +96,11 @@ def client_checkout_view(request):
         for i in products:
             try:
                 amount = int(i.get('amount', 1))
+                price = float(i.get('price', 1))
                 size_id = int(i.get('size_id', 1))
                 product_id = int(i.get('product_id', 1))
                 order_item = OrderItem.objects.create(amount=amount, size_id=size_id, product_id=product_id,
-                                                      order=order)
+                                                      order=order, price=price)
                 order_item.save()
             except:
                 pass
