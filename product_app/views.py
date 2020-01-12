@@ -10,6 +10,7 @@ from product_app.models import Category, Department, ParentCategory, Brand, Slid
     VendColour, BrandCountry, ExchangeRate, VendSize, IziColour, Size
 from product_app.serializers import CategorySerializer, ParentCategorySerializer, BrandSerializer, DepartmentSerializer, \
     SliderSerializer, MainProductSerializer
+from projects_app.models import Order, OrderItem
 from projects_app.serializers import MainColourSerializer, VendSizeSerializer, IziSizeSerializer
 from user_app.permissions import IsAdmin
 
@@ -70,6 +71,39 @@ def get_price(price):
         return x / brand_country.mark_up
     except:
         return 0
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def client_checkout_view(request):
+    if request.method == 'POST':
+        name = request.data.get('name', '')
+        phone = request.data.get('phone', '')
+        email = request.data.get('email', '')
+        delivery_type = int(request.data.get('delivery_type', 1))
+        address = request.data.get('address', '')
+        city = request.data.get('city', '')
+        property_type = int(request.data.get('property_type', 1))
+        products = request.data.get('products')
+        products_price = float(request.data.get('products_price', 1))
+        shipping_price = float(request.data.get('shipping_price', 1))
+        total_price = float(request.data.get('total_price', 1))
+        order = Order.objects.create(name=name, phone=phone, email=email, delivery_type=delivery_type, address=address,
+                                     city=city,
+                                     property_type=property_type, products_price=products_price,
+                                     shipping_price=shipping_price, total_price=total_price)
+        order.save()
+        for i in products:
+            try:
+                amount = int(i.get('amount', 1))
+                size_id = int(i.get('size_id', 1))
+                product_id = int(i.get('product_id', 1))
+                order_item = OrderItem.objects.create(amount=amount, size_id=size_id, product_id=product_id,
+                                                      order=order)
+                order_item.save()
+            except:
+                pass
+        return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

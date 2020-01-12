@@ -61,8 +61,8 @@ def categories_list_view(request):
                                                      department__brand__link='https://www.zara.com/tr/')
         elif brand == 'handm':
             categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
-                                                 department__is_active=True,
-                                                 department__brand__link='https://www2.hm.com/tr_tr/')
+                                                     department__is_active=True,
+                                                     department__brand__link='https://www2.hm.com/tr_tr/')
         return Response(data=TrendYolCategoryDetailedSerializer(categories, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         with transaction.atomic():
@@ -251,16 +251,25 @@ def create_original_product(link, param):
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
-def links_zara_list_view(request):
+def links_brand_list_view(request):
     if request.method == 'GET':
-        links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
-                                    tr_category__department__is_active=True,
-                                    originalproduct__isnull=True,
-                                    tr_category__department__brand__link='https://www.zara.com/tr/')
-        # print(links)
+        brand = request.GET.get('brand', '')
+        links = []
+        if brand == 'zara':
+            links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+                                        tr_category__department__is_active=True,
+                                        originalproduct__isnull=True,
+                                        tr_category__department__brand__link='https://www.zara.com/tr/')
+        elif brand == 'handm':
+            links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+                                        tr_category__department__is_active=True,
+                                        originalproduct__isnull=True,
+                                        tr_category__department__brand__link='https://www2.hm.com/tr_tr/')
+
         return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         with transaction.atomic():
+            brand = request.GET.get('brand', '')
             for i in request.data:
                 link = None
                 try:
@@ -274,7 +283,7 @@ def links_zara_list_view(request):
                     original_product = link.originalproduct
                 except:
                     pass
-                if original_product is None:
+                if original_product is None and brand == 'zara':
                     create_zara_product(link, i['product'])
         return Response(status=status.HTTP_200_OK)
 

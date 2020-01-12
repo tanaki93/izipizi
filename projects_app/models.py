@@ -55,14 +55,20 @@ PACKET_STATUSES = (
 
 
 class Order(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True, null=True)
     name = models.CharField(max_length=100)
     payment_status = models.IntegerField(choices=PAYMENT_STATUSES, default=2, null=True, blank=True)
     process_status = models.IntegerField(choices=ORDER_PROCESS_STATUSES, default=1, null=True, blank=True)
     email = models.EmailField(null=True, blank=True, max_length=100)
     phone = models.CharField(max_length=100)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    delivery_type = models.IntegerField(default=1, null=True, blank=True)
+    property_type = models.IntegerField(default=1, null=True, blank=True)
     address = models.CharField(max_length=100)
+    products_price = models.FloatField(null=True)
+    total_price = models.FloatField(null=True)
+    shipping_price = models.FloatField(null=True)
 
 
 class OrderPackage(models.Model):
@@ -74,20 +80,20 @@ class OrderPackage(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=SET_NULL, null=True)
-    size = models.ForeignKey(VendSize)
-    product = models.ForeignKey(OriginalProduct)
+    size = models.ForeignKey(VendSize, null=True)
+    product = models.ForeignKey(OriginalProduct, null=True)
     price = models.IntegerField(null=True)
     stage = models.CharField(null=True, max_length=100)
     package = models.ForeignKey(OrderPackage, null=True, blank=True)
     amount = models.IntegerField(default=1)
-    product_status = models.IntegerField(default=2, choices=PROCESS_STATUSES)
-    checking_status = models.IntegerField(default=1, choices=CHECKING_STATUSES)
-    delivery_status = models.IntegerField(default=1, choices=DELIVERY_STATUSES)
+    product_status = models.IntegerField(default=2, choices=PROCESS_STATUSES, null=True)
+    checking_status = models.IntegerField(default=1, choices=CHECKING_STATUSES, null=True)
+    delivery_status = models.IntegerField(default=1, choices=DELIVERY_STATUSES, null=True)
     receive_date = models.DateTimeField(null=True, blank=True)
     send_date = models.DateTimeField(null=True, blank=True)
     delivery_date = models.DateTimeField(null=True, blank=True)
-    logistic_receive_status = models.IntegerField(default=1, choices=PACKET_STATUSES)
-    logistic_deliver_status = models.IntegerField(default=1, choices=SHIPPING_STATUSES)
+    logistic_receive_status = models.IntegerField(default=1, choices=PACKET_STATUSES, null=True)
+    logistic_deliver_status = models.IntegerField(default=1, choices=SHIPPING_STATUSES, null=True)
     shipping_service = models.TextField(null=True)
     updated = models.DateTimeField(auto_now=True, null=True)
     created = models.DateTimeField(auto_now_add=True, null=True)

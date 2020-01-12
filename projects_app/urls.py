@@ -7,6 +7,5 @@ urlpatterns = [
     url(r'^brands/zara/$', views.zara_item_view),
     url(r'^brands/handm/$', views.handm_item_view),
     url(r'^links/trendyol/$', views.links_trendyol_list_view),
-    url(r'^links/zara/$', views.links_zara_list_view),
-    url(r'^links/colour/$', views.links_colour_list_view),
+    url(r'^links/$', views.links_brand_list_view),
 ]
