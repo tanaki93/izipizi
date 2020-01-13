@@ -1488,8 +1488,15 @@ def operator_documents_process_products_view(request, id):
                     product = OriginalProduct.objects.get(id=int(i))
                     izi = product.link.product
                     if option == 'department':
-                        izi.department_id = id
-                        izi.category = None
+                        department = Department.objects.get(id=int(id))
+                        izi.department = department
+                        category = izi.category
+                        if category is not None:
+                            try:
+                                if department != category.parent.department:
+                                    izi.category = None
+                            except:
+                                pass
                     elif option == 'category':
                         izi.category_id = id
                     elif option == 'colour':
@@ -1521,8 +1528,15 @@ def operator_documents_process_products_item_view(request, id, product_id):
             product = OriginalProduct.objects.get(id=product_id, document_product__document=document)
             izi = product.link.product
             if option == 'department':
-                izi.department_id = id
-                izi.category = None
+                department = Department.objects.get(id=int(id))
+                izi.department = department
+                category = izi.category
+                if category is not None:
+                    try:
+                        if department != category.parent.department:
+                            izi.category = None
+                    except:
+                        pass
             elif option == 'category':
                 izi.category_id = id
             elif option == 'colour':
