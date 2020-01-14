@@ -221,22 +221,21 @@ def profile_resend_code_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def post(request, page):
-    with transaction.atomic():
-        d = Link.objects.all()[10000*int(page)-1:10000*int(page)]
-        print(d.count(), 10000*(int(page)-1), 10000*int(page))
-        for i in d:
-            links = Link.objects.filter(url=i.url)
-            if links.count() > 1:
-                for link in links[1:]:
-                    try:
-                        o = OriginalProduct.objects.get(link=link)
-                        o.delete()
-                    except:
-                        pass
-                    try:
-                        p = Product.objects.get(link=link)
-                        p.delete()
-                    except:
-                        pass
-                    link.delete()
+    d = Link.objects.all()[500*(int(page)-1):500*int(page)]
+    print(d.count(), 1000*(int(page)-1), 1000*int(page))
+    for i in d:
+        links = Link.objects.filter(url=i.url)
+        if links.count() > 1:
+            for link in links[1:]:
+                try:
+                    o = OriginalProduct.objects.get(link=link)
+                    o.delete()
+                except:
+                    pass
+                try:
+                    p = Product.objects.get(link=link)
+                    p.delete()
+                except:
+                    pass
+                link.delete()
     return Response(data='')
