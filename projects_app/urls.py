@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^brands/zara/$', views.zara_item_view),
     url(r'^brands/handm/$', views.handm_item_view),
     url(r'^links/$', views.links_brand_list_view),
+    url(r'^update/links/$', views.links_update_list_view),
 ]

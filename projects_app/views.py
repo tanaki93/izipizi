@@ -170,14 +170,11 @@ def create_original_product(link, param):
     original_product.link = link
     original_product.product_code = param['productCode']
     original_product.title = param['name']
-    for i in param['attributes']:
-        if i['key']['name'] == 'Renk':
-            colour = i['value']['name']
-            vend = VendColour.objects.filter(name=colour)
-            if len(vend) > 0:
-                original_product.colour = vend.first()
-            break
     original_product.product_id = param['id']
+    colour = param['color'].split('/')[0]
+    vend = VendColour.objects.filter(name=colour)
+    if len(vend) > 0:
+        original_product.colour = vend.first()
     original_product.discount_price = param['price']['discountedPrice']['value']
     original_product.original_price = param['price']['originalPrice']['value']
     original_product.selling_price = param['price']['sellingPrice']['value']
@@ -294,6 +291,50 @@ def links_brand_list_view(request):
                     create_original_product(link, i['product'])
         return Response(status=status.HTTP_200_OK)
 
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def links_update_list_view(request):
+    if request.method == 'GET':
+        brand = request.GET.get('brand', '')
+        links = []
+        if brand == 'zara':
+            links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+                                        tr_category__department__is_active=True,
+                                        originalproduct__isnull=False,
+                                        tr_category__department__brand__link='https://www.zara.com/tr/')
+        elif brand == 'handm':
+            links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+                                        tr_category__department__is_active=True,
+                                        originalproduct__isnull=False,
+                                        tr_category__department__brand__link='https://www2.hm.com/tr_tr/')
+        elif brand == 'koton':
+            links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+                                        tr_category__department__is_active=True,
+                                        originalproduct__isnull=False,
+                                        tr_category__department__brand__link='https://www.trendyol.com/koton')
+        return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        with transaction.atomic():
+            brand = request.GET.get('brand', '')
+            for i in request.data:
+                link = None
+                try:
+                    link = Link.objects.get(id=int(i['id']))
+                except:
+                    pass
+                if link is None:
+                    continue
+                original_product = None
+                try:
+                    original_product = link.originalproduct
+                except:
+                    pass
+                if original_product is None and brand == 'zara':
+                    create_zara_product(link, i['product'])
+                elif original_product is None and brand == 'koton':
+                    create_original_product(link, i['product'])
+        return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST', 'PUT'])
 @permission_classes([AllowAny])
