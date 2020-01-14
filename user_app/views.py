@@ -15,7 +15,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from product_app.models import Product, DocumentProduct, OriginalProduct, VendColour, IziColour, Brand, Document, \
-    Department, ParentCategory, Category, TranslationDepartment, TranslationParentCategory, TranslationCategory
+    Department, ParentCategory, Category, TranslationDepartment, TranslationParentCategory, TranslationCategory, Link
 from user_app.models import User, ConfirmationCode
 from user_app.permissions import IsAdmin
 from user_app.serializers import UserSerializer
@@ -222,13 +222,20 @@ def profile_resend_code_view(request):
 @permission_classes([AllowAny])
 def post(request, page):
     with transaction.atomic():
-        d = Department.objects.all()
+        d = Link.objects.all()[10000*int(page)-1:10000*int(page)]
         for i in d:
-            i.save()
-        d = ParentCategory.objects.all()
-        for i in d:
-            i.save()
-        d = Category.objects.all()
-        for i in d:
-            i.save()
+            links = Link.objects.filter(url=i.url)
+            if links.count() > 1:
+                for link in links[1:]:
+                    try:
+                        o = OriginalProduct.objects.get(link=link)
+                        o.delete()
+                    except:
+                        pass
+                    try:
+                        p = Product.objects.get(link=link)
+                        p.delete()
+                    except:
+                        pass
+                    link.delete()
     return Response(data='')
