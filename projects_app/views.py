@@ -52,9 +52,10 @@ def categories_list_view(request):
     if request.method == 'GET':
         brand = request.GET.get('brand', '')
         categories = []
-        if brand == '':
+        if brand == 'koton':
             categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
-                                                     department__is_active=True)
+                                                     department__is_active=True,
+                                                     department__brand__link='https://www.trendyol.com/koton')
         elif brand == 'zara':
             categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
                                                      department__is_active=True,
@@ -71,7 +72,7 @@ def categories_list_view(request):
                 for j in i['links']:
                     link = None
                     try:
-                        link = Link.objects.get(url=j, tr_category_id=category.id)
+                        link = Link.objects.get(url=j, tr_category__department__brand=category.department.brand)
                     except:
                         pass
                     if link is None:
@@ -265,7 +266,11 @@ def links_brand_list_view(request):
                                         tr_category__department__is_active=True,
                                         originalproduct__isnull=True,
                                         tr_category__department__brand__link='https://www2.hm.com/tr_tr/')
-
+        elif brand == 'koton':
+            links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
+                                        tr_category__department__is_active=True,
+                                        originalproduct__isnull=True,
+                                        tr_category__department__brand__link='https://www.trendyol.com/koton')
         return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         with transaction.atomic():
@@ -285,81 +290,8 @@ def links_brand_list_view(request):
                     pass
                 if original_product is None and brand == 'zara':
                     create_zara_product(link, i['product'])
-        return Response(status=status.HTTP_200_OK)
-
-
-@api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
-def links_trendyol_list_view(request):
-    if request.method == 'GET':
-        links = Link.objects.filter(tr_category__isnull=False, tr_category__is_active=True,
-                                    tr_category__department__is_active=True,
-                                    originalproduct__isnull=True)
-        # print(links)
-        return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
-    elif request.method == 'POST':
-        with transaction.atomic():
-            for i in request.data:
-                link = None
-                try:
-                    link = Link.objects.get(id=int(i['id']))
-                except:
-                    pass
-                if link is None:
-                    continue
-                original_product = None
-                try:
-                    original_product = link.originalproduct
-                except:
-                    pass
-                print(original_product)
-                if original_product is None:
+                elif original_product is None and brand == 'koton':
                     create_original_product(link, i['product'])
-
-        return Response(status=status.HTTP_200_OK)
-
-
-def colour_original_product(link, param):
-    original_product = link.originalproduct
-    original_product.colour_code = param['color']
-    original_product.save()
-    colour = str(param['color']).split('/')[0].lower()
-    vend = VendColour.objects.filter(name_lower=colour)
-    if len(vend) > 0:
-        original_product.colour = vend.first()
-        original_product.save()
-        try:
-            product = link.product
-            product.colour = original_product.colour.izi_colour
-            product.save()
-        except:
-            pass
-    # else:
-    #     vend = VendColour.objects.create(name=original_product.colour_code)
-    #     vend.save()
-    #     original_product.colour = vend
-    #     original_product.save()
-
-
-@api_view(['GET', 'POST'])
-@permission_classes([AllowAny])
-def links_colour_list_view(request):
-    if request.method == 'GET':
-        # page = int(request.GET.get('page',1))
-        links = Link.objects.filter(originalproduct__isnull=False, originalproduct__colour__isnull=True)
-        return Response(data=LinkSerializer(links, many=True).data, status=status.HTTP_200_OK)
-
-    elif request.method == 'POST':
-        with transaction.atomic():
-            for i in request.data:
-                link = None
-                try:
-                    link = Link.objects.get(id=int(i['id']))
-                except:
-                    pass
-                if link is None:
-                    continue
-                colour_original_product(link, i['product'])
         return Response(status=status.HTTP_200_OK)
 
 
@@ -451,38 +383,11 @@ def brands_list_view(request):
                         except:
                             pass
                         if category is None:
-                            # cats = VendCategory.objects.filter(name=k['name'])
                             category = VendCategory()
                             category.name = k['name']
                             category.link = k['link']
                             category.department = department
                             category.save()
-                            # flag = True
-                            # if len(cats) > 0:
-                            #     cat = cats.first()
-                            #     if cat.category is not None:
-                            #         category.category = cat.category
-                            #         category.save()
-                            #         flag = False
-                            # if flag:
-                            #     name = translate_text(k['name'], 'en')
-                            #     new_dep = None
-                            #     try:
-                            #         new_dep = Category.objects.get(name=name)
-                            #     except:
-                            #         pass
-                            #     if new_dep is None:
-                            #         new_dep = Category.objects.create(name=name)
-                            #         new_dep.save()
-                            #         for i in languages:
-                            #             translation_dep = TranslationCategory.objects.create(category=new_dep,
-                            #                                                                  name=translate_text(
-                            #                                                                      k['name'],
-                            #                                                                      i.code).capitalize(),
-                            #                                                                  language=i)
-                            #             translation_dep.save()
-                            #     category.category = new_dep
-                            #     category.save()
         return Response(status=status.HTTP_200_OK)
     if request.method == 'PUT':
         brand = request.GET.get('brand', '')
@@ -603,16 +508,6 @@ def operator_brands_refresh_item_view(request, id):
         return Response(data=BrandSerializer(brand).data, status=status.HTTP_200_OK)
 
 
-# @api_view(['GET'])
-# @permission_classes([AllowAny])
-# def operator_departments_list_view(request, id):
-#     if request.method == 'GET':
-#         brand = Brand.objects.get(id=id)
-#         departments = TrendYolDepartment.objects.filter(brand=brand)
-#         return Response(data=TrendYolDepartmentDetailedSerializer(departments, many=True).data,
-#                         status=status.HTTP_200_OK)
-
-
 @api_view(['GET', 'POST', 'PUT'])
 @permission_classes([IsAuthenticated])
 def operator_departments_item_view(request, id):
@@ -688,15 +583,6 @@ def operator_categories_item_view(request, id):
             izi_category = Category.objects.get(id=category_id)
         category.category = izi_category
         category.save()
-        # with transaction.atomic():
-        #     categories = VendCategory.objects.filter(name=category.name, category__isnull=True)
-        #     for i in categories:
-        #         i.category = category.category
-        #         i.save()
-        # products = Product.objects.filter(category__isnull=True, link__tr_category=category)
-        # for j in products:
-        #     j.category = category.category
-        #     j.save()
         return Response(status=status.HTTP_200_OK)
     elif request.method == 'DELETE':
         category.category = None
