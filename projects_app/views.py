@@ -191,6 +191,10 @@ def create_original_product(link, param):
     for image in param['images']:
         images += ('https://trendyol.com' + image + ' ')
     original_product.images = images.strip()
+    if param['hasStock']:
+        original_product.stock = True
+    else:
+        original_product.stock = False
     promotions = ''
     for promotion in param['promotions']:
         promotions += (promotion['text'] + '|\n')
