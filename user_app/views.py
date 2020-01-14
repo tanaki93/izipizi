@@ -223,6 +223,7 @@ def profile_resend_code_view(request):
 def post(request, page):
     with transaction.atomic():
         d = Link.objects.all()[10000*int(page)-1:10000*int(page)]
+        print(d.count(), 10000*(int(page)-1), 10000*int(page))
         for i in d:
             links = Link.objects.filter(url=i.url)
             if links.count() > 1:
