@@ -7,6 +7,11 @@ from product_app.models import Category, Product, OriginalProduct, Tag, VendSize
     BrandCountry, DocumentProduct, DocumentComment, IziColour, TranslationSize, Content
 
 
+class VariantInline(admin.StackedInline):
+    model = Variant
+    extra = 0
+
+
 class OriginalProductAdmin(admin.ModelAdmin):
     model = OriginalProduct
     # exclude = 'link'.split()
@@ -14,6 +19,7 @@ class OriginalProductAdmin(admin.ModelAdmin):
     list_filter = 'colour department category'.split()
     search_fields = 'colour'.split()
     readonly_fields = 'link'.split()
+    inlines = [VariantInline]
 
 
 class ProductAdmin(admin.ModelAdmin):

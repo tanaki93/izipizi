@@ -165,6 +165,44 @@ def create_zara_product(link, param):
     product_document.save()
 
 
+def update_trendyol_original_product(original_product, param):
+    if param['hasStock']:
+        original_product.stock = True
+    else:
+        original_product.stock = False
+    original_product.discount_price = param['price']['discountedPrice']['value']
+    original_product.original_price = param['price']['originalPrice']['value']
+    original_product.selling_price = param['price']['sellingPrice']['value']
+    for variant in param['variants']:
+        variant_items = Variant.objects.filter(original_product=original_product,
+                                               tr_size__name=variant['attributeValue'].upper())
+        if variant_items.count() == 0:
+            variant_item = Variant()
+            tr_size = None
+            try:
+                tr_size = VendSize.objects.get(name=variant['attributeValue'].upper())
+            except:
+                pass
+            if tr_size is None:
+                tr_size = VendSize.objects.create(name=variant['attributeValue'].upper())
+                tr_size.save()
+            # save_size(tr_size)
+            variant_item.tr_size = tr_size
+            variant_item.original_product = original_product
+            if variant['stock'] != 0:
+                variant_item.stock = True
+            else:
+                variant_item.stock = False
+            variant_item.save()
+        elif variant_items.count() > 0:
+            variant_item = variant_items[0]
+            if variant['stock'] != 0:
+                variant_item.stock = True
+            else:
+                variant_item.stock = False
+            variant_item.save()
+
+
 def create_original_product(link, param):
     original_product = OriginalProduct()
     original_product.link = link
@@ -334,11 +372,10 @@ def links_update_list_view(request):
                     original_product = link.originalproduct
                 except:
                     pass
-                if original_product is None and brand == 'zara':
-                    create_zara_product(link, i['product'])
-                elif original_product is None and brand == 'koton':
-                    create_original_product(link, i['product'])
+                if original_product is not None and brand == 'koton':
+                    update_trendyol_original_product(original_product, i['product'])
         return Response(status=status.HTTP_200_OK)
+
 
 @api_view(['GET', 'POST', 'PUT'])
 @permission_classes([AllowAny])
