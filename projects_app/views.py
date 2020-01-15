@@ -201,6 +201,7 @@ def update_trendyol_original_product(original_product, param):
             else:
                 variant_item.stock = False
             variant_item.save()
+    original_product.save()
 
 
 def create_original_product(link, param):
