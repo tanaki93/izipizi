@@ -221,7 +221,7 @@ def profile_resend_code_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def post(request, page):
-    d = Link.objects.filter(tr_category__department__brand_id=4)
+    d = Link.objects.filter(tr_category__department__brand_id=4)[1000*(int(page)-1): 1000*int(page)]
     for i in d:
         # https://www2.hm.com/m/tr_tr/productpage.0786161002.html
         url = i.url.split('/')[3]
