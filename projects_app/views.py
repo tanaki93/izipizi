@@ -72,7 +72,7 @@ def categories_list_view(request):
                 for j in i['links']:
                     link = None
                     try:
-                        link = Link.objects.get(url=j, tr_category__department__brand=category.department.brand)
+                        link = Link.objects.get(url=j)
                     except:
                         pass
                     if link is None:
