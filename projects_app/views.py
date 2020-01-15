@@ -414,7 +414,7 @@ def links_brand_list_view(request):
                     pass
                 if original_product is None and brand == 'zara':
                     create_zara_product(link, i['product'])
-                elif original_product is None and brand == 'collins':
+                elif original_product is None and brand == 'collins' and i['product'] is not None:
                     create_collins_product(link, i['product'])
                 elif original_product is None and brand == 'koton':
                     create_original_product(link, i['product'])
