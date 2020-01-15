@@ -64,6 +64,10 @@ def categories_list_view(request):
             categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
                                                      department__is_active=True,
                                                      department__brand__link='https://www2.hm.com/tr_tr/')
+        elif brand == 'collins':
+            categories = VendCategory.objects.filter(is_active=True, department__brand__is_active=True,
+                                                     department__is_active=True,
+                                                     department__brand__link='https://www.colins.com.tr/')
         return Response(data=TrendYolCategoryDetailedSerializer(categories, many=True).data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         with transaction.atomic():

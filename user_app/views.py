@@ -221,21 +221,10 @@ def profile_resend_code_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def post(request, page):
-    d = Link.objects.all()[500*(int(page)-1):500*int(page)]
-    print(d.count(), 1000*(int(page)-1), 1000*int(page))
+    d = Link.objects.filter(tr_category__department__brand_id=4)
     for i in d:
-        links = Link.objects.filter(url=i.url)
-        if links.count() > 1:
-            for link in links[1:]:
-                try:
-                    o = OriginalProduct.objects.get(link=link)
-                    o.delete()
-                except:
-                    pass
-                try:
-                    p = Product.objects.get(link=link)
-                    p.delete()
-                except:
-                    pass
-                link.delete()
+        # https://www2.hm.com/m/tr_tr/productpage.0786161002.html
+        url = i.url.split('/')[3]
+        if url == 'm':
+            i.delete()
     return Response(data='')
