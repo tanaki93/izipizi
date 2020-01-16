@@ -58,7 +58,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
-    user_type = models.IntegerField(choices=USER_TYPE, verbose_name='Тип пользователя', default=1)
+    user_type = models.IntegerField(choices=USER_TYPE, verbose_name='Тип пользователя', default=3)
     username = models.CharField('username', unique=True, max_length=100)
     phone = models.CharField('phone', max_length=100, null=True, blank=True, default='+996 555 123456')
     email = models.EmailField('email address', max_length=100, default='email@gmail.com', null=True)

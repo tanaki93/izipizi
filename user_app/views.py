@@ -221,10 +221,23 @@ def profile_resend_code_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def post(request, page):
-    d = Link.objects.filter(tr_category__department__brand_id=4)[1000*(int(page)-1): 1000*int(page)]
+    d = Link.objects.filter(tr_category__department__brand_id=4)[1000 * (int(page) - 1): 1000 * int(page)]
     for i in d:
         # https://www2.hm.com/m/tr_tr/productpage.0786161002.html
         url = i.url.split('/')[3]
         if url == 'm':
             i.delete()
     return Response(data='')
+
+
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
+from rest_auth.registration.views import SocialLoginView
+
+
+class GoogleLogin(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+
+
+class FacebookLogin(SocialLoginView):
+    adapter_class = FacebookOAuth2Adapter
