@@ -169,7 +169,7 @@ def auth_register(request):
         user.is_active = False
         user.set_password(password)
         user.save()
-        until = datetime.datetime.now() + datetime.timedelta(minutes=60)
+        until = datetime.datetime.now() + datetime.timedelta(minutes=5)
         token = ConfirmationCode.objects.create(user=user, token=sms_token(),
                                                 valid_until=until)
         token.save()
@@ -187,6 +187,7 @@ def auth_register(request):
 def confirm_user(request, code):
     if request.method == 'POST':
         try:
+            code = request.date.get('code')
             token = ConfirmationCode.objects.get(token=code,
                                                  valid_until__gte=datetime.datetime.now())
             token.user.is_active = True
@@ -206,7 +207,7 @@ def profile_resend_code_view(request):
                                          valid_until__gte=datetime.datetime.now()).delete()
         except:
             pass
-        until = datetime.datetime.now() + datetime.timedelta(minutes=60)
+        until = datetime.datetime.now() + datetime.timedelta(minutes=5)
         token = ConfirmationCode.objects.create(user=user, token=sms_token(),
                                                 valid_until=until)
         email = EmailMessage('IziShop - Код подтверждения', 'Пройдите по ссылке \n '
