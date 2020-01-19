@@ -165,7 +165,7 @@ class Brand(models.Model):
 
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=100, null=True, blank=True)
-    link = models.CharField(max_length=100)
+    link = models.CharField(max_length=1000)
     description = models.TextField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_trend_yol = models.BooleanField(default=True)
@@ -401,8 +401,8 @@ class OriginalProduct(models.Model):
 
     title = models.CharField(max_length=100)
     title_lower = models.CharField(max_length=100, null=True, blank=True)
-    product_id = models.CharField(max_length=100)
-    product_code = models.CharField(max_length=100, blank=True, null=True, default='')
+    product_id = models.CharField(max_length=1000)
+    product_code = models.CharField(max_length=1000, blank=True, null=True, default='')
     discount_price = models.FloatField(null=True, blank=True)
     selling_price = models.FloatField(null=True, blank=True)
     original_price = models.FloatField(null=True, blank=True)
@@ -557,7 +557,7 @@ class VendDepartment(models.Model):
         verbose_name_plural = 'отделения (vend)'
 
     name = models.CharField(max_length=100)
-    link = models.CharField(max_length=100, null=True)
+    link = models.CharField(max_length=1000, null=True)
     brand = models.ForeignKey(Brand, related_name='brand', on_delete=SET_NULL, null=True)
     is_active = models.BooleanField(default=True)
     department = models.ForeignKey(Department, null=True, related_name='departments')
@@ -572,7 +572,7 @@ class VendCategory(models.Model):
         verbose_name_plural = 'категории (vend)'
 
     name = models.CharField(max_length=100)
-    link = models.CharField(max_length=100, null=True)
+    link = models.CharField(max_length=1000, null=True)
     department = models.ForeignKey(VendDepartment, null=True)
     is_active = models.BooleanField(default=True)
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=SET_NULL, related_name='categories')
