@@ -187,7 +187,7 @@ def auth_register(request):
 def confirm_user(request):
     if request.method == 'POST':
         try:
-            code = request.date.get('code')
+            code = request.data.get('code')
             token = ConfirmationCode.objects.get(token=code,
                                                  valid_until__gte=datetime.datetime.now())
             token.user.is_active = True
