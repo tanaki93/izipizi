@@ -184,7 +184,7 @@ def auth_register(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def confirm_user(request, code):
+def confirm_user(request):
     if request.method == 'POST':
         try:
             code = request.date.get('code')
