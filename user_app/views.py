@@ -226,8 +226,6 @@ def post(request, page):
     for i in d:
         # https://www2.hm.com/m/tr_tr/productpage.0786161002.html
         url = i.url.split('/')[3]
-        if url == 'm':
-            i.delete()
     return Response(data='')
 
 

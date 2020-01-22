@@ -171,7 +171,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_brand(self, obj):
         try:
-            return obj.department.brand.name
+            return obj.brand.name
         except:
             return 'Нет бренда'
 

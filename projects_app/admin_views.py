@@ -61,36 +61,7 @@ def admin_brands_list_view(request):
             if products.count() > 0:
                 document = Document.objects.create(brand=brand)
                 document.save()
-                for j in products:
-                    document_product = None
-                    try:
-                        document_product = DocumentProduct.objects.get(product=j)
-                    except:
-                        pass
-                    if document_product is not None:
-                        document_product.document = document
-                        document_product.save()
-                    else:
-                        document_product = DocumentProduct.objects.create(product=j, document=document)
-                        document_product.save()
-        return Response(status=status.HTTP_200_OK)
-    elif request.method == 'POST':
-        brand = None
-        try:
-            brand = Brand.objects.get(id=int(request.data.get('brand_id')))
-        except:
-            pass
-        with transaction.atomic():
-            for i in VendDepartment.objects.filter(brand=brand):
-                document = None
-                try:
-                    document = Document.objects.get(department=i, brand=brand)
-                except:
-                    pass
-                if document is None:
-                    document = Document.objects.create(department=i, brand=brand)
-                    document.save()
-                    products = OriginalProduct.objects.filter(department=i)
+                with transaction.atomic():
                     for j in products:
                         document_product = None
                         try:
